@@ -13,6 +13,7 @@ export const patientRegister = catchAsyncErrors(async(req,res,next)=>{
       dob,
       gender,
       password,
+      confirmPassword,
       role,
     } = req.body;
     if(
@@ -23,6 +24,7 @@ export const patientRegister = catchAsyncErrors(async(req,res,next)=>{
       !dob ||
       !gender ||
       !password ||
+      !confirmPassword ||
       !role
     ){
         return next(new ErrorHandler("Please Fill Full Form!", 400))
@@ -31,6 +33,9 @@ export const patientRegister = catchAsyncErrors(async(req,res,next)=>{
     if(user){
         return next(new ErrorHandler("User Already Registered!", 400))
     }
+    if(password !== confirmPassword){
+      return next(new ErrorHandler("Password and Confirm Password Do Not Match", 400));
+  }
     user = await User.create ({
       firstName,
       lastName,
@@ -46,26 +51,31 @@ export const patientRegister = catchAsyncErrors(async(req,res,next)=>{
 
 
 export const login = catchAsyncErrors(async(req,res,next)=>{
-    const {email, password, confirmPassword, role} = req.body;
-    if(!email || !password || !confirmPassword || !role){
-        return next(new ErrorHandler("Please Provide All Details", 400));
-    }
-    if(password !== confirmPassword){
-        return next(new ErrorHandler("Password and Confirm Password Do Not Match", 400));
-    }
-    const user = await User.findOne({email}).select("+password");
-    if(!user){
-        return next(new ErrorHandler("Invalid Password Or Email", 400));
-    }
-    const isPasswordMatched = await user.comparePassword(password);
-    if(!isPasswordMatched){
-        return next(new ErrorHandler("Invalid Password Or Email", 400));
-    }
-    if(role !== user.role){
-        return next(new ErrorHandler("User With This Role Not Found", 400));
-    }
-    generateToken(user, "User Logged In Successfully!", 200, res)
+  const {email, password, role} = req.body; // Removed confirmPassword as it's not needed for login
+  
+  if(!email || !password || !role){
+      return next(new ErrorHandler("Please Provide All Details", 400));
+  }
+
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+      return next(new ErrorHandler("Invalid Password Or Email", 400));
+  }
+
+  const isPasswordMatched = await user.comparePassword(password);
+  if (!isPasswordMatched) {
+      return next(new ErrorHandler("Invalid Password Or Email", 400));
+  }
+
+  // Check if the role matches
+  if (role !== user.role) {
+      return next(new ErrorHandler("Role mismatch! Please check your role", 400));
+  }
+
+  // Generate a token
+  generateToken(user, "User Logged In Successfully!", 200, res);
 });
+
 
 export const addNewAdmin = catchAsyncErrors(async(req,res,next)=>{
     const {
@@ -230,5 +240,18 @@ export const addNewDoctor = async (req, res, next) => {
       .json({
         success: true,
         message: "User  Logged Out Successfully.",
+      });
+  });
+
+  export const logoutDoctor = catchAsyncErrors(async (req, res, next) => {
+    res
+      .status(201)
+      .cookie("doctorToken", "", {
+        httpOnly: true,
+        expires: new Date(Date.now()),
+      })
+      .json({
+        success: true,
+        message: "Doctor Logged Out Successfully.",
       });
   });
