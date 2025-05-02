@@ -1,5 +1,5 @@
 export const generateToken = (user, message, statusCode, res) => {
-  console.log("User in generateToken:", user); // Log the user object to check role
+  // console.log("User in generateToken:", user); // Log the user object to check role
   const token = user.generateJsonWebToken();
   const cookieName = user.role === "Admin" ? "adminToken" :
     user.role === "Doctor" ? "doctorToken" : "patientToken"; // Added support for Doctor
@@ -19,3 +19,4 @@ export const generateToken = (user, message, statusCode, res) => {
     token,
   });
 };
+

@@ -14,6 +14,8 @@ const Register = () => {
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("");
+
 
   const navigateTo = useNavigate();
 
@@ -23,7 +25,7 @@ const Register = () => {
       await axios
         .post(
           "http://localhost:4000/api/v1/user/patient/register",
-          { firstName, lastName, email, phone, dob, gender, password, role: "Patient" },
+          { firstName, lastName, email, phone, dob, gender, password, confirmPassword, role: "Patient" },
           {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
@@ -41,6 +43,7 @@ const Register = () => {
           setDob("");
           setGender("");
           setPassword("");
+          setconfirmPassword("");
         });
     } catch (error) {
       toast.error(error.response.data.message);
@@ -104,6 +107,12 @@ const Register = () => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setconfirmPassword(e.target.value)}
             />
           </div>
           <div
