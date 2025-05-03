@@ -258,3 +258,21 @@ export const logoutDoctor = catchAsyncErrors(async (req, res, next) => {
       message: "Doctor Logged Out Successfully.",
     });
 });
+
+export const getDoctorsByDepartment = catchAsyncErrors(async (req, res, next) => {
+  const { department } = req.params
+
+  if (!department) {
+    return next(new ErrorHandler("Department is required", 400))
+  }
+
+  const doctors = await User.find({
+    role: "Doctor",
+    doctorDepartment: department,
+  })
+
+  res.status(200).json({
+    success: true,
+    doctors,
+  })
+})

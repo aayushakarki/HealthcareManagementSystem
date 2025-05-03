@@ -1,21 +1,30 @@
-import express from "express";
+import express from "express"
 import {
   deleteAppointment,
-  getAllAppointments,
+  // getAllAppointments,
   bookAppointment,
-  updateAppointmentStatus,
-} from "../controller/appointmentController.js";
-import {
-  isAdminAuthenticated,
-  isPatientAuthenticated,
-  isAdminOrDoctorAuthenticated
-} from "../middlewares/auth.js";
+  updateAppointmentStatusByPatientId,
+  getPatientAppointments,
+  getAppointmentsByPatientId,
+  getAppointmentsByDoctorId
+} from "../controller/appointmentController.js"
+import { isAdminAuthenticated, isDoctorAuthenticated, isPatientAuthenticated, isAdminOrDoctorAuthenticated} from "../middlewares/auth.js"
 
-const router = express.Router();
+const router = express.Router()
 
-router.post("/book", isPatientAuthenticated, bookAppointment);
-router.get("/getall", isAdminOrDoctorAuthenticated, getAllAppointments);
-router.put("/update/:id", isAdminAuthenticated, updateAppointmentStatus);
-router.delete("/delete/:id", isAdminAuthenticated, deleteAppointment);
+// Patient routes
+router.post("/book", isPatientAuthenticated, bookAppointment)
+router.get("/patient", isPatientAuthenticated, getPatientAppointments)
+router.get("/:patientId", isAdminOrDoctorAuthenticated, getAppointmentsByPatientId)
 
-export default router;
+// Doctor routes
+router.get("/doctor/:doctorId", isAdminOrDoctorAuthenticated, getAppointmentsByDoctorId)
+
+// Admin routes
+router.put("/update/:patientId", isAdminAuthenticated, updateAppointmentStatusByPatientId)
+router.delete("/delete/:patientId", isAdminAuthenticated, deleteAppointment)
+
+// Modified route to allow patients to see their own appointments
+// router.get("/getall", isPatientAuthenticated, getAllAppointments) fix it later
+
+export default router
