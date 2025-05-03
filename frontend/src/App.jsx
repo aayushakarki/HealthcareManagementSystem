@@ -2,6 +2,8 @@
 
 import { useContext, useEffect } from "react"
 import "./App.css"
+import "./patientDashboard.css"
+import "./dashboardComponent.css"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Home from "./pages/Home"
 import Appointment from "./pages/appointment"
@@ -14,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css"
 import axios from "axios"
 import { Context } from "./main"
 import Login from "./pages/Login"
+import PatientDashboard from "./pages/dashboard/PatientDashboard"
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, setUser, user } = useContext(Context)
@@ -52,20 +55,60 @@ const App = () => {
     if (isAuthenticated) {
       fetchUser()
     }
-  }, [isAuthenticated, user.role]) // Trigger effect on authentication change
+  }, [isAuthenticated])
 
   return (
     <>
       <Router>
-        <Navbar />
+        {/* Only show Navbar on non-dashboard pages */}
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/appointment" element={<Appointment />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <Navbar />
+                <Home />
+              </>
+            }
+          />
+          <Route
+            path="/appointment"
+            element={
+              <>
+                <Navbar />
+                <Appointment />
+              </>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <>
+                <Navbar />
+                <AboutUs />
+              </>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <>
+                <Navbar />
+                <Register />
+              </>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <>
+                <Navbar />
+                <Login />
+              </>
+            }
+          />
+          <Route path="/dashboard/PatientDashboard" element={<PatientDashboard />} />
         </Routes>
-        {/* <Footer /> */}
         <ToastContainer position="top-center" />
       </Router>
     </>

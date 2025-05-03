@@ -1,0 +1,651 @@
+/* Patient Dashboard Styles */
+:root {
+    --primary-color: #776bb3;
+    --primary-hover: #3f3765;
+    --sidebar-width: 240px;
+    --sidebar-bg: #ffffff;
+    --header-height: 64px;
+    --border-color: #e5e7eb;
+    --card-bg: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-two: #776bb3;
+    --accent-color: #f3f4f6;
+  }
+  
+  /* Layout */
+  .patient-dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f9fafb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+      "Helvetica Neue", sans-serif;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 10;
+  }
+  
+  .sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .logo-icon {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 2px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .logo-square {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+  
+  .logo h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .sidebar-nav {
+    padding: 1rem 0;
+    overflow-y: auto;
+  }
+  
+  .sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar-nav li {
+    margin-bottom: 0.25rem;
+  }
+  
+  .sidebar-nav li button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .sidebar-nav li button:hover {
+    background-color: var(--accent-color);
+    color: var(--text-primary);
+  }
+  
+  .sidebar-nav li.active button {
+    background-color: #ecfdf5;
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .top-bar {
+    height: var(--header-height);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    background-color: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    width: 300px;
+  }
+  
+  .search-bar input {
+    border: none;
+    background: transparent;
+    margin-left: 0.5rem;
+    width: 100%;
+    outline: none;
+    font-size: 0.875rem;
+  }
+  
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .create-schedule-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .create-schedule-btn:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .notification-icon {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 0.625rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  
+  .avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Content Wrapper */
+  .content-wrapper {
+    display: flex;
+    flex: 1;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  .content-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* Dashboard Content */
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .dashboard-section {
+    background-color: var(--card-bg);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .view-all {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  /* Events */
+  .events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .event-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .event-card h3 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem 0;
+  }
+  
+  .event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .event-date,
+  .event-info,
+  .event-capacity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+  
+  .event-info {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .event-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  
+  /* Blood Pressure Chart */
+  .blood-pressure-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .chart-placeholder {
+    width: 100%;
+    height: 200px;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .blood-pressure-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    flex: 1;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+  
+  /* Records and Medications */
+  .record-list,
+  .medication-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .record-item,
+  .medication-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+  }
+  
+  .record-details h3,
+  .medication-details h3 {
+    font-size: 1rem;
+    margin: 0 0 0.25rem 0;
+  }
+  
+  .record-details p,
+  .medication-details p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0;
+  }
+  
+  .btn-view,
+  .btn-refill {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+  
+  .no-data {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 1rem 0;
+  }
+  
+  /* Appointments Sidebar */
+  .appointments-sidebar {
+    width: 300px;
+    background-color: var(--card-bg);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .appointments-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .appointments-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .calendar-section {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .month-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .month-selector h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .month-navigation {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .month-nav-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .weekdays span {
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+  }
+  
+  .calendar-day {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  
+  .calendar-day:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .calendar-day.selected {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .calendar-day.has-appointment {
+    font-weight: 600;
+  }
+  
+  .appointments-list {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .appointment-item {
+    display: flex;
+    /* gap: 0.2rem; */
+  }
+  
+  .appointment-time {
+    display: flex;
+    flex-direction: column;
+    /* font-size: 10px; */
+    color: var(--text-secondary);
+    min-width: 40px;
+  }
+  
+  .appointment-details {
+    border-left: 2px solid var(--primary-color);
+    padding-left: 0.75rem;
+  }
+  
+  .appointment-details h3 {
+    font-size: 0.875rem;
+    margin: 0 0 0.25rem 0;
+  }
+  
+  .appointment-details p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  .linked-devices {
+    padding: 1rem;
+  }
+  
+  .linked-devices h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0 0 1rem 0;
+  }
+  
+  .device-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .device-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .device-info h4 {
+    font-size: 0.875rem;
+    margin: 0 0 0.25rem 0;
+  }
+  
+  .device-info p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .content-wrapper {
+      flex-direction: column;
+    }
+  
+    .appointments-sidebar {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 64px;
+    }
+  
+    .sidebar-nav li button span {
+      display: none;
+    }
+  
+    .main-content {
+      margin-left: 64px;
+    }
+  
+    .logo h1 {
+      display: none;
+    }
+  }
+  
+  .sidebar-footer
+{
+  margin-top: auto;
+  padding:1rem;
+  border-top: 1px solid black;
+}
+
+.logout-button {
+  margin-left: 15px;
+  background-color: black;
+  align-items: center; 
+  width: 80%; 
+  padding: 0.75rem; 
+  border-radius: 0.375rem; 
+  color: white; 
+  transition: all 0.2s
+}
+
+.logout-button:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.logout-button svg {
+  margin-right: 0.75rem;
+}
+
+/* Make sure the sidebar has display: flex and flex-direction: column */
+.sidebar {
+  display: flex; 
+  flex-direction: column; 
+  height: 100%;
+}
