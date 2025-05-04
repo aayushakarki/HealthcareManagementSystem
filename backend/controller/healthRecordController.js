@@ -163,7 +163,7 @@ export const deleteHealthRecord = async (req, res) => {
 };
 
 // Get all health records of a patient (for doctor or admin)
-export const getAllPatientHealthRecords = async (req, res) => {
+export const getPatientHealthRecords = async (req, res) => {
   try {
     const { patientId } = req.params;
 

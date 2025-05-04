@@ -1,5 +1,5 @@
 import express from "express";
-import { addNewAdmin, login, patientRegister, addNewDoctor, getAllDoctors, getUserDetails, logoutAdmin, logoutPatient, logoutDoctor, getDoctorsByDepartment } from "../controller/userController.js";
+import { addNewAdmin, login, patientRegister, addNewDoctor, getAllDoctors, getUserDetails, logoutAdmin, logoutPatient, logoutDoctor, getDoctorsByDepartment, getAllPatients } from "../controller/userController.js";
 import { isAdminAuthenticated, isDoctorAuthenticated, isPatientAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
@@ -9,6 +9,7 @@ router.post("/doctor/addnew",isAdminAuthenticated, addNewDoctor);
 router.post("/login", login);
 router.post("/admin/addNew", isAdminAuthenticated, addNewAdmin);
 router.get("/doctors", getAllDoctors);
+router.get("/patients", getAllPatients);
 router.get("/doctors/:department", getDoctorsByDepartment)
 router.get("/admin/me", isAdminAuthenticated, getUserDetails);
 router.get("/patient/me", isPatientAuthenticated, getUserDetails);

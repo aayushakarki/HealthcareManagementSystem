@@ -3,7 +3,7 @@ import {
   uploadHealthRecord,
   updateHealthRecord,
   deleteHealthRecord,
-  getAllPatientHealthRecords,
+  getPatientHealthRecords,
   getMyHealthRecords,
   getHealthRecordById
 } from '../controller/healthRecordController.js';
@@ -15,7 +15,7 @@ const router = express.Router();
 router.post('/upload', isAdminOrDoctorAuthenticated, uploadHealthRecord);
 router.put('/update/:recordId', isAdminOrDoctorAuthenticated, updateHealthRecord);
 router.delete('/delete/:recordId', isAdminOrDoctorAuthenticated, deleteHealthRecord);
-router.get('/patient/:patientId', isAdminOrDoctorAuthenticated, getAllPatientHealthRecords);
+router.get('/patient/:patientId', isAdminOrDoctorAuthenticated, getPatientHealthRecords);
 
 // Routes for patients
 router.get('/me', isPatientAuthenticated, getMyHealthRecords);

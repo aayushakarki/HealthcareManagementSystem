@@ -72,6 +72,10 @@ const appointmentSchema = new mongoose.Schema({
     enum: ["Pending", "Accepted", "Rejected"],
     default: "Pending",
   },
+  doctorNotes: {
+    type: String,
+    default: ""
+  }
 });
 
 export const Appointment = mongoose.model("Appointment", appointmentSchema);

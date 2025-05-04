@@ -44,6 +44,10 @@ const Login = () => {
     // Check if we have user data with a role
     if (user && user.role === "Patient") {
       return <Navigate to={"/dashboard/PatientDashboard"} />
+    } else if (user && user.role === "Doctor") {
+      return <Navigate to={"/dashboard/DoctorDashboard"} />
+    } else if (user && user.role === "Admin") {
+      return <Navigate to={"/dashboard/AdminDashboard"} />
     } else {
       return <Navigate to={"/"} />
     }

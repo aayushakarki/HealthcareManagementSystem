@@ -1,9 +1,10 @@
 "use client"
 
 import { useContext, useEffect } from "react"
-import "./App.css"
-import "./patientDashboard.css"
-import "./dashboardComponent.css"
+import "./css/App.css"
+import "./css/PatientDashboard.css"
+import "./css/patientDashboardComponent.css"
+import "./css/DoctorDashboard.css"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Home from "./pages/Home"
 import Appointment from "./pages/appointment"
@@ -17,6 +18,10 @@ import axios from "axios"
 import { Context } from "./main"
 import Login from "./pages/Login"
 import PatientDashboard from "./pages/dashboard/PatientDashboard"
+import DoctorDashboard from "./pages/dashboard/DoctorDashboard"
+import AdminDashboard from "./pages/dashboard/AdminDashboard"
+
+
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, setUser, user } = useContext(Context)
@@ -108,6 +113,8 @@ const App = () => {
             }
           />
           <Route path="/dashboard/PatientDashboard" element={<PatientDashboard />} />
+          <Route path="/dashboard/DoctorDashboard" element={<DoctorDashboard />} />
+          <Route path="/dashboard/AdminDashboard" element={<AdminDashboard />} />
         </Routes>
         <ToastContainer position="top-center" />
       </Router>
