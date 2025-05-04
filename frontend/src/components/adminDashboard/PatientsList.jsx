@@ -1,82 +1,150 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, User, Phone, Mail, Calendar, Filter, ChevronDown } from "lucide-react"
+import axios from "axios"
+import { toast } from "react-toastify"
+import { Search, UserRound, Phone, Mail, Calendar, Eye, Trash } from 'lucide-react'
+import PatientDetailsModal from "../modals/PatientDetailsModal"
 
-const PatientsList = ({ patients = [], onPatientSelect }) => {
+const PatientsList = ({ onPatientSelect }) => {
+  const [patients, setPatients] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [filteredPatients, setFilteredPatients] = useState([])
-  const [genderFilter, setGenderFilter] = useState("all")
-  const [showFilters, setShowFilters] = useState(false)
+  const [selectedPatient, setSelectedPatient] = useState(null)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
-    filterPatients()
-  }, [patients, searchTerm, genderFilter])
+    const fetchPatients = async () => {
+      try {
+        setLoading(true)
 
-  const filterPatients = () => {
-    let filtered = [...patients]
+        // Fetch all patients
+        const patientsResponse = await axios.get("http://localhost:4000/api/v1/user/patients", {
+          withCredentials: true,
+        })
 
-    // Apply search term
-    if (searchTerm.trim() !== "") {
-      filtered = filtered.filter(
+        if (patientsResponse.data.success) {
+          setPatients(patientsResponse.data.patients || [])
+          setFilteredPatients(patientsResponse.data.patients || [])
+        }
+
+        setLoading(false)
+      } catch (error) {
+        console.error("Error fetching patients:", error)
+        toast.error("Failed to load patients")
+        setLoading(false)
+      }
+    }
+
+    fetchPatients()
+  }, [])
+
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredPatients(patients)
+    } else {
+      const filtered = patients.filter(
         (patient) =>
           `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
           patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (patient.phone && patient.phone.includes(searchTerm)),
       )
+      setFilteredPatients(filtered)
     }
+  }, [searchTerm, patients])
 
-    // Apply gender filter
-    if (genderFilter !== "all") {
-      filtered = filtered.filter((patient) => patient.gender?.toLowerCase() === genderFilter.toLowerCase())
+  const handleViewDetails = async (patientId) => {
+    try {
+      // Fetch patient details
+      const response = await axios.get(`http://localhost:4000/api/v1/user/patient/${patientId}`, {
+        withCredentials: true,
+      })
+
+      if (response.data.success) {
+        setSelectedPatient(response.data.user)
+        setShowModal(true)
+      }
+    } catch (error) {
+      console.error("Error fetching patient details:", error)
+      // If API fails, try to get patient info from the patients list
+      const patient = patients.find((p) => p._id === patientId)
+      if (patient) {
+        setSelectedPatient({
+          _id: patientId,
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          email: patient.email,
+          phone: patient.phone,
+          dob: patient.dob,
+          gender: patient.gender,
+          address: patient.address,
+        })
+        setShowModal(true)
+      } else {
+        toast.error("Failed to load patient details")
+      }
     }
+  }
 
-    setFilteredPatients(filtered)
+  const handleDeletePatient = async (patient) => {
+    // Use the browser's built-in confirm dialog
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${patient.firstName} ${patient.lastName}? This will remove all their appointments and cannot be undone.`
+    )
+
+    if (confirmDelete) {
+      try {
+        setLoading(true)
+
+        // Call the endpoint to delete the patient
+        const response = await axios.delete(`http://localhost:4000/api/v1/user/patient/delete/${patient._id}`, {
+          withCredentials: true,
+        })
+
+        if (response.data.success) {
+          toast.success("Patient deleted successfully")
+
+          // Remove the deleted patient from the list
+          setPatients(patients.filter((p) => p._id !== patient._id))
+          setFilteredPatients(filteredPatients.filter((p) => p._id !== patient._id))
+        }
+
+        setLoading(false)
+      } catch (error) {
+        console.error("Error deleting patient:", error)
+        toast.error(error.response?.data?.message || "Failed to delete patient")
+        setLoading(false)
+      }
+    }
+  }
+
+  if (loading) {
+    return <div className="loading">Loading patients...</div>
   }
 
   return (
-    <div className="patients-list-container">
+    <div className="patient-list-container">
       <div className="section-header mb-4">
-        <h2>Patients List</h2>
-        <div className="header-actions">
-          <div className="search-container">
-            <Search className="w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search patients"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          <button className="filter-button" onClick={() => setShowFilters(!showFilters)}>
-            <Filter className="w-4 h-4 mr-1" />
-            Filters
-            <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-          </button>
+        <h2>Patient List</h2>
+        <div className="search-container">
+          <Search className="w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search patients"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
         </div>
       </div>
-
-      {showFilters && (
-        <div className="filters-container">
-          <div className="filter-group">
-            <label>Gender:</label>
-            <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className="filter-select">
-              <option value="all">All Genders</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-      )}
 
       {filteredPatients.length > 0 ? (
         <div className="patients-grid">
           {filteredPatients.map((patient) => (
-            <div key={patient._id} className="patient-card" onClick={() => onPatientSelect(patient)}>
+            <div key={patient._id} className="patient-card">
               <div className="patient-avatar">
-                <User className="w-12 h-12 text-gray-400" />
+                <UserRound className="w-12 h-12 text-gray-400" />
               </div>
               <div className="patient-info">
                 <h3 className="patient-name">
@@ -85,21 +153,36 @@ const PatientsList = ({ patients = [], onPatientSelect }) => {
                 <div className="patient-details">
                   <div className="detail-item">
                     <Phone className="w-4 h-4 text-gray-500" />
-                    <span>{patient.phone || "Not provided"}</span>
+                    <span>{patient.phone || "No phone"}</span>
                   </div>
                   <div className="detail-item">
                     <Mail className="w-4 h-4 text-gray-500" />
                     <span>{patient.email}</span>
                   </div>
-                  {patient.dob && (
+                  {patient.createdAt && (
                     <div className="detail-item">
                       <Calendar className="w-4 h-4 text-gray-500" />
-                      <span>DOB: {new Date(patient.dob).toLocaleDateString()}</span>
+                      <span>Joined: {new Date(patient.createdAt).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>
               </div>
-              <button className="view-patient-btn">View Details</button>
+              <div className="patient-actions">
+                <button
+                  className="view-details-btn flex items-center gap-1"
+                  onClick={() => handleViewDetails(patient._id)}
+                >
+                  <Eye className="w-4 h-4" />
+                  View Details
+                </button>
+                <button
+                  className="delete-button flex items-center gap-1 text-red-500 hover:text-red-700"
+                  onClick={() => handleDeletePatient(patient)}
+                >
+                  <Trash className="w-4 h-4" />
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -108,6 +191,9 @@ const PatientsList = ({ patients = [], onPatientSelect }) => {
           <p>No patients found</p>
         </div>
       )}
+
+      {/* Patient Details Modal */}
+      {showModal && <PatientDetailsModal patient={selectedPatient} onClose={() => setShowModal(false)} />}
     </div>
   )
 }

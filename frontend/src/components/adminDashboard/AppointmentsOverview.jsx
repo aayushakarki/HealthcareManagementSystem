@@ -13,6 +13,8 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
   const [showFilters, setShowFilters] = useState(false)
   const [departments, setDepartments] = useState([])
   const [loading, setLoading] = useState(false)
+  const [updatingAppointmentId, setUpdatingAppointmentId] = useState(null)
+  const [openStatusDropdown, setOpenStatusDropdown] = useState(null)
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -42,7 +44,7 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
 
           // Apply status filter
           if (statusFilter !== "all") {
-            filtered = filtered.filter((app) => app.status === statusFilter)
+            filtered = filtered.filter((app) => (app.status || "").toLowerCase() === statusFilter.toLowerCase())
           }
 
           // Apply department filter
@@ -100,7 +102,7 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
 
     // Apply status filter
     if (statusFilter !== "all") {
-      filtered = filtered.filter((app) => app.status === statusFilter)
+      filtered = filtered.filter((app) => (app.status || "").toLowerCase() === statusFilter.toLowerCase())
     }
 
     // Apply department filter
@@ -160,6 +162,22 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
     const endMinutes = endDate.getMinutes().toString().padStart(2, "0")
 
     return `${startHour}:${startMinutes} - ${endHour}:${endMinutes}`
+  }
+
+  // Helper function to handle appointment status updates
+  const handleUpdateStatus = async (appointmentId, status) => {
+    setUpdatingAppointmentId(appointmentId)
+    try {
+      await updateStatus(appointmentId, status)
+    } finally {
+      setUpdatingAppointmentId(null)
+    }
+  }
+
+  // Format status for display (capitalize first letter)
+  const formatStatus = (status) => {
+    if (!status) return "Pending"
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
   }
 
   // Group appointments by date
@@ -255,8 +273,8 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
                         <Clock className="w-4 h-4 mr-1" />
                         <span>{formatTimeFromDate(appointment.appointment_date)}</span>
                       </div>
-                      <div className={`appointment-status status-${appointment.status || "pending"}`}>
-                        {appointment.status || "Pending"}
+                      <div className={`appointment-status status-${(appointment.status || "pending").toLowerCase()}`}>
+                        {formatStatus(appointment.status)}
                       </div>
                     </div>
 
@@ -296,30 +314,37 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
                       >
                         View Patient
                       </button>
-                      <div className="status-buttons">
-                        {appointment.status !== "confirmed" && (
-                          <button
-                            className="btn-outline btn-sm"
-                            onClick={() => updateStatus(appointment._id, "confirmed")}
-                          >
-                            Confirm
-                          </button>
-                        )}
-                        {appointment.status !== "completed" && (
-                          <button
-                            className="btn-outline btn-sm"
-                            onClick={() => updateStatus(appointment._id, "completed")}
-                          >
-                            Complete
-                          </button>
-                        )}
-                        {appointment.status !== "cancelled" && (
-                          <button
-                            className="btn-outline btn-sm btn-danger"
-                            onClick={() => updateStatus(appointment._id, "cancelled")}
-                          >
-                            Cancel
-                          </button>
+                      <div className="status-update-container">
+                        <button
+                          className="btn-outline btn-sm"
+                          onClick={() =>
+                            setOpenStatusDropdown(openStatusDropdown === appointment._id ? null : appointment._id)
+                          }
+                          disabled={updatingAppointmentId === appointment._id}
+                        >
+                          {updatingAppointmentId === appointment._id ? "Updating..." : "Update Status"}
+                          <ChevronDown
+                            className={`w-4 h-4 ml-1 transition-transform ${openStatusDropdown === appointment._id ? "rotate-180" : ""}`}
+                          />
+                        </button>
+
+                        {openStatusDropdown === appointment._id && (
+                          <div className="status-options-row">
+                            {["Pending", "Completed", "Cancelled", "Rescheduled", "Accepted", "Rejected"].map(
+                              (status) => (
+                                <button
+                                  key={status}
+                                  className="status-option-button"
+                                  onClick={() => {
+                                    handleUpdateStatus(appointment._id, status)
+                                    setOpenStatusDropdown(null)
+                                  }}
+                                >
+                                  {status}
+                                </button>
+                              ),
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>

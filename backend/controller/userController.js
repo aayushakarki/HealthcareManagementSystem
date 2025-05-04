@@ -3,6 +3,9 @@ import ErrorHandler from "../middlewares/errorMiddleware.js"
 import { User } from "../models/userSchema.js"
 import { generateToken } from "../utils/jwtToken.js"
 import cloudinary from "cloudinary"
+import { Appointment } from "../models/appointmentSchema.js";
+import { Notification } from "../models/notificationSchema.js";
+import { HealthRecord } from "../models/healthRecordSchema.js";
 
 export const patientRegister = catchAsyncErrors(async (req, res, next) => {
   const { firstName, lastName, email, phone, dob, gender, password, confirmPassword, role } = req.body
@@ -226,3 +229,88 @@ export const getAllPatients = catchAsyncErrors(async (req, res, next) => {
     patients,
   })
 })
+
+export const deletePatient = catchAsyncErrors(async (req, res, next) => {
+  const { patientId } = req.params;
+
+  // Check if patient exists
+  const patient = await User.findOne({ _id: patientId, role: "Patient" });
+  if (!patient) {
+    return next(new ErrorHandler("Patient not found", 404));
+  }
+
+  // Delete all appointments for this patient
+  // Note: In a production environment, you might want to archive instead of delete
+  try {
+    // Delete appointments
+    await Appointment.deleteMany({ patientId });
+    
+    // Delete health records if they exist
+    try {
+      await HealthRecord.deleteMany({ patientId });
+    } catch (error) {
+      console.log("No health records found or error deleting health records");
+    }
+    
+    // Delete the patient
+    await User.findByIdAndDelete(patientId);
+
+    res.status(200).json({
+      success: true,
+      message: "Patient and all related data deleted successfully"
+    });
+  } catch (error) {
+    return next(new ErrorHandler("Error deleting patient data", 500));
+  }
+});
+
+export const deleteDoctor = catchAsyncErrors(async (req, res, next) => {
+  const { doctorId } = req.params;
+
+  // Check if doctor exists
+  const doctor = await User.findOne({ _id: doctorId, role: "Doctor" });
+  if (!doctor) {
+    return next(new ErrorHandler("Doctor not found", 404));
+  }
+
+  // Find all appointments with this doctor
+  const appointments = await Appointment.find({ doctorId });
+
+  // For each appointment, notify the patient that their doctor has been removed
+  for (const appointment of appointments) {
+    try {
+      await Notification.create({
+        userId: appointment.patientId,
+        message: `Your appointment with Dr. ${doctor.firstName} ${doctor.lastName} has been cancelled as the doctor is no longer available.`,
+        type: "Appointment",
+        relatedId: appointment._id,
+        onModel: "Appointment"
+      });
+    } catch (error) {
+      console.log("Error creating notification", error);
+    }
+  }
+
+  // Update appointments to mark them as cancelled
+  await Appointment.updateMany(
+    { doctorId },
+    { status: "Cancelled", $set: { "doctor.notes": "Doctor is no longer available" } }
+  );
+
+  // Delete the doctor's avatar from cloudinary if it exists
+  if (doctor.docAvatar && doctor.docAvatar.public_id) {
+    try {
+      await cloudinary.uploader.destroy(doctor.docAvatar.public_id);
+    } catch (error) {
+      console.log("Error deleting doctor avatar from cloudinary", error);
+    }
+  }
+
+  // Delete the doctor
+  await User.findByIdAndDelete(doctorId);
+
+  res.status(200).json({
+    success: true,
+    message: "Doctor deleted successfully and related appointments updated"
+  });
+});

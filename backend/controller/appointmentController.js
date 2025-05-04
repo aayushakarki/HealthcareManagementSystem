@@ -84,72 +84,50 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
   })
 })
 
-// export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
-//   let appointments;
-
-//   // If the user is a patient, only return their appointments
-//   if (req.user.role === "Patient") {
-//     appointments = await Appointment.find({ patientId: req.user._id });
-//   } else {
-//     // For doctors and admins, return all appointments
-//     appointments = await Appointment.find();
-//   }
-
-//   res.status(200).json({
-//     success: true,
-//     appointments,
-//   });
-// });
-
-// Update appointment status by patient ID
-export const updateAppointmentStatusByPatientId = catchAsyncErrors(async (req, res, next) => {
-  const { patientId } = req.params
+// function to update a single appointment by ID
+export const updateAppointmentStatus = catchAsyncErrors(async (req, res, next) => {
+  const { appointmentId } = req.params
   const { status } = req.body
 
   if (!status) {
     return next(new ErrorHandler("Please provide status", 400))
   }
 
-  // Find all appointments for this patient
-  const appointments = await Appointment.find({ patientId })
+  // Find the appointment
+  const appointment = await Appointment.findById(appointmentId)
 
-  if (appointments.length === 0) {
-    return next(new ErrorHandler("No appointments found for this patient", 404))
+  if (!appointment) {
+    return next(new ErrorHandler("Appointment not found", 404))
   }
 
-  // Store old status and update appointments
-  const updatedAppointments = []
-  for (let appointment of appointments) {
-    const oldStatus = appointment.status
+  // Store old status
+  const oldStatus = appointment.status
 
-    // Update the appointment status
-    appointment = await Appointment.findByIdAndUpdate(
-      appointment._id,
-      { status },
-      {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-      },
-    )
+  // Update the appointment status
+  const updatedAppointment = await Appointment.findByIdAndUpdate(
+    appointmentId,
+    { status },
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    },
+  )
 
-    // Create notification if the status has changed
-    if (oldStatus !== status) {
-      await Notification.create({
-        userId: patientId,
-        message: `Your appointment status has been updated to ${status}`,
-        type: "Appointment",
-        relatedId: appointment._id,
-        onModel: "Appointment",
-      })
-    }
-
-    updatedAppointments.push(appointment)
+  // Create notification if the status has changed
+  if (oldStatus !== status) {
+    await Notification.create({
+      userId: appointment.patientId,
+      message: `Your appointment status has been updated to ${status}`,
+      type: "Appointment",
+      relatedId: appointment._id,
+      onModel: "Appointment",
+    })
   }
 
   res.status(200).json({
     success: true,
-    appointments: updatedAppointments,
+    appointment: updatedAppointment,
     message: "Appointment Status Updated!",
   })
 })
@@ -351,4 +329,49 @@ export const addDoctorNotes = catchAsyncErrors(async (req, res, next) => {
     appointment: updatedAppointment,
     message: "Notes added successfully",
   })
+})
+
+// Get all appointments (Admin access)
+export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
+  // Only admins should access this endpoint
+  if (req.user.role !== "Admin") {
+    return next(new ErrorHandler("Not authorized to access this resource", 403))
+  }
+
+  try {
+    // Fetch all appointments without any ID filter
+    const appointments = await Appointment.find().sort({
+      appointment_date: -1,
+    })
+
+    // Populate doctor information if needed
+    const populatedAppointments = await Promise.all(
+      appointments.map(async (appointment) => {
+        if (appointment.doctorId) {
+          try {
+            const doctor = await User.findById(appointment.doctorId).select("firstName lastName")
+            if (doctor) {
+              appointment = appointment.toObject() // Convert to plain object to modify
+              appointment.doctor = {
+                firstName: doctor.firstName,
+                lastName: doctor.lastName,
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching doctor for appointment ${appointment._id}:`, error)
+          }
+        }
+        return appointment
+      }),
+    )
+
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      appointments: populatedAppointments,
+    })
+  } catch (error) {
+    console.error("Error in getAllAppointments:", error)
+    return next(new ErrorHandler(error.message || "Error fetching appointments", 500))
+  }
 })

@@ -1,0 +1,25 @@
+.status-update-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .status-options-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .status-option-button {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .status-option-button:hover {
+    background-color: #e9ecef;
+  }
