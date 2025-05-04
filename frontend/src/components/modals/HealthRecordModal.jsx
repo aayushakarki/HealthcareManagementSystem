@@ -1,4 +1,6 @@
-import { X } from 'lucide-react'
+"use client"
+
+import { X } from "lucide-react"
 
 const HealthRecordModal = ({ record, onClose }) => {
   if (!record) return null
@@ -44,11 +46,7 @@ const HealthRecordModal = ({ record, onClose }) => {
                 {record.fileUrl.endsWith(".pdf") ? (
                   <iframe src={record.fileUrl} className="pdf-preview" title="PDF Preview"></iframe>
                 ) : (
-                  <img
-                    src={record.fileUrl || "/placeholder.svg"}
-                    alt="Health Record"
-                    className="image-preview"
-                  />
+                  <img src={record.fileUrl || "/placeholder.svg"} alt="Health Record" className="image-preview" />
                 )}
               </div>
             )}

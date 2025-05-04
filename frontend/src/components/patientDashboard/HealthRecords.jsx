@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { FileText, Eye } from 'lucide-react'
 import axios from "axios"
 import { toast } from "react-toastify"
-import HealthRecordModal from "./HealthRecordModal"
+import HealthRecordModal from "../modals/HealthRecordModal"
 
 const HealthRecords = () => {
   const [records, setRecords] = useState([])

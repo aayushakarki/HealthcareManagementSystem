@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { Search, User, Calendar } from 'lucide-react'
-import DoctorModal from "./DoctorModal"
+import DoctorModal from "../modals/DoctorModal"
 
 const DoctorSearch = () => {
   const [doctors, setDoctors] = useState([])

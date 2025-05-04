@@ -42,6 +42,7 @@ app.use("/api/v1/health-records", healthRecordRouter)
 app.use("/api/v1/vitals", vitalsRouter)
 app.use("/api/v1/notifications", notificationRouter)
 
+
 dbConnection()
 
 app.use(errorMiddleware)

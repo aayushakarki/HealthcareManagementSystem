@@ -32,10 +32,11 @@
     position: fixed;
     height: 100vh;
     z-index: 10;
+    /* margin-top: 40px; */
   }
   
   .sidebar-header {
-    padding: 1rem;
+    padding: 1.2rem;
     border-bottom: 1px solid var(--border-color);
   }
   
@@ -68,6 +69,7 @@
   .sidebar-nav {
     padding: 1rem 0;
     overflow-y: auto;
+    margin-top: 60px;
   }
   
   .sidebar-nav ul {
@@ -531,6 +533,7 @@
     /* font-size: 10px; */
     color: var(--text-secondary);
     min-width: 40px;
+    margin-right: 1rem;
   }
   
   .appointment-details {

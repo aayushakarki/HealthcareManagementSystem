@@ -20,13 +20,13 @@ import {
 } from "lucide-react"
 
 // Import component for each section
-import DoctorSearch from "../../components/dashboard/DoctorSearch"
-import AppointmentList from "../../components/dashboard/Appointment"
-import HealthRecords from "../../components/dashboard/HealthRecords"
-import Medications from "../../components/dashboard/Medications"
+import DoctorSearch from "../../components/patientDashboard/DoctorSearch"
+import AppointmentList from "../../components/patientDashboard/Appointment"
+import HealthRecords from "../../components/patientDashboard/HealthRecords"
+import Medications from "../../components/patientDashboard/Medications"
 // import Notifications from "../../components/dashboard/Notifications"
-import Community from "../../components/dashboard/Community"
-import HealthRecordModal from "../../components/dashboard/HealthRecordModal"
+import Community from "../../components/patientDashboard/Community"
+import HealthRecordModal from "../../components/modals/HealthRecordModal"
 
 const PatientDashboard = () => {
   // Move this function outside of useEffect and add useNavigate
