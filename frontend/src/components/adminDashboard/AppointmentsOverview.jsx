@@ -15,6 +15,9 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
   const [loading, setLoading] = useState(false)
   const [updatingAppointmentId, setUpdatingAppointmentId] = useState(null)
   const [openStatusDropdown, setOpenStatusDropdown] = useState(null)
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState(null)
+  const [newDate, setNewDate] = useState("")
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -168,7 +171,7 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
   const handleUpdateStatus = async (appointmentId, status) => {
     setUpdatingAppointmentId(appointmentId)
     try {
-      await updateStatus(appointmentId, status)
+      await updateStatus(appointmentId, status, newDate)
     } finally {
       setUpdatingAppointmentId(null)
     }
@@ -196,6 +199,10 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
   }
 
   const groupedAppointments = groupAppointmentsByDate()
+
+  const handleReschedule = (appointmentId) => {
+    setShowDatePicker(true)
+  }
 
   if (loading) {
     return <div className="loading">Loading appointments...</div>
@@ -330,7 +337,7 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
 
                         {openStatusDropdown === appointment._id && (
                           <div className="status-options-row">
-                            {["Pending", "Completed", "Cancelled", "Rescheduled", "Accepted", "Rejected"].map(
+                            {["Pending", "Completed", "Cancelled", "Accepted", "Rejected"].map(
                               (status) => (
                                 <button
                                   key={status}
@@ -344,6 +351,16 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
                                 </button>
                               ),
                             )}
+                            <button
+                              key="Rescheduled"
+                              className="status-option-button"
+                              onClick={() => {
+                                setRescheduleAppointmentId(appointment._id);
+                                setShowDatePicker(true);
+                              }}
+                            >
+                              Reschedule
+                            </button>
                           </div>
                         )}
                       </div>
@@ -359,6 +376,44 @@ const AppointmentsOverview = ({ appointments = [], updateStatus, onPatientSelect
           </div>
         )}
       </div>
+
+      {showDatePicker && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Pick a new date and time for the appointment</h3>
+            <input
+              type="datetime-local"
+              value={newDate}
+              onChange={(e) => setNewDate(e.target.value)}
+              className="form-input"
+            />
+            <div className="modal-actions">
+              <button
+                className="btn-primary"
+                onClick={async () => {
+                  await updateStatus(rescheduleAppointmentId, "Rescheduled", newDate);
+                  setShowDatePicker(false);
+                  setRescheduleAppointmentId(null);
+                  setNewDate("");
+                }}
+                disabled={!newDate}
+              >
+                Confirm
+              </button>
+              <button
+                className="btn-outline"
+                onClick={() => {
+                  setShowDatePicker(false);
+                  setRescheduleAppointmentId(null);
+                  setNewDate("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

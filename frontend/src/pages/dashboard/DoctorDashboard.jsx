@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import { Context } from "../../main"
-import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill } from 'lucide-react'
+import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill, Activity } from 'lucide-react'
 
 // Import components for each section
 import PatientList from "../../components/doctorDashboard/PatientsList"
@@ -17,6 +17,7 @@ import AddPrescriptions from "../../components/doctorDashboard/AddPrescriptions"
 import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup"
 // Add this import at the top with other imports
 import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
+import AddVitals from "../../components/doctorDashboard/AddVitals"
 
 const DoctorDashboard = () => {
   const { user, setIsAuthenticated, setUser } = useContext(Context)
@@ -43,6 +44,10 @@ const DoctorDashboard = () => {
   const [showAppointmentPopup, setShowAppointmentPopup] = useState(false)
   const [selectedDateAppointments, setSelectedDateAppointments] = useState([])
   const [selectedFullDate, setSelectedFullDate] = useState(null)
+
+  const [avatar, setAvatar] = useState("/default-avatar.png")
+
+  const fileInputRef = useRef(null)
 
   const handleLogout = async () => {
     try {
@@ -124,6 +129,17 @@ const DoctorDashboard = () => {
 
     fetchDashboardData()
   }, [])
+
+  useEffect(() => {
+    // Fetch user details (if not already in context)
+    axios.get("http://localhost:4000/api/v1/user/doctor/me", {
+      withCredentials: true,
+    }).then(res => {
+      if (res.data.user?.docAvatar?.url) {
+        setAvatar(res.data.user.docAvatar.url);
+      }
+    });
+  }, []);
 
   // Helper function to format time from date string
   const formatTimeFromDate = (dateString) => {
@@ -285,6 +301,23 @@ const DoctorDashboard = () => {
     // Reset selected date when changing months
     setSelectedDate(null)
   }
+
+  const handleAvatarUpload = (file) => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    axios.post("http://localhost:4000/api/v1/user/doctor/upload-avatar", formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then(res => {
+      setAvatar(res.data.avatarUrl);
+      toast.success("Avatar uploaded successfully!");
+    })
+    .catch(err => {
+      toast.error(err.response?.data?.message || "Failed to upload avatar");
+    });
+  };
 
   const renderDashboardContent = () => {
     return (
@@ -476,6 +509,8 @@ const DoctorDashboard = () => {
         return <HealthRecordUpload />
       case "prescriptions":
         return <AddPrescriptions />
+      case "vitals":
+        return <AddVitals />
       default:
         return renderDashboardContent()
     }
@@ -537,6 +572,12 @@ const DoctorDashboard = () => {
                 <span>Prescriptions</span>
               </button>
             </li>
+            <li className={activeSection === "vitals" ? "active" : ""}>
+              <button onClick={() => setActiveSection("vitals")}>
+                <Activity className="w-5 h-5" />
+                <span>Add Vitals</span>
+              </button>
+            </li>
           </ul>
         </nav>
 
@@ -551,17 +592,29 @@ const DoctorDashboard = () => {
       {/* Main Content */}
       <div className="main-content">
         <div className="top-bar">
-          <div className="search-bar">
-            <Search className="w-4 h-4 text-gray-400" />
-            <input type="text" placeholder="Search patients or appointments" />
-          </div>
           <div className="action-buttons">
-            <button className="create-schedule-btn" onClick={() => setActiveSection("healthrecordupload")}>
+            <button
+              className="upload-avatar"
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              type="button"
+            >
               <Plus className="w-4 h-4" />
-              Upload Record
+              Upload Avatar
             </button>
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png"
+              style={{ display: "none" }}
+              ref={fileInputRef}
+              onChange={e => {
+                const file = e.target.files[0];
+                if (file) {
+                  handleAvatarUpload(file);
+                }
+              }}
+            />
             <div className="user-avatar">
-              <img src="/placeholder.svg?height=40&width=40" alt="User" className="avatar" />
+              <img src={avatar} alt="Doctor Avatar" />
               <span className="ml-2 hidden md:inline-block">{user?.firstName || "Doctor"}</span>
             </div>
           </div>

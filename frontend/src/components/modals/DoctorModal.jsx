@@ -115,15 +115,29 @@ const DoctorModal = ({ doctor, onClose }) => {
             <>
               <div className="doctor-header flex items-center gap-4 mb-6">
                 <div className="doctor-avatar bg-gray-100 p-4 rounded-full">
-                  {doctor.docAvatar?.url ? (
-                    <img
-                      src={doctor.docAvatar.url || "/placeholder.svg?height=120&width=120"}
-                      alt={`${doctor.firstName} ${doctor.lastName}`}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                  ) : (
-                    <UserCog className="w-16 h-16 text-gray-400" />
-                  )}
+                  {(() => {
+                    // Try to get avatar from localStorage using doctor._id
+                    const localAvatar = doctor._id ? localStorage.getItem(`avatar_${doctor._id}`) : null;
+                    if (localAvatar) {
+                      return (
+                        <img
+                          src={localAvatar}
+                          alt={`${doctor.firstName} ${doctor.lastName}`}
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                      );
+                    } else if (doctor.docAvatar?.url) {
+                      return (
+                        <img
+                          src={doctor.docAvatar.url}
+                          alt={`${doctor.firstName} ${doctor.lastName}`}
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                      );
+                    } else {
+                      return <UserCog className="w-16 h-16 text-gray-400" />;
+                    }
+                  })()}
                 </div>
                 <div className="doctor-info">
                   <h2 className="text-2xl font-bold">

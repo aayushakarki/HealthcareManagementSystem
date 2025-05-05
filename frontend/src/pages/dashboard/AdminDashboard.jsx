@@ -25,7 +25,7 @@ import {
 // Import components for each section
 import AppointmentsOverview from "../../components/adminDashboard/AppointmentsOverview"
 import DoctorsList from "../../components/adminDashboard/DoctorsList"
-import PatientsList from "../../components/adminDashboard/PatientsList"
+import PatientsList from "../../components/adminDashboard/AllPatientsList"
 import Messages from "../../components/adminDashboard/Messages"
 import DoctorDetails from "../../components/adminDashboard/DoctorDetails"
 // import PatientDetails from "../../components/adminDashboard/PatientDetails"
@@ -37,7 +37,6 @@ const AdminDashboard = () => {
   const [appointments, setAppointments] = useState([])
   const [doctors, setDoctors] = useState([])
   const [patients, setPatients] = useState([])
-  const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalDoctors: 0,
@@ -139,34 +138,6 @@ const AdminDashboard = () => {
           const allPatients = patientsResponse.data.patients || []
           setPatients(allPatients)
           setStats((prev) => ({ ...prev, totalPatients: allPatients.length }))
-        }
-
-        // Fetch all messages
-        const messagesResponse = await axios
-          .get("http://localhost:4000/api/v1/message/getall", {
-            withCredentials: true,
-          })
-          .catch((err) => {
-            console.error("Error fetching messages:", err)
-            return { data: { success: true, messages: [] } }
-          })
-
-        if (messagesResponse.data.success) {
-          setMessages(messagesResponse.data.messages || [])
-        }
-
-        // Fetch notifications (if available)
-        const notificationsResponse = await axios
-          .get("http://localhost:4000/api/v1/notifications", {
-            withCredentials: true,
-          })
-          .catch((err) => {
-            console.error("Error fetching notifications:", err)
-            return { data: { success: true, notifications: [] } }
-          })
-
-        if (notificationsResponse.data.success) {
-          setNotifications(notificationsResponse.data.notifications || [])
         }
 
         // Fetch unverified doctors
@@ -391,41 +362,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Messages */}
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2>Recent Messages</h2>
-            <button className="view-all" onClick={() => setActiveSection("messages")}>
-              View All
-            </button>
-          </div>
-          <div className="messages-container">
-            {messages.length > 0 ? (
-              <ul className="message-list">
-                {messages.slice(0, 3).map((message) => (
-                  <li key={message._id} className="message-item">
-                    <div className="message-details">
-                      <h3>
-                        {message.firstName} {message.lastName}
-                      </h3>
-                      <p>Email: {message.email}</p>
-                      <p>Phone: {message.phone}</p>
-                      <p className="message-content">{message.message.substring(0, 100)}...</p>
-                    </div>
-                    <div className="message-actions">
-                      <button className="btn-outline" onClick={() => setActiveSection("messages")}>
-                        View Full Message
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="no-data">No messages found</p>
-            )}
-          </div>
-        </div>
-
         {/* Activity Chart */}
         <div className="dashboard-section">
           <div className="section-header">
@@ -458,8 +394,6 @@ const AdminDashboard = () => {
         return <PatientsList patients={patients} onPatientSelect={handlePatientSelect} />
       case "doctorverification":
         return <DoctorVerificationRequests />
-      case "messages":
-        return <Messages messages={messages} />
       case "doctordetails":
         return <DoctorDetails doctor={selectedDoctor} />
       case "patientdetails":
@@ -485,7 +419,6 @@ const AdminDashboard = () => {
               <div className="logo-square bg-blue-500"></div>
               <div className="logo-square bg-yellow-500"></div>
             </div>
-            <h1 className="ml-2">Admin</h1>
           </div>
         </div>
         <nav className="sidebar-nav">
@@ -525,12 +458,6 @@ const AdminDashboard = () => {
                 )}
               </button>
             </li>
-            <li className={activeSection === "messages" ? "active" : ""}>
-              <button onClick={() => setActiveSection("messages")}>
-                <MessageSquare className="w-5 h-5" />
-                <span>Messages</span>
-              </button>
-            </li>
           </ul>
         </nav>
 
@@ -546,37 +473,9 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <div className="main-content">
         <div className="top-bar">
-          <div className="search-bar">
-            <Search className="w-4 h-4 text-gray-400" />
-            <input type="text" placeholder="Search..." />
-          </div>
-          <div className="action-buttons">
-            <div className="relative">
-              <button className="notification-btn" onClick={() => setShowNotifications(!showNotifications)}>
-                <Bell className="w-5 h-5" />
-                {notifications.length > 0 && <span className="notification-badge">{notifications.length}</span>}
-              </button>
-              {showNotifications && (
-                <div className="notification-dropdown">
-                  <h3>Notifications</h3>
-                  {notifications.length > 0 ? (
-                    <ul>
-                      {notifications.map((notification) => (
-                        <li key={notification._id} className="notification-item">
-                          <p>{notification.message}</p>
-                          <span>{new Date(notification.createdAt).toLocaleString()}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>No notifications</p>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="user-avatar">
-              <img src="/placeholder.svg?height=40&width=40" alt="User" className="avatar" />
-              <span className="ml-2 hidden md:inline-block">{user?.firstName || "Admin"}</span>
+            <div>
+            <div>
+            <p className="ml-4">Admin</p>
             </div>
           </div>
         </div>

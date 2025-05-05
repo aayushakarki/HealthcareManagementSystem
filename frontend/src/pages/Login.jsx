@@ -7,7 +7,7 @@ import { Context } from "../main"
 import { Link, useNavigate, Navigate } from "react-router-dom"
 
 const Login = () => {
-  const { isAuthenticated, setIsAuthenticated, setUser, user } = useContext(Context) // Add setUser
+  const { isAuthenticated, setIsAuthenticated, setUser, user } = useContext(Context)
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -32,7 +32,7 @@ const Login = () => {
       setUser(res.data.user)
       console.log("User logged in successfully:", res.data.user)
       console.log("User Role after login:", res.data.user.role)
-      // Remove the navigateTo calls since we'll use the declarative Navigate component
+      navigateTo("/dashboard")
       setEmail("")
       setPassword("")
     } catch (error) {

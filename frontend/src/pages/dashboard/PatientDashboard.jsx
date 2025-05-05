@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
@@ -18,18 +18,33 @@ import {
   Activity,
   User,
 } from "lucide-react"
+import { Line } from "react-chartjs-2"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js"
 
 // Import component for each section
 import DoctorSearch from "../../components/patientDashboard/DoctorSearch"
 import AppointmentList from "../../components/patientDashboard/Appointment"
 import HealthRecords from "../../components/patientDashboard/HealthRecords"
 import Medications from "../../components/patientDashboard/Medications"
-import Community from "../../components/patientDashboard/Community"
 import HealthRecordModal from "../../components/modals/HealthRecordModal"
 import PatientProfile from "../../components/patientDashboard/PatientProfile"
 import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup"
 // Add this import at the top with other imports
 import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
+import LatestVitals from "../../components/patientDashboard/LatestVitals"
+import PatientVitals from "../../components/patientDashboard/PatientVitals"
+import "../../styles/vitals.css"
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const PatientDashboard = () => {
   // Move this function outside of useEffect and add useNavigate
@@ -57,6 +72,12 @@ const PatientDashboard = () => {
   const [selectedFullDate, setSelectedFullDate] = useState(null)
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [prefilledDate, setPrefilledDate] = useState("")
+
+  const [avatar, setAvatar] = useState("/default-avatar.png")
+  const fileInputRef = useRef(null)
+
+  // New state for vitalsHistory
+  const [vitalsHistory, setVitalsHistory] = useState([])
 
   // Move handleLogout function here
   const handleLogout = async () => {
@@ -133,6 +154,7 @@ const PatientDashboard = () => {
               weight: latestVital.weight || "70",
               glucoseLevel: latestVital.oxygenSaturation || "90",
             })
+            setVitalsHistory(vitalsResponse.data.vitals)
           }
         } catch (error) {
           console.error("Error fetching vitals:", error)
@@ -149,6 +171,34 @@ const PatientDashboard = () => {
 
     fetchDashboardData()
   }, [])
+
+  useEffect(() => {
+    // Fetch patient details (if not already in context)
+    axios.get("http://localhost:4000/api/v1/user/patient/me", {
+      withCredentials: true,
+    }).then(res => {
+      if (res.data.user?.userAvatar?.url) {
+        setAvatar(res.data.user.userAvatar.url);
+      }
+    });
+  }, []);
+
+  const handleAvatarUpload = (file) => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    axios.post("http://localhost:4000/api/v1/user/patient/upload-avatar", formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then(res => {
+      setAvatar(res.data.avatarUrl);
+      toast.success("Avatar uploaded successfully!");
+    })
+    .catch(err => {
+      toast.error(err.response?.data?.message || "Failed to upload avatar");
+    });
+  };
 
   function formatAMPM(timeStr) {
     const [hours, minutes] = timeStr.split(":").map(Number)
@@ -320,6 +370,59 @@ const PatientDashboard = () => {
     setSelectedDate(null)
   }
 
+  // Add a helper to format date:
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString()
+  }
+
+  // Prepare chart data for blood pressure:
+  const bloodPressureChartData = {
+    labels: vitalsHistory.map((v) => formatDate(v.date)),
+    datasets: [
+      {
+        label: "Systolic",
+        data: vitalsHistory.map((v) => v.bloodPressure?.systolic),
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        yAxisID: "y",
+      },
+      {
+        label: "Diastolic",
+        data: vitalsHistory.map((v) => v.bloodPressure?.diastolic),
+        borderColor: "rgb(54, 162, 235)",
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+        yAxisID: "y",
+      },
+    ],
+  }
+
+  const bloodPressureChartOptions = {
+    responsive: true,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        type: "linear",
+        display: true,
+        position: "left",
+        title: {
+          display: true,
+          text: "Blood Pressure (mmHg)",
+        },
+      },
+    },
+  }
+
   const renderDashboardContent = () => {
     return (
       <div className="dashboard-content">
@@ -366,24 +469,12 @@ const PatientDashboard = () => {
             <h2>Blood Pressure History</h2>
             <ChevronDown className="w-5 h-5" />
           </div>
-          <div className="blood-pressure-chart">
-            <div className="chart-placeholder">
-              <Activity className="w-full h-32 text-green-500" />
-            </div>
-            <div className="blood-pressure-stats">
-              <div className="stat-card">
-                <div className="stat-value">{vitals.bloodPressure}</div>
-                <div className="stat-label">Recent Blood Pressure</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{vitals.heartRate}</div>
-                <div className="stat-label">Heart Rate (bpm)</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{vitals.weight} kg</div>
-                <div className="stat-label">Current Weight</div>
-              </div>
-            </div>
+          <div className="blood-pressure-chart" style={{ background: "#f9fafb", borderRadius: "1rem", padding: "2rem 1rem" }}>
+            {vitalsHistory.length > 0 ? (
+              <Line data={bloodPressureChartData} options={bloodPressureChartOptions} />
+            ) : (
+              <div className="loading">No blood pressure data available</div>
+            )}
           </div>
         </div>
 
@@ -450,6 +541,10 @@ const PatientDashboard = () => {
             )}
           </div>
         </div>
+
+        <div className="vitals-section">
+          <LatestVitals />
+        </div>
       </div>
     )
   }
@@ -472,10 +567,8 @@ const PatientDashboard = () => {
         return <HealthRecords />
       case "medications":
         return <Medications />
-      case "profile":
-        return <PatientProfile />
-      case "community":
-        return <Community />
+      case "vitals":
+        return <PatientVitals />
       default:
         return renderDashboardContent()
     }
@@ -507,12 +600,6 @@ const PatientDashboard = () => {
                 <span>Dashboard</span>
               </button>
             </li>
-            <li className={activeSection === "profile" ? "active" : ""}>
-              <button onClick={() => setActiveSection("profile")}>
-                <User className="w-5 h-5" />
-                <span>My Profile</span>
-              </button>
-            </li>
             <li className={activeSection === "search" ? "active" : ""}>
               <button onClick={() => setActiveSection("search")}>
                 <Search className="w-5 h-5" />
@@ -537,10 +624,10 @@ const PatientDashboard = () => {
                 <span>Medications</span>
               </button>
             </li>
-            <li className={activeSection === "community" ? "active" : ""}>
-              <button onClick={() => setActiveSection("community")}>
-                <Users className="w-5 h-5" />
-                <span>Community</span>
+            <li className={activeSection === "vitals" ? "active" : ""}>
+              <button onClick={() => setActiveSection("vitals")}>
+                <Activity className="w-5 h-5" />
+                <span>Vitals History</span>
               </button>
             </li>
           </ul>
@@ -557,17 +644,30 @@ const PatientDashboard = () => {
       {/* Main Content */}
       <div className="main-content">
         <div className="top-bar">
-          <div className="search-bar">
-            <Search className="w-4 h-4 text-gray-400" />
-            <input type="text" placeholder="Search or type a command" />
-          </div>
           <div className="action-buttons">
-            <button className="create-schedule-btn">
+            <button
+              className="upload-avatar"
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              type="button"
+            >
               <Plus className="w-4 h-4" />
-              Create Schedule
+              Upload Avatar
             </button>
-            <div className="user-avatar" onClick={() => setActiveSection("profile")}>
-              <img src="/placeholder.svg?height=40&width=40" alt="User" className="avatar" />
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png"
+              style={{ display: "none" }}
+              ref={fileInputRef}
+              onChange={e => {
+                const file = e.target.files[0];
+                if (file) {
+                  handleAvatarUpload(file);
+                }
+              }}
+            />
+            <div className="user-avatar">
+              <img src={avatar} alt="Patient Avatar" />
+              <span className="ml-2 hidden md:inline-block">{user?.firstName || "Patient"}</span>
             </div>
           </div>
         </div>
