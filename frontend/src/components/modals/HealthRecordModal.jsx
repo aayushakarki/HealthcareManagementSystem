@@ -1,8 +1,43 @@
 "use client"
 
-import { X } from "lucide-react"
+import { useState } from "react"
+import { X, Download } from "lucide-react"
+import axios from "axios"
+import { toast } from "react-toastify"
 
 const HealthRecordModal = ({ record, onClose }) => {
+  const [loading, setLoading] = useState(false)
+
+  const handleDownload = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get(
+        `http://localhost:4000/api/v1/health-records/download/${record._id}`,
+        {
+          withCredentials: true,
+          responseType: 'blob'
+        }
+      )
+
+      // Create a blob URL for the file
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', record.fileName)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+
+      toast.success("File downloaded successfully")
+    } catch (error) {
+      console.error("Error downloading file:", error)
+      toast.error(error.response?.data?.message || "Failed to download file")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (!record) return null
 
   return (
@@ -50,9 +85,23 @@ const HealthRecordModal = ({ record, onClose }) => {
                 )}
               </div>
             )}
-            <a href={record.fileUrl} target="_blank" rel="noopener noreferrer" className="view-file-btn">
-              Open File in New Tab
-            </a>
+            <div className="file-actions">
+              <a href={record.fileUrl} target="_blank" rel="noopener noreferrer" className="view-file-btn">
+                Open File in New Tab
+              </a>
+              <button 
+                onClick={handleDownload} 
+                className="download-btn"
+                disabled={loading}
+              >
+                {loading ? "Downloading..." : (
+                  <>
+                    <Download className="w-4 h-4 mr-1" />
+                    Download File
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

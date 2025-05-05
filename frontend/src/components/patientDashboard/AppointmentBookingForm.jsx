@@ -17,6 +17,7 @@ const AppointmentBookingForm = ({ isVisible, onClose, prefilledDate = "", onSubm
     "Ophthalmology",
     "Dentistry",
     "Psychiatry",
+    "Rheumatology"
   ])
   const [doctors, setDoctors] = useState([])
   const [formData, setFormData] = useState({

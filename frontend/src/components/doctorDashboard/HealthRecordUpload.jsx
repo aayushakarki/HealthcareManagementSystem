@@ -154,17 +154,16 @@ const HealthRecordUpload = () => {
       uploadData.append("description", formData.description)
       uploadData.append("file", selectedFile)
 
-      const response = await axios
-        .post("http://localhost:4000/api/v1/health-records/upload", uploadData, {
+      const response = await axios.post(
+        "http://localhost:4000/api/v1/health-records/upload",
+        uploadData,
+        {
           withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        })
-        .catch(() => {
-          // Mock success response if endpoint doesn't exist
-          return { data: { success: true } }
-        })
+        }
+      )
 
       if (response.data.success) {
         toast.success("Health record uploaded successfully")
@@ -177,12 +176,13 @@ const HealthRecordUpload = () => {
         })
         setSelectedFile(null)
         setFilePreview(null)
+      } else {
+        toast.error(response.data.message || "Failed to upload health record")
       }
-
-      setUploadLoading(false)
     } catch (error) {
       console.error("Error uploading health record:", error)
-      toast.error("Failed to upload health record")
+      toast.error(error.response?.data?.message || "Failed to upload health record")
+    } finally {
       setUploadLoading(false)
     }
   }

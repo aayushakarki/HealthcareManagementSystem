@@ -205,16 +205,13 @@ const Register = () => {
                 />
               </div>
               <div>
-                <select value={doctorDepartment} onChange={(e) => setDoctorDepartment(e.target.value)} required>
-                  <option value="">Select Department</option>
-                  <option value="Cardiology">Cardiology</option>
-                  <option value="Dermatology">Dermatology</option>
-                  <option value="Neurology">Neurology</option>
-                  <option value="Orthopedics">Orthopedics</option>
-                  <option value="Pediatrics">Pediatrics</option>
-                  <option value="Psychiatry">Psychiatry</option>
-                  <option value="General Medicine">General Medicine</option>
-                </select>
+                <input
+                  type="text"
+                  placeholder="Department"
+                  value={doctorDepartment}
+                  onChange={(e) => setDoctorDepartment(e.target.value)}
+                  required
+                />
               </div>
               <div className="file">
                 <label htmlFor="signature">Upload Digital Signature (PNG, JPEG, or PDF)</label>
