@@ -51,6 +51,78 @@ const DoctorSearch = () => {
     fetchDoctors()
   }, [])
 
+  useEffect(() => {
+    const searchDoctors = async () => {
+      try {
+        setLoading(true)
+        
+        // If no search term and no department filter, fetch all doctors
+        if (!searchTerm && !departmentFilter) {
+          const response = await axios.get("http://localhost:4000/api/v1/user/doctors", {
+            withCredentials: true,
+          })
+          
+          if (response.data.success) {
+            setDoctors(response.data.doctors)
+          }
+          setLoading(false)
+          return
+        }
+        
+        // Use the backend search endpoint with advanced search
+        let searchUrl = "http://localhost:4000/api/v1/search/advanced?role=Doctor"
+        
+        if (searchTerm) {
+          searchUrl += `&query=${encodeURIComponent(searchTerm)}`
+        }
+        
+        if (departmentFilter) {
+          searchUrl += `&department=${encodeURIComponent(departmentFilter)}`
+        }
+        
+        const response = await axios.get(searchUrl, {
+          withCredentials: true,
+        })
+        
+        if (response.data.success) {
+          setDoctors(response.data.results)
+        } else {
+          setDoctors([])
+        }
+      } catch (error) {
+        console.error("Error searching doctors:", error)
+        // Fallback to client-side filtering if the API fails
+        let filtered = [...doctors]
+        
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase()
+          filtered = filtered.filter(doctor => {
+            const fullName = `${doctor.firstName} ${doctor.lastName}`.toLowerCase()
+            return fullName.includes(term) || 
+                  (doctor.doctorDepartment && doctor.doctorDepartment.toLowerCase().includes(term))
+          })
+        }
+        
+        if (departmentFilter) {
+          filtered = filtered.filter(doctor => 
+            doctor.doctorDepartment && doctor.doctorDepartment === departmentFilter
+          )
+        }
+        
+        setDoctors(filtered)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    // Debounce search to avoid too many requests
+    const timeoutId = setTimeout(() => {
+      searchDoctors()
+    }, 300)
+    
+    return () => clearTimeout(timeoutId)
+  }, [searchTerm, departmentFilter])
+
   const handleViewDoctor = (doctor) => {
     setSelectedDoctor(doctor)
     setShowModal(true)
@@ -60,16 +132,6 @@ const DoctorSearch = () => {
     setShowModal(false)
     setSelectedDoctor(null)
   }
-
-  // Filter doctors based on search term and department
-  const filteredDoctors = doctors.filter((doctor) => {
-    const fullName = `${doctor.firstName} ${doctor.lastName}`.toLowerCase()
-    const matchesSearch = fullName.includes(searchTerm.toLowerCase())
-    const matchesDepartment = departmentFilter === "" || 
-      (doctor.doctorDepartment && doctor.doctorDepartment.toLowerCase() === departmentFilter.toLowerCase())
-    
-    return matchesSearch && matchesDepartment
-  })
 
   if (loading) {
     return <div className="loading">Loading doctors...</div>
@@ -88,7 +150,7 @@ const DoctorSearch = () => {
           <Search className="w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search doctors by name"
+            placeholder="Search doctors by name or specialty"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -110,8 +172,8 @@ const DoctorSearch = () => {
       </div>
 
       <div className="doctors-list">
-        {filteredDoctors.length > 0 ? (
-          filteredDoctors.map((doctor) => (
+        {doctors.length > 0 ? (
+          doctors.map((doctor) => (
             <div key={doctor._id} className="doctor-card" onClick={() => handleViewDoctor(doctor)}>
               <div className="doctor-avatar">
                 <img 

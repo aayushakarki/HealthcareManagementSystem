@@ -1,0 +1,137 @@
+/* Calendar container */
+.calendar-container {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Override react-calendar default styles */
+  .react-calendar {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+  }
+  
+  /* Navigation area (month and year) */
+  .react-calendar__navigation {
+    margin-bottom: 0.5rem;
+    height: auto;
+  }
+  
+  .react-calendar__navigation button {
+    min-width: 0;
+    background: none;
+  }
+  
+  .react-calendar__navigation button:disabled {
+    background-color: transparent;
+  }
+  
+  .react-calendar__navigation button:enabled:hover,
+  .react-calendar__navigation button:enabled:focus {
+    background-color: transparent;
+  }
+  
+  /* Month selector custom styling */
+  .month-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .month-selector h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .month-navigation {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .month-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .month-nav-btn:hover {
+    background-color: #f7fafc;
+  }
+  
+  /* Weekday headers */
+  .react-calendar__month-view__weekdays {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .react-calendar__month-view__weekdays__weekday {
+    padding: 0.5rem;
+  }
+  
+  .react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+    color: #718096;
+  }
+  
+  /* Calendar days */
+  .react-calendar__tile {
+    padding: 0.75rem 0.5rem;
+    background: none;
+    text-align: center;
+    line-height: 1;
+    font-size: 0.875rem;
+    position: relative;
+  }
+  
+  .react-calendar__tile:enabled:hover,
+  .react-calendar__tile:enabled:focus {
+    background-color: #f7fafc;
+    border-radius: 9999px;
+  }
+  
+  /* Today's date */
+  .react-calendar__tile.selected {
+    background-color: #7c3aed !important;
+    color: white;
+    border-radius: 9999px;
+  }
+  
+  /* Days with appointments */
+  .react-calendar__tile.has-appointment {
+    font-weight: 600;
+    color: #4a5568;
+  }
+  
+  /* Appointment indicator dot */
+  .appointment-indicator {
+    width: 4px;
+    height: 4px;
+    background-color: #7c3aed;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* Nepali date display */
+  .nepali-date-display {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+    text-align: center;
+  }
+  

@@ -41,7 +41,12 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
     doctorDepartment: department,
   })
   if (isConflict.length === 0) {
-    return next(new ErrorHandler("Doctor not found", 404))
+    return next(
+      new ErrorHandler(
+        `Doctor not found with name ${doctor_firstName} ${doctor_lastName} in department ${department}`,
+        404,
+      ),
+    )
   }
 
   if (isConflict.length > 1) {

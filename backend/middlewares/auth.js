@@ -20,7 +20,7 @@ export const isAdminAuthenticated = catchAsyncErrors(async (req, res, next) => {
 // Middleware to check if the user is a Patient
 export const isPatientAuthenticated = catchAsyncErrors(async (req, res, next) => {
   const token = req.cookies.patientToken || req.headers.authorization?.split(" ")[1]; // Check cookies or Authorization header
-  console.log("Token received:", token);
+  // console.log("Token received:", token);
   if (!token) {
     return next(new ErrorHandler("Patient Not Authenticated", 400))
   }

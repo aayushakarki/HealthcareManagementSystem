@@ -13,10 +13,10 @@ import {
   Pill,
   Users,
   ChevronDown,
-  ChevronRight,
   Plus,
   Clock,
   Activity,
+  User,
 } from "lucide-react"
 
 // Import component for each section
@@ -24,9 +24,12 @@ import DoctorSearch from "../../components/patientDashboard/DoctorSearch"
 import AppointmentList from "../../components/patientDashboard/Appointment"
 import HealthRecords from "../../components/patientDashboard/HealthRecords"
 import Medications from "../../components/patientDashboard/Medications"
-// import Notifications from "../../components/dashboard/Notifications"
 import Community from "../../components/patientDashboard/Community"
 import HealthRecordModal from "../../components/modals/HealthRecordModal"
+import PatientProfile from "../../components/patientDashboard/PatientProfile"
+import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup"
+// Add this import at the top with other imports
+import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
 
 const PatientDashboard = () => {
   // Move this function outside of useEffect and add useNavigate
@@ -42,11 +45,18 @@ const PatientDashboard = () => {
   })
   const [loading, setLoading] = useState(true)
   const [currentMonth, setCurrentMonth] = useState("May 2025")
-  const [selectedDate, setSelectedDate] = useState(10) // Default to 10th of the month
-  // const [unreadNotifications, setUnreadNotifications] = useState(0)
-  const navigateTo = useNavigate() // Add this line to import useNavigate
+  const [selectedDate, setSelectedDate] = useState(null) // We'll use this for popup only
+  const [todayDate] = useState(new Date().getDate()) // Store today's date separately
+  const navigateTo = useNavigate()
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [showHealthRecordModal, setShowHealthRecordModal] = useState(false)
+
+  // New state for appointment popup
+  const [showAppointmentPopup, setShowAppointmentPopup] = useState(false)
+  const [selectedDateAppointments, setSelectedDateAppointments] = useState([])
+  const [selectedFullDate, setSelectedFullDate] = useState(null)
+  const [showBookingForm, setShowBookingForm] = useState(false)
+  const [prefilledDate, setPrefilledDate] = useState("")
 
   // Move handleLogout function here
   const handleLogout = async () => {
@@ -82,6 +92,7 @@ const PatientDashboard = () => {
             time: formatTimeFromDate(appointment.appointment_date),
             reason: appointment.department,
             specialty: appointment.department,
+            status: appointment.status || "confirmed",
           }))
 
           setAppointments(formattedAppointments)
@@ -128,20 +139,6 @@ const PatientDashboard = () => {
           // Keep default vitals if fetch fails
         }
 
-        // Fetch notifications count
-        // try {
-        //   const notificationsResponse = await axios.get("http://localhost:4000/api/v1/notifications/user", {
-        //     withCredentials: true,
-        //   })
-
-        //   if (notificationsResponse.data.success) {
-        //     const unreadCount = notificationsResponse.data.notifications.filter((n) => !n.read).length
-        //     setUnreadNotifications(unreadCount)
-        //   }
-        // } catch (error) {
-        //   console.error("Error fetching notifications:", error)
-        // }
-
         setLoading(false)
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
@@ -154,12 +151,12 @@ const PatientDashboard = () => {
   }, [])
 
   function formatAMPM(timeStr) {
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours);
-    date.setMinutes(minutes);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour24: true });
-  }  
+    const [hours, minutes] = timeStr.split(":").map(Number)
+    const date = new Date()
+    date.setHours(hours)
+    date.setMinutes(minutes)
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour24: true })
+  }
 
   // Helper function to format time from date string
   const formatTimeFromDate = (dateString) => {
@@ -263,6 +260,66 @@ const PatientDashboard = () => {
       )
     })
   }
+
+  // New function to handle calendar day click
+  const handleCalendarDayClick = (day) => {
+    // Don't update selectedDate for visual highlighting
+    // We'll just use it for tracking which day was clicked for the popup
+
+    // Create a date object for the selected day
+    const currentDate = new Date()
+    const selectedDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 0, 0, 0)
+
+    // Set the selected full date for booking form
+    setSelectedFullDate(selectedDateObj)
+
+    // Format the date for the booking form
+    const formattedDate = selectedDateObj.toISOString().slice(0, 16)
+    setPrefilledDate(formattedDate)
+
+    // Find appointments for this day
+    const appointmentsForDay = appointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.date)
+      return (
+        appointmentDate.getDate() === day &&
+        appointmentDate.getMonth() === currentDate.getMonth() &&
+        appointmentDate.getFullYear() === currentDate.getFullYear()
+      )
+    })
+
+    setSelectedDateAppointments(appointmentsForDay)
+    setShowAppointmentPopup(true)
+  }
+
+  // Handle book appointment button click
+  const handleBookAppointment = () => {
+    setShowAppointmentPopup(false)
+    setShowBookingForm(true)
+  }
+
+  const handleMonthChange = (direction) => {
+    // Create a date object from the current month string
+    const [monthName, year] = currentMonth.split(" ")
+    const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth()
+    const currentYear = Number.parseInt(year)
+
+    let newMonthIndex, newYear
+
+    if (direction === "prev") {
+      newMonthIndex = monthIndex === 0 ? 11 : monthIndex - 1
+      newYear = monthIndex === 0 ? currentYear - 1 : currentYear
+    } else {
+      newMonthIndex = monthIndex === 11 ? 0 : monthIndex + 1
+      newYear = monthIndex === 11 ? currentYear + 1 : currentYear
+    }
+
+    const newMonth = new Date(newYear, newMonthIndex, 1).toLocaleString("default", { month: "long" })
+    setCurrentMonth(`${newMonth} ${newYear}`)
+
+    // Reset selected date when changing months
+    setSelectedDate(null)
+  }
+
   const renderDashboardContent = () => {
     return (
       <div className="dashboard-content">
@@ -404,13 +461,19 @@ const PatientDashboard = () => {
       case "search":
         return <DoctorSearch />
       case "appointments":
-        return <AppointmentList />
+        return (
+          <AppointmentList
+            showBookingForm={showBookingForm}
+            setShowBookingForm={setShowBookingForm}
+            prefilledDate={prefilledDate}
+          />
+        )
       case "healthrecords":
         return <HealthRecords />
       case "medications":
         return <Medications />
-      // case "notifications":
-      //   return <Notifications />
+      case "profile":
+        return <PatientProfile />
       case "community":
         return <Community />
       default:
@@ -444,6 +507,12 @@ const PatientDashboard = () => {
                 <span>Dashboard</span>
               </button>
             </li>
+            <li className={activeSection === "profile" ? "active" : ""}>
+              <button onClick={() => setActiveSection("profile")}>
+                <User className="w-5 h-5" />
+                <span>My Profile</span>
+              </button>
+            </li>
             <li className={activeSection === "search" ? "active" : ""}>
               <button onClick={() => setActiveSection("search")}>
                 <Search className="w-5 h-5" />
@@ -468,13 +537,6 @@ const PatientDashboard = () => {
                 <span>Medications</span>
               </button>
             </li>
-            {/* <li className={activeSection === "notifications" ? "active" : ""}>
-              <button onClick={() => setActiveSection("notifications")}>
-                <Bell className="w-5 h-5" />
-                <span>Notifications</span>
-                {unreadNotifications > 0 && <span className="notification-count">{unreadNotifications}</span>}
-              </button>
-            </li> */}
             <li className={activeSection === "community" ? "active" : ""}>
               <button onClick={() => setActiveSection("community")}>
                 <Users className="w-5 h-5" />
@@ -504,11 +566,7 @@ const PatientDashboard = () => {
               <Plus className="w-4 h-4" />
               Create Schedule
             </button>
-            {/* <div className="notification-icon">
-              <Bell className="w-5 h-5" />
-              <span className="notification-badge">{unreadNotifications}</span>
-            </div> */}
-            <div className="user-avatar">
+            <div className="user-avatar" onClick={() => setActiveSection("profile")}>
               <img src="/placeholder.svg?height=40&width=40" alt="User" className="avatar" />
             </div>
           </div>
@@ -523,40 +581,35 @@ const PatientDashboard = () => {
               <h2>Upcoming appointment</h2>
             </div>
 
+            {/* Replace the calendar-section div in the appointments-sidebar with: */}
             <div className="calendar-section">
-              <div className="month-selector">
-                <h3>{currentMonth}</h3>
-                <div className="month-navigation">
-                  <button className="month-nav-btn">
-                    <ChevronRight className="w-4 h-4 transform rotate-180" />
-                  </button>
-                  <button className="month-nav-btn">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              <AppointmentCalendar
+                appointments={appointments}
+                onDateClick={(date) => {
+                  // Create a date object for the selected day
+                  const selectedDateObj = date
+                  // Set the selected full date for booking form
+                  setSelectedFullDate(selectedDateObj)
 
-              <div className="weekdays">
-                <span>SUN</span>
-                <span>MON</span>
-                <span>TUE</span>
-                <span>WED</span>
-                <span>THU</span>
-                <span>FRI</span>
-                <span>SAT</span>
-              </div>
+                  // Format the date for the booking form
+                  const formattedDate = selectedDateObj.toISOString().slice(0, 16)
+                  setPrefilledDate(formattedDate)
 
-              <div className="calendar-days">
-                {generateCalendarDays().map((day) => (
-                  <button
-                    key={day}
-                    className={`calendar-day ${day === selectedDate ? "selected" : ""} ${hasAppointmentOnDay(day) ? "has-appointment" : ""}`}
-                    onClick={() => setSelectedDate(day)}
-                  >
-                    {day}
-                  </button>
-                ))}
-              </div>
+                  // Find appointments for this day
+                  const appointmentsForDay = appointments.filter((appointment) => {
+                    const appointmentDate = new Date(appointment.date)
+                    return (
+                      appointmentDate.getDate() === date.getDate() &&
+                      appointmentDate.getMonth() === date.getMonth() &&
+                      appointmentDate.getFullYear() === date.getFullYear()
+                    )
+                  })
+
+                  setSelectedDateAppointments(appointmentsForDay)
+                  setShowAppointmentPopup(true)
+                }}
+                userRole="patient"
+              />
             </div>
 
             <div className="appointments-list">
@@ -564,7 +617,7 @@ const PatientDashboard = () => {
                 appointments.slice(0, 2).map((appointment) => (
                   <div key={appointment._id} className="appointment-item">
                     <div className="appointment-time">
-                      <span>{appointment.date.split('T')[0]}</span>
+                      <span>{new Date(appointment.date).toLocaleDateString()}</span>
                       <span>
                         {`${formatAMPM(appointment.time.split(" - ")[0])}-${formatAMPM(appointment.time.split(" - ")[1])}`}
                       </span>
@@ -582,9 +635,21 @@ const PatientDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Health Record Modal */}
       {showHealthRecordModal && selectedRecord && (
         <HealthRecordModal record={selectedRecord} onClose={() => setShowHealthRecordModal(false)} />
       )}
+
+      {/* Appointment Popup */}
+      <AppointmentPopup
+        isVisible={showAppointmentPopup}
+        onClose={() => setShowAppointmentPopup(false)}
+        appointments={selectedDateAppointments}
+        date={selectedFullDate}
+        onBookAppointment={handleBookAppointment}
+        userRole="patient"
+      />
     </div>
   )
 }

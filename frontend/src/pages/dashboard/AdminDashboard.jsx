@@ -26,10 +26,10 @@ import {
 import AppointmentsOverview from "../../components/adminDashboard/AppointmentsOverview"
 import DoctorsList from "../../components/adminDashboard/DoctorsList"
 import PatientsList from "../../components/adminDashboard/PatientsList"
-import AddDoctor from "../../components/adminDashboard/AddDoctor"
 import Messages from "../../components/adminDashboard/Messages"
 import DoctorDetails from "../../components/adminDashboard/DoctorDetails"
 // import PatientDetails from "../../components/adminDashboard/PatientDetails"
+import DoctorVerificationRequests from "../../components/adminDashboard/DoctorVerificationRequests"
 
 const AdminDashboard = () => {
   const { user, setIsAuthenticated, setUser } = useContext(Context)
@@ -45,6 +45,7 @@ const AdminDashboard = () => {
     totalAppointments: 0,
     pendingAppointments: 0,
     todayAppointments: 0,
+    pendingVerifications: 0,
   })
   const [selectedDoctor, setSelectedDoctor] = useState(null)
   const [selectedPatient, setSelectedPatient] = useState(null)
@@ -166,6 +167,23 @@ const AdminDashboard = () => {
 
         if (notificationsResponse.data.success) {
           setNotifications(notificationsResponse.data.notifications || [])
+        }
+
+        // Fetch unverified doctors
+        const unverifiedDoctorsResponse = await axios
+          .get("http://localhost:4000/api/v1/user/admin/doctors/pending", {
+            withCredentials: true,
+          })
+          .catch((err) => {
+            console.error("Error fetching unverified doctors:", err)
+            return { data: { success: true, count: 0 } }
+          })
+
+        if (unverifiedDoctorsResponse.data.success) {
+          setStats((prev) => ({
+            ...prev,
+            pendingVerifications: unverifiedDoctorsResponse.data.count || 0,
+          }))
         }
 
         setLoading(false)
@@ -291,6 +309,18 @@ const AdminDashboard = () => {
               </div>
               <div className="bg-red-100 p-3 rounded-full">
                 <FileText className="w-6 h-6 text-red-500" />
+              </div>
+            </div>
+          </div>
+
+          <div className="stat-card bg-white p-4 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-gray-500 text-sm">Pending Verifications</h3>
+                <p className="text-2xl font-semibold">{stats.pendingVerifications}</p>
+              </div>
+              <div className="bg-orange-100 p-3 rounded-full">
+                <UserCog className="w-6 h-6 text-orange-500" />
               </div>
             </div>
           </div>
@@ -426,8 +456,8 @@ const AdminDashboard = () => {
         return <DoctorsList doctors={doctors} onDoctorSelect={handleDoctorSelect} />
       case "patients":
         return <PatientsList patients={patients} onPatientSelect={handlePatientSelect} />
-      case "adddoctor":
-        return <AddDoctor />
+      case "doctorverification":
+        return <DoctorVerificationRequests />
       case "messages":
         return <Messages messages={messages} />
       case "doctordetails":
@@ -484,10 +514,15 @@ const AdminDashboard = () => {
                 <span>Patients</span>
               </button>
             </li>
-            <li className={activeSection === "adddoctor" ? "active" : ""}>
-              <button onClick={() => setActiveSection("adddoctor")}>
+            <li className={activeSection === "doctorverification" ? "active" : ""}>
+              <button onClick={() => setActiveSection("doctorverification")}>
                 <UserPlus className="w-5 h-5" />
-                <span>Add Doctor</span>
+                <span>Doctor Verification</span>
+                {stats.pendingVerifications > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                    {stats.pendingVerifications}
+                  </span>
+                )}
               </button>
             </li>
             <li className={activeSection === "messages" ? "active" : ""}>
