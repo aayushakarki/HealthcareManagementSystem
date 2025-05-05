@@ -17,19 +17,10 @@ export const getVitalsHistory = catchAsyncErrors(async (req, res, next) => {
 
 // Add new vitals record
 export const addVitals = catchAsyncErrors(async (req, res, next) => {
-  const { bloodPressure, heartRate, temperature, respiratoryRate, oxygenSaturation, weight, height, notes } = req.body
+  const { patientId, bloodPressure, heartRate, temperature, respiratoryRate, oxygenSaturation, weight, height, notes } = req.body
 
-  if (!bloodPressure || !heartRate || !temperature) {
-    return next(new ErrorHandler("Please provide required vital signs!", 400))
-  }
-
-  // If a doctor is adding vitals for a patient
-  let patientId = req.user._id
-  let recordedBy = "Patient"
-
-  if (req.user.role === "Doctor" && req.body.patientId) {
-    patientId = req.body.patientId
-    recordedBy = "Doctor"
+  if (!patientId || !bloodPressure || !heartRate || !temperature) {
+    return next(new ErrorHandler("Please provide required vital signs and patient ID!", 400))
   }
 
   const vitals = await Vitals.create({
@@ -42,19 +33,17 @@ export const addVitals = catchAsyncErrors(async (req, res, next) => {
     weight,
     height,
     notes,
-    recordedBy,
+    recordedBy: "Doctor",
   })
 
-  // Create notification if doctor recorded the vitals
-  if (recordedBy === "Doctor") {
-    await Notification.create({
-      userId: patientId,
-      message: "Your vital signs were recorded by your doctor",
-      type: "Vitals",
-      relatedId: vitals._id,
-      onModel: "Vitals",
-    })
-  }
+  // Create notification for the patient
+  await Notification.create({
+    userId: patientId,
+    message: "Your vital signs were recorded by your doctor",
+    type: "Vitals",
+    relatedId: vitals._id,
+    onModel: "Vitals",
+  })
 
   res.status(201).json({
     success: true,
@@ -81,34 +70,6 @@ export const getVitalsRecord = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({
     success: true,
     vitals,
-  })
-})
-
-// Update a vitals record
-export const updateVitalsRecord = catchAsyncErrors(async (req, res, next) => {
-  const { id } = req.params
-
-  let vitals = await Vitals.findById(id)
-
-  if (!vitals) {
-    return next(new ErrorHandler("Vitals record not found!", 404))
-  }
-
-  // Only allow the patient who owns the record or doctors to update it
-  if (req.user.role === "Patient" && vitals.patientId.toString() !== req.user._id.toString()) {
-    return next(new ErrorHandler("You are not authorized to update this record!", 403))
-  }
-
-  vitals = await Vitals.findByIdAndUpdate(id, req.body, {
-    new: true,
-    runValidators: true,
-    useFindAndModify: false,
-  })
-
-  res.status(200).json({
-    success: true,
-    vitals,
-    message: "Vitals record updated successfully!",
   })
 })
 
