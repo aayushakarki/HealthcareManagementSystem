@@ -3,25 +3,37 @@ import ErrorHandler from "../middlewares/errorMiddleware.js"
 import { User } from "../models/userSchema.js"
 import { generateToken } from "../utils/jwtToken.js"
 import cloudinary from "cloudinary"
+import validator from "validator" // Import validator
 import { Appointment } from "../models/appointmentSchema.js";
 import { Notification } from "../models/notificationSchema.js";
 import { HealthRecord } from "../models/healthRecordSchema.js";
 
 export const patientRegister = catchAsyncErrors(async (req, res, next) => {
+  // Extract data from request body
   const { firstName, lastName, email, phone, dob, gender, password, confirmPassword, role } = req.body
+
+  // Validate required fields
   if (!firstName || !lastName || !email || !phone || !dob || !gender || !password || !confirmPassword || !role) {
     return next(new ErrorHandler("Please Fill Full Form!", 400))
   }
+
+  // Check if user already exists
   let user = await User.findOne({ email })
   if (user) {
     return next(new ErrorHandler("User Already Registered!", 400))
   }
+
+  // Validate password match
   if (password !== confirmPassword) {
     return next(new ErrorHandler("Password and Confirm Password Do Not Match", 400))
   }
+
+  // Validate email format
   if (!validator.isEmail(email)) {
     return next(new ErrorHandler("Invalid Email Format", 400))
   }
+
+  // Create new patient user
   user = await User.create({
     firstName,
     lastName,
@@ -31,12 +43,14 @@ export const patientRegister = catchAsyncErrors(async (req, res, next) => {
     gender,
     password,
     role,
+    // Set a default value for nmcNumber for patients to avoid schema validation error
+    nmcNumber: role === "Patient" ? "NA-PATIENT" : undefined,
   })
+
   generateToken(user, "User Registered!", 200, res)
 })
 
-import validator from "validator" // Make sure to import the validator module
-
+// Keep all other controller functions the same
 export const login = catchAsyncErrors(async (req, res, next) => {
   const { email, password, role } = req.body
 
@@ -63,6 +77,10 @@ export const login = catchAsyncErrors(async (req, res, next) => {
   // Check if the role matches
   if (role !== user.role) {
     return next(new ErrorHandler("User with Role not Registered", 400))
+  }
+
+  if (user.role === "Doctor" && user.status !== "Verified") {
+    return next(new ErrorHandler("Doctor registration not yet verified. Please wait for admin approval.", 403))
   }
 
   // Generate a token
@@ -98,54 +116,96 @@ export const addNewAdmin = catchAsyncErrors(async (req, res, next) => {
   })
 })
 
-export const addNewDoctor = async (req, res, next) => {
-  if (!req.files || Object.keys(req.files).length === 0) {
-    return next(new ErrorHandler("Doctor Avatar Required!", 400))
-  }
-  const { docAvatar } = req.files
-  const allowedFormats = ["image/png", "image/jpeg", "image/webp"]
-  if (!allowedFormats.includes(docAvatar.mimetype)) {
-    return next(new ErrorHandler("File Format Not Supported!", 400))
-  }
-  const { firstName, lastName, email, phone, dob, gender, password, doctorDepartment } = req.body
+export const registerDoctor = catchAsyncErrors(async (req, res, next) => {
+  console.log("Doctor registration request body:", req.body)
+  console.log("Doctor registration request files:", req.files)
 
-  if (!firstName || !lastName || !email || !phone || !dob || !gender || !password || !doctorDepartment) {
-    return next(new ErrorHandler("Please Provide Full Details", 400))
+  // Check if signature file is provided
+  if (!req.files || !req.files.signatureFile) {
+    return next(new ErrorHandler("Digital Signature File Required!", 400))
   }
 
-  const isRegistered = await User.findOne({ email })
-  if (isRegistered) {
-    return next(new ErrorHandler(`${isRegistered.role} Already Registered With This Email`, 400))
+  const { signatureFile } = req.files
+  const allowedFormats = ["image/png", "image/jpeg", "application/pdf"]
+
+  // Validate file format
+  if (!allowedFormats.includes(signatureFile.mimetype)) {
+    return next(new ErrorHandler("Invalid signature file format! Allowed formats: PNG, JPEG, PDF", 400))
   }
 
-  const cloudinaryResponse = await cloudinary.uploader.upload(docAvatar.tempFilePath)
-  if (!cloudinaryResponse || cloudinaryResponse.error) {
-    console.error("Cloudinary Error:", cloudinaryResponse.error || "Unknown Cloudinary error")
-    return next(new ErrorHandler("Failed To Upload Doctor Avatar To Cloudinary", 500))
-  }
-  const doctor = await User.create({
+  // Extract data from request body
+  const {
     firstName,
     lastName,
     email,
     phone,
+    nmcNumber,
     dob,
     gender,
     password,
-    doctorDepartment, // Store the department
-    role: "Doctor", // Set role to "Doctor"
-    docAvatar: {
-      public_id: cloudinaryResponse.public_id,
-      url: cloudinaryResponse.secure_url,
-    },
-  })
+    confirmPassword,
+    role,
+    doctorDepartment,
+  } = req.body
 
-  // Generate a token and send a response
-  res.status(200).json({
-    success: true,
-    message: "New Doctor Resgistered!",
-    doctor,
-  })
-}
+  // Validate required fields
+  if (!firstName || !lastName || !email || !phone || !dob || !gender || !password || !doctorDepartment || !nmcNumber) {
+    return next(new ErrorHandler("All fields are required!", 400))
+  }
+
+  // Validate password match
+  if (password !== confirmPassword) {
+    return next(new ErrorHandler("Password and Confirm Password Do Not Match", 400))
+  }
+
+  // Check if email is already registered
+  const isRegistered = await User.findOne({ email })
+  if (isRegistered) {
+    return next(new ErrorHandler("Email is already registered!", 400))
+  }
+
+  // Check if NMC number is already registered
+  const existsByNmc = await User.findOne({ nmcNumber })
+  if (existsByNmc) {
+    return next(new ErrorHandler("This NMC number is already registered!", 400))
+  }
+
+  try {
+    // Upload signature file to cloudinary
+    const signatureResult = await cloudinary.uploader.upload(signatureFile.tempFilePath, {
+      folder: "doctor_signatures",
+      resource_type: "auto",
+    })
+
+    // Create new doctor user
+    const doctor = await User.create({
+      firstName,
+      lastName,
+      email,
+      phone,
+      nmcNumber,
+      dob,
+      gender,
+      password,
+      doctorDepartment,
+      role: "Doctor",
+      signature: {
+        public_id: signatureResult.public_id,
+        url: signatureResult.secure_url,
+      },
+      status: "PendingVerification",
+    })
+
+    res.status(201).json({
+      success: true,
+      message: "Doctor registered. Awaiting verification.",
+      doctorId: doctor._id,
+    })
+  } catch (error) {
+    console.error("Error in doctor registration:", error)
+    return next(new ErrorHandler(`Registration failed: ${error.message}`, 500))
+  }
+})
 
 export const getAllDoctors = catchAsyncErrors(async (req, res, next) => {
   const doctors = await User.find({ role: "Doctor" })
@@ -314,3 +374,43 @@ export const deleteDoctor = catchAsyncErrors(async (req, res, next) => {
     message: "Doctor deleted successfully and related appointments updated"
   });
 });
+
+export const getUnverifiedDoctors = catchAsyncErrors(async (req, res, next) => {
+  const doctors = await User.find({ role: "Doctor", status: "PendingVerification" });
+
+  res.status(200).json({
+    success: true,
+    count: doctors.length,
+    doctors,
+  });
+});
+
+export const updateDoctorVerificationStatus = catchAsyncErrors(async (req, res, next) => {
+  const { doctorId } = req.params;
+  const { nmcVerified } = req.body;
+
+  const doctor = await User.findOne({ _id: doctorId, role: "Doctor" });
+  if (!doctor) {
+    return next(new ErrorHandler("Doctor not found", 404));
+  }
+
+  if (typeof nmcVerified === "boolean") doctor.isNmcVerified = nmcVerified;
+
+  // Only set status to Verified if both are confirmed
+  if (doctor.isNmcVerified) {
+    doctor.status = "Verified";
+  }
+
+  // Optional: If either is explicitly rejected, update status
+  if (nmcVerified === false) {
+    doctor.status = "Rejected";
+  }
+
+  await doctor.save();
+
+  res.status(200).json({
+    success: true,
+    message: `Doctor verification updated. Current status: ${doctor.status}`,
+  });
+});
+

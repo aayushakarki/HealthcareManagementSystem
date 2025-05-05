@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["Appointment", "HealthRecord", "Vitals", "System", "Other"],
+    enum: ["Appointment", "HealthRecord", "Vitals", "System", "Other", "Prescription"],
     default: "System",
   },
   read: {
@@ -25,7 +25,7 @@ const notificationSchema = new mongoose.Schema({
   },
   onModel: {
     type: String,
-    enum: ["Appointment", "HealthRecord", "Vitals"],
+    enum: ["Appointment", "HealthRecord", "Vitals", "Prescription", "User"],
   },
   createdAt: {
     type: Date,

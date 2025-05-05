@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { toast } from "react-toastify"
-import { Search, UserRound, Phone, Mail, Calendar, Eye, Trash } from 'lucide-react'
+import { Search, UserRound, Phone, Mail, Calendar, Eye } from 'lucide-react'
 import PatientDetailsModal from "../modals/PatientDetailsModal"
 
-const PatientsList = ({ onPatientSelect }) => {
+const PatientList = ({ onPatientSelect }) => {
   const [patients, setPatients] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -19,14 +19,37 @@ const PatientsList = ({ onPatientSelect }) => {
       try {
         setLoading(true)
 
-        // Fetch all patients
-        const patientsResponse = await axios.get("http://localhost:4000/api/v1/user/patients", {
+        // Get all appointments to extract unique patients
+        const appointmentsResponse = await axios.get("http://localhost:4000/api/v1/appointment/doctor/me", {
           withCredentials: true,
         })
 
-        if (patientsResponse.data.success) {
-          setPatients(patientsResponse.data.patients || [])
-          setFilteredPatients(patientsResponse.data.patients || [])
+        if (appointmentsResponse.data.success) {
+          const appointments = appointmentsResponse.data.appointments
+
+          // Extract unique patients from appointments
+          const uniquePatients = []
+          const patientIds = new Set()
+
+          appointments.forEach((appointment) => {
+            if (!patientIds.has(appointment.patientId)) {
+              patientIds.add(appointment.patientId)
+              uniquePatients.push({
+                id: appointment.patientId,
+                firstName: appointment.firstName,
+                lastName: appointment.lastName,
+                email: appointment.email,
+                phone: appointment.phone,
+                lastVisit: appointment.appointment_date,
+                gender: appointment.gender,
+                dob: appointment.dob,
+                address: appointment.address,
+              })
+            }
+          })
+
+          setPatients(uniquePatients)
+          setFilteredPatients(uniquePatients)
         }
 
         setLoading(false)
@@ -41,17 +64,70 @@ const PatientsList = ({ onPatientSelect }) => {
   }, [])
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredPatients(patients)
-    } else {
-      const filtered = patients.filter(
-        (patient) =>
-          `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (patient.phone && patient.phone.includes(searchTerm)),
-      )
-      setFilteredPatients(filtered)
+    const searchPatients = async () => {
+      try {
+        if (searchTerm.trim() === "") {
+          setFilteredPatients(patients)
+          return
+        }
+        
+        // Use the backend search endpoint
+        const response = await axios.get(`http://localhost:4000/api/v1/search/patients?query=${encodeURIComponent(searchTerm)}`, {
+          withCredentials: true,
+        })
+        
+        if (response.data.success) {
+          // Filter to only include patients that are in our appointments
+          const patientIds = new Set(patients.map(p => p.id))
+          const filteredResults = response.data.patients.filter(p => patientIds.has(p._id))
+          
+          // Format the results to match our expected structure
+          const formattedResults = filteredResults.map(p => {
+            // Find the original patient to get the lastVisit date
+            const originalPatient = patients.find(op => op.id === p._id)
+            return {
+              id: p._id,
+              firstName: p.firstName,
+              lastName: p.lastName,
+              email: p.email,
+              phone: p.phone,
+              lastVisit: originalPatient?.lastVisit || new Date().toISOString(),
+              gender: p.gender,
+              dob: p.dob,
+              address: p.address,
+            }
+          })
+          
+          setFilteredPatients(formattedResults)
+        } else {
+          // Fallback to client-side filtering if the API returns an error
+          const filtered = patients.filter(
+            (patient) =>
+              `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              patient.phone.includes(searchTerm),
+          )
+          setFilteredPatients(filtered)
+        }
+      } catch (error) {
+        console.error("Error searching patients:", error)
+        // Fallback to client-side filtering if the API fails
+        const filtered = patients.filter(
+          (patient) =>
+            `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            patient.phone.includes(searchTerm),
+        )
+        setFilteredPatients(filtered)
+      }
     }
+    
+    // Debounce search to avoid too many requests
+    const timeoutId = setTimeout(() => {
+      searchPatients()
+    }, 300)
+    
+    return () => clearTimeout(timeoutId)
   }, [searchTerm, patients])
 
   const handleViewDetails = async (patientId) => {
@@ -68,7 +144,7 @@ const PatientsList = ({ onPatientSelect }) => {
     } catch (error) {
       console.error("Error fetching patient details:", error)
       // If API fails, try to get patient info from the patients list
-      const patient = patients.find((p) => p._id === patientId)
+      const patient = patients.find((p) => p.id === patientId)
       if (patient) {
         setSelectedPatient({
           _id: patientId,
@@ -83,38 +159,6 @@ const PatientsList = ({ onPatientSelect }) => {
         setShowModal(true)
       } else {
         toast.error("Failed to load patient details")
-      }
-    }
-  }
-
-  const handleDeletePatient = async (patient) => {
-    // Use the browser's built-in confirm dialog
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete ${patient.firstName} ${patient.lastName}? This will remove all their appointments and cannot be undone.`
-    )
-
-    if (confirmDelete) {
-      try {
-        setLoading(true)
-
-        // Call the endpoint to delete the patient
-        const response = await axios.delete(`http://localhost:4000/api/v1/user/patient/delete/${patient._id}`, {
-          withCredentials: true,
-        })
-
-        if (response.data.success) {
-          toast.success("Patient deleted successfully")
-
-          // Remove the deleted patient from the list
-          setPatients(patients.filter((p) => p._id !== patient._id))
-          setFilteredPatients(filteredPatients.filter((p) => p._id !== patient._id))
-        }
-
-        setLoading(false)
-      } catch (error) {
-        console.error("Error deleting patient:", error)
-        toast.error(error.response?.data?.message || "Failed to delete patient")
-        setLoading(false)
       }
     }
   }
@@ -142,7 +186,7 @@ const PatientsList = ({ onPatientSelect }) => {
       {filteredPatients.length > 0 ? (
         <div className="patients-grid">
           {filteredPatients.map((patient) => (
-            <div key={patient._id} className="patient-card">
+            <div key={patient.id} className="patient-card">
               <div className="patient-avatar">
                 <UserRound className="w-12 h-12 text-gray-400" />
               </div>
@@ -153,34 +197,25 @@ const PatientsList = ({ onPatientSelect }) => {
                 <div className="patient-details">
                   <div className="detail-item">
                     <Phone className="w-4 h-4 text-gray-500" />
-                    <span>{patient.phone || "No phone"}</span>
+                    <span>{patient.phone}</span>
                   </div>
                   <div className="detail-item">
                     <Mail className="w-4 h-4 text-gray-500" />
                     <span>{patient.email}</span>
                   </div>
-                  {patient.createdAt && (
-                    <div className="detail-item">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span>Joined: {new Date(patient.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  )}
+                  <div className="detail-item">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span>Last visit: {new Date(patient.lastVisit).toLocaleDateString()}</span>
+                  </div>
                 </div>
               </div>
               <div className="patient-actions">
                 <button
                   className="view-details-btn flex items-center gap-1"
-                  onClick={() => handleViewDetails(patient._id)}
+                  onClick={() => handleViewDetails(patient.id)}
                 >
                   <Eye className="w-4 h-4" />
                   View Details
-                </button>
-                <button
-                  className="delete-button flex items-center gap-1 text-red-500 hover:text-red-700"
-                  onClick={() => handleDeletePatient(patient)}
-                >
-                  <Trash className="w-4 h-4" />
-                  Delete
                 </button>
               </div>
             </div>
@@ -198,4 +233,4 @@ const PatientsList = ({ onPatientSelect }) => {
   )
 }
 
-export default PatientsList
+export default PatientList

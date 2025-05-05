@@ -5,19 +5,7 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import { Context } from "../../main"
-import {
-  Calendar,
-  Search,
-  LayoutDashboard,
-  FileText,
-  ChevronDown,
-  ChevronRight,
-  Plus,
-  Clock,
-  UserRound,
-  ClipboardList,
-  BarChart,
-} from "lucide-react"
+import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill } from 'lucide-react'
 
 // Import components for each section
 import PatientList from "../../components/doctorDashboard/PatientsList"
@@ -25,6 +13,10 @@ import DoctorAppointments from "../../components/doctorDashboard/DoctorAppointme
 import PatientHealthRecords from "../../components/doctorDashboard/PatientHealthRecords"
 import HealthRecordUpload from "../../components/doctorDashboard/HealthRecordUpload"
 import PatientDetailsModal from "../../components/modals/PatientDetailsModal"
+import AddPrescriptions from "../../components/doctorDashboard/AddPrescriptions"
+import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup"
+// Add this import at the top with other imports
+import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
 
 const DoctorDashboard = () => {
   const { user, setIsAuthenticated, setUser } = useContext(Context)
@@ -36,7 +28,8 @@ const DoctorDashboard = () => {
   const [showPatientModal, setShowPatientModal] = useState(false)
   const [loading, setLoading] = useState(true)
   const [currentMonth, setCurrentMonth] = useState("May 2025")
-  const [selectedDate, setSelectedDate] = useState(new Date().getDate())
+  const [selectedDate, setSelectedDate] = useState(null) // We'll use this for popup only
+  const [todayDate] = useState(new Date().getDate()) // Store today's date separately
   const [todayAppointments, setTodayAppointments] = useState([])
   const [stats, setStats] = useState({
     totalPatients: 0,
@@ -45,6 +38,11 @@ const DoctorDashboard = () => {
     completedAppointments: 0,
   })
   const navigateTo = useNavigate()
+
+  // New state for appointment popup
+  const [showAppointmentPopup, setShowAppointmentPopup] = useState(false)
+  const [selectedDateAppointments, setSelectedDateAppointments] = useState([])
+  const [selectedFullDate, setSelectedFullDate] = useState(null)
 
   const handleLogout = async () => {
     try {
@@ -237,6 +235,57 @@ const DoctorDashboard = () => {
     })
   }
 
+  // New function to handle calendar day click
+  const handleCalendarDayClick = (day) => {
+    // Don't update selectedDate for visual highlighting
+    // We'll just use it for tracking which day was clicked for the popup
+
+    setSelectedDate(day)
+
+    // Create a date object for the selected day
+    const currentDate = new Date()
+    const selectedDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 0, 0, 0)
+
+    // Set the selected full date
+    setSelectedFullDate(selectedDateObj)
+
+    // Find appointments for this day
+    const appointmentsForDay = appointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.appointment_date)
+      return (
+        appointmentDate.getDate() === day &&
+        appointmentDate.getMonth() === currentDate.getMonth() &&
+        appointmentDate.getFullYear() === currentDate.getFullYear()
+      )
+    })
+
+    setSelectedDateAppointments(appointmentsForDay)
+    setShowAppointmentPopup(true)
+  }
+
+  const handleMonthChange = (direction) => {
+    // Create a date object from the current month string
+    const [monthName, year] = currentMonth.split(" ")
+    const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth()
+    const currentYear = Number.parseInt(year)
+
+    let newMonthIndex, newYear
+
+    if (direction === "prev") {
+      newMonthIndex = monthIndex === 0 ? 11 : monthIndex - 1
+      newYear = monthIndex === 0 ? currentYear - 1 : currentYear
+    } else {
+      newMonthIndex = monthIndex === 11 ? 0 : monthIndex + 1
+      newYear = monthIndex === 11 ? currentYear + 1 : currentYear
+    }
+
+    const newMonth = new Date(newYear, newMonthIndex, 1).toLocaleString("default", { month: "long" })
+    setCurrentMonth(`${newMonth} ${newYear}`)
+
+    // Reset selected date when changing months
+    setSelectedDate(null)
+  }
+
   const renderDashboardContent = () => {
     return (
       <div className="dashboardContent">
@@ -425,6 +474,8 @@ const DoctorDashboard = () => {
         return <PatientHealthRecords />
       case "healthrecordupload":
         return <HealthRecordUpload />
+      case "prescriptions":
+        return <AddPrescriptions />
       default:
         return renderDashboardContent()
     }
@@ -480,6 +531,12 @@ const DoctorDashboard = () => {
                 <span>Upload Records</span>
               </button>
             </li>
+            <li className={activeSection === "prescriptions" ? "active" : ""}>
+              <button onClick={() => setActiveSection("prescriptions")}>
+                <Pill className="w-5 h-5" />
+                <span>Prescriptions</span>
+              </button>
+            </li>
           </ul>
         </nav>
 
@@ -519,40 +576,32 @@ const DoctorDashboard = () => {
               <h2>Upcoming appointments</h2>
             </div>
 
+            {/* Replace the calendar-section div in the appointments-sidebar with: */}
             <div className="calendar-section">
-              <div className="month-selector">
-                <h3>{currentMonth}</h3>
-                <div className="month-navigation">
-                  <button className="month-nav-btn">
-                    <ChevronRight className="w-4 h-4 transform rotate-180" />
-                  </button>
-                  <button className="month-nav-btn">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              <AppointmentCalendar
+                appointments={appointments}
+                onDateClick={(date) => {
+                  // Create a date object for the selected day
+                  const selectedDateObj = date
 
-              <div className="weekdays">
-                <span>SUN</span>
-                <span>MON</span>
-                <span>TUE</span>
-                <span>WED</span>
-                <span>THU</span>
-                <span>FRI</span>
-                <span>SAT</span>
-              </div>
+                  // Set the selected full date
+                  setSelectedFullDate(selectedDateObj)
 
-              <div className="calendar-days">
-                {generateCalendarDays().map((day) => (
-                  <button
-                    key={day}
-                    className={`calendar-day ${day === selectedDate ? "selected" : ""} ${hasAppointmentOnDay(day) ? "has-appointment" : ""}`}
-                    onClick={() => setSelectedDate(day)}
-                  >
-                    {day}
-                  </button>
-                ))}
-              </div>
+                  // Find appointments for this day
+                  const appointmentsForDay = appointments.filter((appointment) => {
+                    const appointmentDate = new Date(appointment.appointment_date)
+                    return (
+                      appointmentDate.getDate() === date.getDate() &&
+                      appointmentDate.getMonth() === date.getMonth() &&
+                      appointmentDate.getFullYear() === date.getFullYear()
+                    )
+                  })
+
+                  setSelectedDateAppointments(appointmentsForDay)
+                  setShowAppointmentPopup(true)
+                }}
+                userRole="doctor"
+              />
             </div>
 
             <div className="appointments-list">
@@ -584,6 +633,15 @@ const DoctorDashboard = () => {
 
       {/* Patient Details Modal */}
       {showPatientModal && <PatientDetailsModal patient={selectedPatient} onClose={() => setShowPatientModal(false)} />}
+
+      {/* Appointment Popup */}
+      <AppointmentPopup
+        isVisible={showAppointmentPopup}
+        onClose={() => setShowAppointmentPopup(false)}
+        appointments={selectedDateAppointments}
+        date={selectedFullDate}
+        userRole="doctor"
+      />
     </div>
   )
 }
