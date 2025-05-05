@@ -5,6 +5,7 @@ import ErrorHandler from "../middlewares/errorMiddleware.js"
 import { Notification } from "../models/notificationSchema.js"
 import PDFDocument from 'pdfkit'
 import axios from 'axios'
+import { sendEmail } from "../utils/sendEmail.js"
 
 // Add a new prescription (for doctor)
 export const addPrescription = catchAsyncErrors(async (req, res, next) => {
@@ -43,6 +44,17 @@ export const addPrescription = catchAsyncErrors(async (req, res, next) => {
       relatedId: prescription._id,
       onModel: "Prescription",
     })
+
+    // Send email to patient
+    const patient = await User.findById(patientId);
+    if (patient && patient.email) {
+      await sendEmail({
+        to: patient.email,
+        subject: `MediCure: New Prescription Added`,
+        text: `A new prescription for ${medicationName} has been added to your profile by Dr. ${req.user.firstName} ${req.user.lastName}.`,
+        html: `<p>A new prescription for <b>${medicationName}</b> has been added to your profile by Dr. ${req.user.firstName} ${req.user.lastName}.</p>`,
+      });
+    }
 
     res.status(201).json({
       success: true,

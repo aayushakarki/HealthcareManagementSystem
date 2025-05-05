@@ -7,6 +7,7 @@ import validator from "validator" // Import validator
 import { Appointment } from "../models/appointmentSchema.js";
 import { Notification } from "../models/notificationSchema.js";
 import { HealthRecord } from "../models/healthRecordSchema.js";
+import { sendEmail } from "../utils/sendEmail.js"
 
 export const patientRegister = catchAsyncErrors(async (req, res, next) => {
   // Extract data from request body
@@ -46,6 +47,26 @@ export const patientRegister = catchAsyncErrors(async (req, res, next) => {
     // Set a default value for nmcNumber for patients to avoid schema validation error
     nmcNumber: role === "Patient" ? "NA-PATIENT" : undefined,
   })
+
+  // Send email to admin about new patient registration
+  const admin = await User.findOne({ role: "Admin" })
+  if (admin && admin.email) {
+    await sendEmail({
+      to: admin.email,
+      subject: `MediCure: New Patient Registration`,
+      text: `A new patient has registered: ${firstName} ${lastName}`,
+      html: `
+        <p>A new patient has registered in the system:</p>
+        <ul>
+          <li>Name: ${firstName} ${lastName}</li>
+          <li>Email: ${email}</li>
+          <li>Phone: ${phone}</li>
+          <li>Date of Birth: ${new Date(dob).toLocaleDateString()}</li>
+          <li>Gender: ${gender}</li>
+        </ul>
+      `
+    })
+  }
 
   generateToken(user, "User Registered!", 200, res)
 })
@@ -195,6 +216,27 @@ export const registerDoctor = catchAsyncErrors(async (req, res, next) => {
       },
       status: "PendingVerification",
     })
+
+    // Send email to admin about new doctor registration
+    const admin = await User.findOne({ role: "Admin" })
+    if (admin && admin.email) {
+      await sendEmail({
+        to: admin.email,
+        subject: `MediCure: New Doctor Registration - Verification Required`,
+        text: `A new doctor has registered and requires verification: Dr. ${firstName} ${lastName}`,
+        html: `
+          <p>A new doctor has registered and requires verification:</p>
+          <ul>
+            <li>Name: Dr. ${firstName} ${lastName}</li>
+            <li>Email: ${email}</li>
+            <li>Phone: ${phone}</li>
+            <li>Department: ${doctorDepartment}</li>
+            <li>NMC Number: ${nmcNumber}</li>
+          </ul>
+          <p>Please verify their NMC number and approve their registration.</p>
+        `
+      })
+    }
 
     res.status(201).json({
       success: true,
@@ -357,15 +399,6 @@ export const deleteDoctor = catchAsyncErrors(async (req, res, next) => {
     { status: "Cancelled", $set: { "doctor.notes": "Doctor is no longer available" } }
   );
 
-  // Delete the doctor's avatar from cloudinary if it exists
-  if (doctor.docAvatar && doctor.docAvatar.public_id) {
-    try {
-      await cloudinary.uploader.destroy(doctor.docAvatar.public_id);
-    } catch (error) {
-      console.log("Error deleting doctor avatar from cloudinary", error);
-    }
-  }
-
   // Delete the doctor
   await User.findByIdAndDelete(doctorId);
 
@@ -396,21 +429,137 @@ export const updateDoctorVerificationStatus = catchAsyncErrors(async (req, res, 
 
   if (typeof nmcVerified === "boolean") doctor.isNmcVerified = nmcVerified;
 
-  // Only set status to Verified if both are confirmed
+  // If doctor is rejected, delete their data
+  if (nmcVerified === false) {
+    // Delete doctor's signature from cloudinary if it exists
+    if (doctor.signature && doctor.signature.public_id) {
+      await cloudinary.uploader.destroy(doctor.signature.public_id);
+    }
+
+    // Delete doctor's avatar from cloudinary if it exists
+    if (doctor.docAvatar && doctor.docAvatar.public_id) {
+      await cloudinary.uploader.destroy(doctor.docAvatar.public_id);
+    }
+
+    // Delete the doctor from database
+    await User.findByIdAndDelete(doctorId);
+
+    // Send rejection email
+    if (doctor.email) {
+      await sendEmail({
+        to: doctor.email,
+        subject: `MediCure: Doctor Registration Rejected`,
+        text: `Your doctor registration has been rejected.`,
+        html: `
+          <p>Dear Dr. ${doctor.firstName} ${doctor.lastName},</p>
+          <p>We regret to inform you that your doctor registration has been rejected.</p>
+          <p>If you believe this is an error, please contact the admin for further assistance.</p>
+        `
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Doctor registration rejected and data deleted successfully",
+    });
+  }
+
+  // If verified, update status to Verified
   if (doctor.isNmcVerified) {
     doctor.status = "Verified";
+    await doctor.save();
+
+    // Send approval email
+    if (doctor.email) {
+      await sendEmail({
+        to: doctor.email,
+        subject: `MediCure: Doctor Registration Approved`,
+        text: `Your doctor registration has been approved.`,
+        html: `
+          <p>Dear Dr. ${doctor.firstName} ${doctor.lastName},</p>
+          <p>Your doctor registration has been approved.</p>
+          <p>You can now log in to your account and start accepting appointments.</p>
+        `
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Doctor verification updated. Current status: Verified",
+    });
   }
 
-  // Optional: If either is explicitly rejected, update status
-  if (nmcVerified === false) {
-    doctor.status = "Rejected";
+  return res.status(200).json({
+    success: true,
+    message: "Doctor verification status updated",
+  });
+});
+
+export const uploadDoctorAvatar = catchAsyncErrors(async (req, res, next) => {
+  // Check if file is uploaded
+  if (!req.files || !req.files.avatar) {
+    return next(new ErrorHandler("No file uploaded", 400));
   }
 
-  await doctor.save();
+  const file = req.files.avatar;
+
+  // Validate file type (optional)
+  if (!["image/jpeg", "image/png", "image/jpg"].includes(file.mimetype)) {
+    return next(new ErrorHandler("Only JPG and PNG files are allowed", 400));
+  }
+
+  // Upload to Cloudinary
+  const result = await cloudinary.v2.uploader.upload(file.tempFilePath, {
+    folder: "doctor_avatars",
+    resource_type: "image",
+  });
+
+  // Update user in DB
+  const doctor = await User.findByIdAndUpdate(
+    req.user._id,
+    { docAvatar: { public_id: result.public_id, url: result.secure_url } },
+    { new: true }
+  );
 
   res.status(200).json({
     success: true,
-    message: `Doctor verification updated. Current status: ${doctor.status}`,
+    message: "Avatar uploaded successfully",
+    avatarUrl: result.secure_url,
+    doctor,
+  });
+});
+
+export const uploadPatientAvatar = catchAsyncErrors(async (req, res, next) => {
+  // Check if file is uploaded
+  if (!req.files || !req.files.avatar) {
+    return next(new ErrorHandler("No file uploaded", 400));
+  }
+
+  const file = req.files.avatar;
+
+  // Validate file type (optional)
+  if (!["image/jpeg", "image/png", "image/jpg"].includes(file.mimetype)) {
+    return next(new ErrorHandler("Only JPG and PNG files are allowed", 400));
+  }
+
+  // Upload to Cloudinary
+  const result = await cloudinary.v2.uploader.upload(file.tempFilePath, {
+    folder: "patient_avatars",
+    resource_type: "image",
+  });
+
+  // Update user in DB
+  const patient = await User.findByIdAndUpdate(
+    req.user._id,
+    { userAvatar: { public_id: result.public_id, url: result.secure_url } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Avatar uploaded successfully",
+    avatarUrl: result.secure_url,
+    patient,
   });
 });
 

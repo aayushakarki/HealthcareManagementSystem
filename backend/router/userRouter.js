@@ -1,5 +1,5 @@
 import express from "express";
-import { addNewAdmin, login, patientRegister, getAllDoctors, getUserDetails, logoutAdmin, logoutPatient, logoutDoctor, getDoctorsByDepartment, getAllPatients, deleteDoctor, deletePatient, registerDoctor, getUnverifiedDoctors, updateDoctorVerificationStatus } from "../controller/userController.js";
+import { addNewAdmin, login, patientRegister, getAllDoctors, getUserDetails, logoutAdmin, logoutPatient, logoutDoctor, getDoctorsByDepartment, getAllPatients, deleteDoctor, deletePatient, registerDoctor, getUnverifiedDoctors, updateDoctorVerificationStatus, uploadDoctorAvatar, uploadPatientAvatar } from "../controller/userController.js";
 import { isAdminAuthenticated, isDoctorAuthenticated, isPatientAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
@@ -21,5 +21,7 @@ router.delete("/patient/delete/:patientId", isAdminAuthenticated, deletePatient)
 router.delete("/doctor/delete/:doctorId", isAdminAuthenticated, deleteDoctor);
 router.get("/admin/doctors/pending", isAdminAuthenticated, getUnverifiedDoctors);
 router.put("/admin/doctors/verify/:doctorId", isAdminAuthenticated, updateDoctorVerificationStatus);
+router.post("/doctor/upload-avatar", isDoctorAuthenticated, uploadDoctorAvatar);
+router.post("/patient/upload-avatar", isPatientAuthenticated, uploadPatientAvatar);
 
 export default router;

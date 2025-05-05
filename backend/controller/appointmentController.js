@@ -3,6 +3,7 @@ import ErrorHandler from "../middlewares/errorMiddleware.js"
 import { Appointment } from "../models/appointmentSchema.js"
 import { User } from "../models/userSchema.js"
 import { Notification } from "../models/notificationSchema.js"
+import { sendEmail } from "../utils/sendEmail.js"
 
 export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
   const {
@@ -82,6 +83,50 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
     onModel: "Appointment",
   })
 
+  // Send email to doctor
+  const doctor = await User.findById(doctorId)
+  if (doctor && doctor.email) {
+    await sendEmail({
+      to: doctor.email,
+      subject: `MediCure: New Appointment Request`,
+      text: `You have a new appointment request from ${firstName} ${lastName} for ${new Date(appointment_date).toLocaleString()}`,
+      html: `
+        <p>You have a new appointment request from <b>${firstName} ${lastName}</b></p>
+        <p>Appointment Details:</p>
+        <ul>
+          <li>Date & Time: ${new Date(appointment_date).toLocaleString()}</li>
+          <li>Department: ${department}</li>
+          <li>Patient Email: ${email}</li>
+          <li>Patient Phone: ${phone}</li>
+        </ul>
+      `
+    })
+  }
+
+  // Send email to admin
+  const admin = await User.findOne({ role: "Admin" })
+  if (admin && admin.email) {
+    await sendEmail({
+      to: admin.email,
+      subject: `MediCure: New Appointment Request`,
+      text: `A new appointment has been booked with Dr. ${doctor_firstName} ${doctor_lastName} by ${firstName} ${lastName}`,
+      html: `
+        <p>A new appointment has been booked with Dr. <b>${doctor_firstName} ${doctor_lastName}</b></p>
+        <p>Patient Details:</p>
+        <ul>
+          <li>Name: ${firstName} ${lastName}</li>
+          <li>Email: ${email}</li>
+          <li>Phone: ${phone}</li>
+        </ul>
+        <p>Appointment Details:</p>
+        <ul>
+          <li>Date & Time: ${new Date(appointment_date).toLocaleString()}</li>
+          <li>Department: ${department}</li>
+        </ul>
+      `
+    })
+  }
+
   res.status(200).json({
     success: true,
     appointment,
@@ -92,7 +137,7 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
 // function to update a single appointment by ID
 export const updateAppointmentStatus = catchAsyncErrors(async (req, res, next) => {
   const { appointmentId } = req.params
-  const { status } = req.body
+  const { status, newDate } = req.body // Accept newDate
 
   if (!status) {
     return next(new ErrorHandler("Please provide status", 400))
@@ -108,26 +153,48 @@ export const updateAppointmentStatus = catchAsyncErrors(async (req, res, next) =
   // Store old status
   const oldStatus = appointment.status
 
-  // Update the appointment status
+  // Prepare update object
+  const updateObj = { status }
+  if (status === "Rescheduled" && newDate) {
+    updateObj.appointment_date = newDate
+  }
+
+  // Update the appointment
   const updatedAppointment = await Appointment.findByIdAndUpdate(
     appointmentId,
-    { status },
+    updateObj,
     {
       new: true,
       runValidators: true,
       useFindAndModify: false,
-    },
+    }
   )
 
   // Create notification if the status has changed
   if (oldStatus !== status) {
     await Notification.create({
       userId: appointment.patientId,
-      message: `Your appointment status has been updated to ${status}`,
+      message: `Your appointment status has been updated to ${status}` + (status === "Rescheduled" && newDate ? ` (New date: ${new Date(newDate).toLocaleString()})` : ""),
       type: "Appointment",
       relatedId: appointment._id,
       onModel: "Appointment",
     })
+
+    const user = await User.findById(appointment.patientId)
+    if (user && user.email) {
+      let emailText = `Your appointment status has been updated to ${status}.`;
+      let emailHtml = `<p>Your appointment status has been updated to <b>${status}</b>.</p>`;
+      if (status === "Rescheduled" && newDate) {
+        emailText += ` New date: ${new Date(newDate).toLocaleString()}`;
+        emailHtml += `<p>New date: <b>${new Date(newDate).toLocaleString()}</b></p>`;
+      }
+      await sendEmail({
+        to: user.email,
+        subject: `MediCure: Appointment Status Updated`,
+        text: emailText,
+        html: emailHtml,
+      })
+    }
   }
 
   res.status(200).json({

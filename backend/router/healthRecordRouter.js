@@ -5,7 +5,8 @@ import {
   deleteHealthRecord,
   getPatientHealthRecords,
   getMyHealthRecords,
-  getHealthRecordById
+  getHealthRecordById,
+  downloadHealthRecord
 } from '../controller/healthRecordController.js';
 import { isPatientAuthenticated, isAdminOrDoctorAuthenticated } from '../middlewares/auth.js';
 
@@ -19,6 +20,9 @@ router.get('/patient/:patientId', isAdminOrDoctorAuthenticated, getPatientHealth
 
 // Routes for patients
 router.get('/me', isPatientAuthenticated, getMyHealthRecords);
+
+// Download route (accessible to both patients and doctors)
+router.get('/download/:recordId', isPatientAuthenticated, downloadHealthRecord);
 
 // Route for both (with authorization check in controller)
 router.get('/:recordId', isPatientAuthenticated, getHealthRecordById);

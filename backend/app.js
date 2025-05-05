@@ -4,7 +4,6 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import fileUpload from "express-fileupload"
 import { dbConnection } from "./database/dbConnection.js"
-import messageRouter from "./router/messageRouter.js"
 import { errorMiddleware } from "./middlewares/errorMiddleware.js"
 import userRouter from "./router/userRouter.js"
 import appointmentRouter from "./router/appointmentRouter.js"
@@ -13,6 +12,7 @@ import vitalsRouter from "./router/vitalsRouter.js"
 import notificationRouter from "./router/notificationRouter.js"
 import prescriptionRouter from "./router/prescriptionRouter.js"
 import searchRouter from "./router/searchRouter.js"
+import "./utils/reminderJobs.js"
 
 const app = express()
 
@@ -53,7 +53,6 @@ if (process.env.NODE_ENV !== "production") {
   })
 }
 
-app.use("/api/v1/message", messageRouter)
 app.use("/api/v1/user", userRouter)
 app.use("/api/v1/appointment", appointmentRouter)
 app.use("/api/v1/health-records", healthRecordRouter)

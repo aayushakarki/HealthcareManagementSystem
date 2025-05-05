@@ -55,6 +55,10 @@ const userSchema = new mongoose.Schema({
     public_id: String,
     url: String,
   },
+  userAvatar: {
+    public_id: String,
+    url: String,
+  },
   signature: {
     public_id: String,
     url: String,
