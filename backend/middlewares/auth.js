@@ -77,13 +77,17 @@ export const isAuthenticated = catchAsyncErrors(async (req, res, next) => {
   try {
     let decoded
     let token
+    let expectedRole
 
     if (patientToken) {
       token = patientToken
+      expectedRole = "Patient"
     } else if (doctorToken) {
       token = doctorToken
+      expectedRole = "Doctor"
     } else {
       token = adminToken
+      expectedRole = "Admin"
     }
 
     decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
@@ -91,6 +95,11 @@ export const isAuthenticated = catchAsyncErrors(async (req, res, next) => {
 
     if (!req.user) {
       return next(new ErrorHandler("User not found!", 404))
+    }
+
+    // Verify that the token type matches the user's role
+    if (req.user.role !== expectedRole) {
+      return next(new ErrorHandler(`Invalid token type for ${req.user.role} role`, 401))
     }
 
     next()

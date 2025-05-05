@@ -9,7 +9,18 @@ const healthRecordSchema = new mongoose.Schema(
     },
     recordType: {
       type: String,
-      enum: ['Lab Result', 'Prescription', 'Imaging', 'Diagnosis', 'Other'],
+      enum: [
+        'Lab Results',
+        'X-Ray',
+        'MRI',
+        'CT Scan',
+        'Prescription',
+        'Vaccination',
+        'Surgery Report',
+        'Discharge Summary',
+        'Medical Certificate',
+        'Other'
+      ],
       required: [true, 'Record type is required']
     },
     fileUrl: {

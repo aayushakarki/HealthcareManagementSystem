@@ -1,5 +1,10 @@
 import { HealthRecord } from '../models/healthRecordSchema.js';
 import { v2 as cloudinary } from 'cloudinary';
+import { sendEmail } from "../utils/sendEmail.js";
+import { User } from "../models/userSchema.js";
+import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
+import ErrorHandler from "../middlewares/errorMiddleware.js";
+import https from 'https';
 
 // Helper function to validate file type
 const isValidFileType = (mimetype) => {
@@ -7,124 +12,119 @@ const isValidFileType = (mimetype) => {
 };
 
 // Upload a health record (for doctor or admin)
-export const uploadHealthRecord = async (req, res) => {
-  try {
-    const { patientId, recordType, description } = req.body;
+export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
+  const { patientId, recordType, description } = req.body;
 
-    // Check if file is uploaded
-    if (!req.files || !req.files.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please upload a file'
+  // Check if file is uploaded
+  if (!req.files || !req.files.file) {
+    return next(new ErrorHandler("Please upload a file", 400));
+  }
+
+  const file = req.files.file;
+
+  // Validate file type (only jpg or pdf)
+  if (!isValidFileType(file.mimetype)) {
+    return next(new ErrorHandler("Only JPG and PDF files are allowed", 400));
+  }
+
+  // Upload file to cloudinary
+  const result = await cloudinary.uploader.upload(file.tempFilePath, {
+    folder: 'health_records',
+    resource_type: 'auto'
+  });
+
+  // Create health record
+  const healthRecord = await HealthRecord.create({
+    patientId,
+    recordType,
+    description,
+    fileUrl: result.secure_url,
+    fileName: file.name,
+    createdBy: req.user.id // From authentication middleware
+  });
+
+  // Send email notification
+  const user = await User.findById(patientId);
+  if (user && user.email) {
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: `MediCure: New Health Record Added`,
+        text: `A new health record has been added to your profile.`,
+        html: `<p>A new health record has been added to your profile.</p>`,
       });
+    } catch (error) {
+      console.error("Failed to send email notification:", error);
+      // Don't fail the request if email fails
     }
+  }
 
+  res.status(201).json({
+    success: true,
+    healthRecord
+  });
+});
+
+// Update a health record (for doctor or admin)
+export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
+  const { recordId } = req.params;
+  const { recordType, description } = req.body;
+
+  // Find the health record
+  let healthRecord = await HealthRecord.findById(recordId);
+
+  if (!healthRecord) {
+    return next(new ErrorHandler("Health record not found", 404));
+  }
+
+  // Update fields
+  const updateData = {
+    recordType: recordType || healthRecord.recordType,
+    description: description || healthRecord.description
+  };
+
+  // If file is uploaded, update file
+  if (req.files && req.files.file) {
     const file = req.files.file;
 
-    // Validate file type (only jpg or pdf)
+    // Validate file type
     if (!isValidFileType(file.mimetype)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Only JPG and PDF files are allowed'
-      });
+      return next(new ErrorHandler("Only JPG and PDF files are allowed", 400));
     }
 
-    // Upload file to cloudinary
+    // Delete old file from cloudinary
+    if (healthRecord.fileUrl) {
+      const publicId = healthRecord.fileUrl.split('/').pop().split('.')[0];
+      try {
+        await cloudinary.uploader.destroy(`health_records/${publicId}`);
+      } catch (error) {
+        console.error("Failed to delete old file from cloudinary:", error);
+        // Continue with the update even if deletion fails
+      }
+    }
+
+    // Upload new file
     const result = await cloudinary.uploader.upload(file.tempFilePath, {
       folder: 'health_records',
       resource_type: 'auto'
     });
 
-    // Create health record
-    const healthRecord = await HealthRecord.create({
-      patientId,
-      recordType,
-      description,
-      fileUrl: result.secure_url,
-      fileName: file.name,
-      createdBy: req.user.id // From authentication middleware
-    });
-
-    res.status(201).json({
-      success: true,
-      healthRecord
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    updateData.fileUrl = result.secure_url;
+    updateData.fileName = file.name;
   }
-};
 
-// Update a health record (for doctor or admin)
-export const updateHealthRecord = async (req, res) => {
-  try {
-    const { recordId } = req.params;
-    const { recordType, description } = req.body;
+  // Update health record
+  healthRecord = await HealthRecord.findByIdAndUpdate(
+    recordId,
+    updateData,
+    { new: true, runValidators: true }
+  );
 
-    // Find the health record
-    let healthRecord = await HealthRecord.findById(recordId);
-
-    if (!healthRecord) {
-      return res.status(404).json({
-        success: false,
-        message: 'Health record not found'
-      });
-    }
-
-    // Update fields
-    const updateData = {
-      recordType: recordType || healthRecord.recordType,
-      description: description || healthRecord.description
-    };
-
-    // If file is uploaded, update file
-    if (req.files && req.files.file) {
-      const file = req.files.file;
-
-      // Validate file type
-      if (!isValidFileType(file.mimetype)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Only JPG and PDF files are allowed'
-        });
-      }
-
-      // Delete old file from cloudinary
-      if (healthRecord.fileUrl) {
-        const publicId = healthRecord.fileUrl.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(`health_records/${publicId}`);
-      }
-
-      // Upload new file
-      const result = await cloudinary.uploader.upload(file.tempFilePath, {
-        folder: 'health_records',
-        resource_type: 'auto'
-      });
-
-      updateData.fileUrl = result.secure_url;
-      updateData.fileName = file.name;
-    }
-
-    // Update health record
-    healthRecord = await HealthRecord.findByIdAndUpdate(
-      recordId,
-      updateData,
-      { new: true, runValidators: true }
-    );
-
-    res.status(200).json({
-      success: true,
-      healthRecord
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+  res.status(200).json({
+    success: true,
+    healthRecord
+  });
+});
 
 // Delete a health record (for doctor or admin)
 export const deleteHealthRecord = async (req, res) => {
@@ -241,3 +241,32 @@ export const getHealthRecordById = async (req, res) => {
     });
   }
 };
+
+export const downloadHealthRecord = catchAsyncErrors(async (req, res, next) => {
+  const { recordId } = req.params;
+
+  // Find the health record
+  const healthRecord = await HealthRecord.findById(recordId);
+  if (!healthRecord) {
+    return next(new ErrorHandler("Health record not found", 404));
+  }
+
+  // Check if user is authorized to download
+  if (req.user.role === "Patient" && healthRecord.patientId.toString() !== req.user._id.toString()) {
+    return next(new ErrorHandler("You are not authorized to download this record", 403));
+  }
+
+  // Get the file from Cloudinary
+  const fileUrl = healthRecord.fileUrl;
+
+  // Set headers for file download
+  res.setHeader('Content-Disposition', `attachment; filename="${healthRecord.fileName}"`);
+  res.setHeader('Content-Type', 'application/octet-stream');
+
+  // Stream the file from Cloudinary to the client
+  https.get(fileUrl, (fileRes) => {
+    fileRes.pipe(res);
+  }).on('error', (err) => {
+    return next(new ErrorHandler("Failed to download file", 500));
+  });
+});

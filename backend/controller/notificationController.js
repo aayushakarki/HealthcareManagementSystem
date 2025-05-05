@@ -1,6 +1,8 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js"
 import ErrorHandler from "../middlewares/errorMiddleware.js"
 import { Notification } from "../models/notificationSchema.js"
+import { sendEmail } from "../utils/sendEmail.js"
+import { User } from "../models/userSchema.js"
 
 // Get user notifications
 export const getUserNotifications = catchAsyncErrors(async (req, res, next) => {
@@ -88,6 +90,17 @@ export const createNotification = catchAsyncErrors(async (req, res, next) => {
     relatedId,
     onModel,
   })
+
+  // Send email notification
+  const user = await User.findById(userId);
+  if (user && user.email) {
+    await sendEmail({
+      to: user.email,
+      subject: `MediCure Notification: ${type || "Update"}`,
+      text: message,
+      html: `<p>${message}</p>`,
+    });
+  }
 
   res.status(201).json({
     success: true,
