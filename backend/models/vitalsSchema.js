@@ -24,14 +24,13 @@ const vitalsSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Heart rate is required!"],
   },
-  temperature: {
+  cholesterol: {
     type: Number,
-    required: [true, "Temperature is required!"],
+  },
+  hdlCholesterol: {
+    type: Number,
   },
   respiratoryRate: {
-    type: Number,
-  },
-  oxygenSaturation: {
     type: Number,
   },
   weight: {

@@ -71,11 +71,18 @@ const PatientVitals = () => {
         yAxisID: "y1",
       },
       {
-        label: "Temperature",
-        data: vitals.map((v) => v.temperature),
+        label: "Cholesterol",
+        data: vitals.map((v) => v.cholesterol),
+        borderColor: "rgb(255, 205, 86)",
+        backgroundColor: "rgba(255, 205, 86, 0.5)",
+        yAxisID: "y2",
+      },
+      {
+        label: "HDL Cholesterol",
+        data: vitals.map((v) => v.hdlCholesterol),
         borderColor: "rgb(153, 102, 255)",
         backgroundColor: "rgba(153, 102, 255, 0.5)",
-        yAxisID: "y2",
+        yAxisID: "y3",
       },
     ],
   }
@@ -114,7 +121,19 @@ const PatientVitals = () => {
         position: "right",
         title: {
           display: true,
-          text: "Temperature (°F)",
+          text: "Cholesterol (mg/dL)",
+        },
+        grid: {
+          drawOnChartArea: false,
+        },
+      },
+      y3: {
+        type: "linear",
+        display: true,
+        position: "right",
+        title: {
+          display: true,
+          text: "HDL Cholesterol (mg/dL)",
         },
         grid: {
           drawOnChartArea: false,
@@ -144,9 +163,9 @@ const PatientVitals = () => {
               <th>Date</th>
               <th>Blood Pressure</th>
               <th>Heart Rate</th>
-              <th>Temperature</th>
+              <th>Cholesterol</th>
+              <th>HDL Cholesterol</th>
               <th>Respiratory Rate</th>
-              <th>Oxygen Saturation</th>
               <th>Weight</th>
               <th>Height</th>
               <th>Notes</th>
@@ -160,9 +179,9 @@ const PatientVitals = () => {
                   {vital.bloodPressure.systolic}/{vital.bloodPressure.diastolic} mmHg
                 </td>
                 <td>{vital.heartRate} bpm</td>
-                <td>{vital.temperature}°F</td>
+                <td>{vital.cholesterol ? `${vital.cholesterol} mg/dL` : "-"}</td>
+                <td>{vital.hdlCholesterol ? `${vital.hdlCholesterol} mg/dL` : "-"}</td>
                 <td>{vital.respiratoryRate || "-"}</td>
-                <td>{vital.oxygenSaturation ? `${vital.oxygenSaturation}%` : "-"}</td>
                 <td>{vital.weight ? `${vital.weight} kg` : "-"}</td>
                 <td>{vital.height ? `${vital.height} cm` : "-"}</td>
                 <td>{vital.notes || "-"}</td>

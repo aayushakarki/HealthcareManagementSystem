@@ -55,6 +55,16 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
   }
   const doctorId = isConflict[0]._id
   const patientId = req.user._id
+
+  // Check for double-booking: does the doctor already have an appointment at this time?
+  const conflict = await Appointment.findOne({
+    doctorId,
+    appointment_date: appointment_date
+  })
+  if (conflict) {
+    return next(new ErrorHandler("Doctor already has an appointment at this time!", 400))
+  }
+
   const appointment = await Appointment.create({
     firstName,
     lastName,

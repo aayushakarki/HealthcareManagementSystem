@@ -17,9 +17,9 @@ export const getVitalsHistory = catchAsyncErrors(async (req, res, next) => {
 
 // Add new vitals record
 export const addVitals = catchAsyncErrors(async (req, res, next) => {
-  const { patientId, bloodPressure, heartRate, temperature, respiratoryRate, oxygenSaturation, weight, height, notes } = req.body
+  const { patientId, bloodPressure, heartRate, cholesterol, hdlCholesterol, respiratoryRate, weight, height, notes } = req.body
 
-  if (!patientId || !bloodPressure || !heartRate || !temperature) {
+  if (!patientId || !bloodPressure || !heartRate || !cholesterol || !hdlCholesterol) {
     return next(new ErrorHandler("Please provide required vital signs and patient ID!", 400))
   }
 
@@ -27,9 +27,9 @@ export const addVitals = catchAsyncErrors(async (req, res, next) => {
     patientId,
     bloodPressure,
     heartRate,
-    temperature,
+    cholesterol,
+    hdlCholesterol,
     respiratoryRate,
-    oxygenSaturation,
     weight,
     height,
     notes,
@@ -37,13 +37,13 @@ export const addVitals = catchAsyncErrors(async (req, res, next) => {
   })
 
   // Create notification for the patient
-  await Notification.create({
-    userId: patientId,
-    message: "Your vital signs were recorded by your doctor",
-    type: "Vitals",
-    relatedId: vitals._id,
-    onModel: "Vitals",
-  })
+    await Notification.create({
+      userId: patientId,
+      message: "Your vital signs were recorded by your doctor",
+      type: "Vitals",
+      relatedId: vitals._id,
+      onModel: "Vitals",
+    })
 
   res.status(201).json({
     success: true,

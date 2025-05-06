@@ -34,6 +34,7 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
             reason: appointment.department,
             specialty: appointment.department,
             status: appointment.status || "confirmed",
+            doctorNotes: appointment.doctorNotes,
           }))
 
           setAppointments(formattedAppointments)
@@ -133,6 +134,7 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
           reason: appointment.department,
           specialty: appointment.department,
           status: appointment.status || "confirmed",
+          doctorNotes: appointment.doctorNotes,
         }))
 
         setAppointments(formattedAppointments)
@@ -176,26 +178,23 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
       <div className="appointments-list-container">
         {filteredAppointments.length > 0 ? (
           <div className="appointments-table">
-            <div className="table-header">
-              <div className="header-cell">Doctor</div>
-              <div className="header-cell">Date & Time</div>
-              <div className="header-cell">Reason</div>
-              <div className="header-cell">Status</div>
-              <div className="header-cell">Actions</div>
+            <div className="table-header-box">
+              <div className="table-header">
+                <div className="header-cell">Doctor</div>
+                <div className="header-cell">Date & Time</div>
+                <div className="header-cell">Reason</div>
+                <div className="header-cell">Status</div>
+                <div className="header-cell">Notes</div>
+              </div>
             </div>
-
             {filteredAppointments.map((appointment) => (
               <div key={appointment._id} className="table-row">
                 <div className="cell doctor-cell">
-                  <div className="doctor-avatar">
-                    <img src="/placeholder.svg?height=40&width=40" alt={appointment.doctorName} />
-                  </div>
                   <div className="doctor-info">
-                    <h4>Dr. {appointment.doctorName}</h4>
-                    <p>{appointment.specialty}</p>
+                    <div className="doctor-name">Dr. {appointment.doctorName}</div>
+                    <div className="doctor-specialty">{appointment.specialty}</div>
                   </div>
                 </div>
-
                 <div className="cell date-cell">
                   <div className="date">
                     <Calendar className="w-4 h-4" />
@@ -206,30 +205,15 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
                     <span>{appointment.time}</span>
                   </div>
                 </div>
-
                 <div className="cell reason-cell">{appointment.reason}</div>
-
                 <div className="cell status-cell">
                   <span className={`status-badge ${getStatusClass(appointment.status)}`}>{appointment.status}</span>
                 </div>
-
-                <div className="cell actions-cell">
-                  {appointment.status === "confirmed" && (
-                    <>
-                      <button className="action-btn edit-btn" onClick={() => handleReschedule(appointment._id)}>
-                        <Edit className="w-4 h-4" />
-                        <span>Reschedule</span>
-                      </button>
-                      <button className="action-btn cancel-btn" onClick={() => handleCancel(appointment._id)}>
-                        <X className="w-4 h-4" />
-                        <span>Cancel</span>
-                      </button>
-                    </>
-                  )}
-                  {appointment.status === "completed" && (
-                    <button className="action-btn">
-                      <span>View Details</span>
-                    </button>
+                <div className="cell notes-cell">
+                  {appointment.doctorNotes ? (
+                    <span>{appointment.doctorNotes}</span>
+                  ) : (
+                    <span className="no-notes">No notes</span>
                   )}
                 </div>
               </div>

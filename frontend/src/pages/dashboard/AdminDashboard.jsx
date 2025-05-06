@@ -20,6 +20,7 @@ import {
   BarChart,
   Activity,
   User,
+  ChevronLeft,
 } from "lucide-react"
 
 // Import components for each section
@@ -473,12 +474,20 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <div className="main-content">
         <div className="top-bar">
+          <div>
             <div>
-            <div>
-            <p className="ml-4">Admin</p>
+              <p className="ml-4">Admin</p>
             </div>
           </div>
         </div>
+
+        {activeSection !== "dashboard" && (
+          <button className="chevron-back-btn" onClick={() => setActiveSection("dashboard")}
+            style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" /> Back to Dashboard
+          </button>
+        )}
 
         <div className="content-wrapper">
           <div className="content-main">{renderContent()}</div>
