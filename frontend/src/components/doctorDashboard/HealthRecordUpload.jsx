@@ -201,46 +201,45 @@ const HealthRecordUpload = () => {
       <div className="section-header">
         <h2>Upload Health Record</h2>
       </div>
-
       <form onSubmit={handleSubmit} className="upload-form">
-        <div className="form-group">
-          <label htmlFor="patientId">Patient *</label>
-          <select
-            id="patientId"
-            name="patientId"
-            value={formData.patientId}
-            onChange={handleInputChange}
-            required
-            className="form-select"
-          >
-            <option value="">Select Patient</option>
-            {patients.map((patient) => (
-              <option key={patient.id} value={patient.id}>
-                {patient.name}
-              </option>
-            ))}
-          </select>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="patientId">Patient *</label>
+            <select
+              id="patientId"
+              name="patientId"
+              value={formData.patientId}
+              onChange={handleInputChange}
+              required
+              className="form-select"
+            >
+              <option value="">Select Patient</option>
+              {patients.map((patient) => (
+                <option key={patient.id} value={patient.id}>
+                  {patient.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="recordType">Record Type *</label>
+            <select
+              id="recordType"
+              name="recordType"
+              value={formData.recordType}
+              onChange={handleInputChange}
+              required
+              className="form-select"
+            >
+              <option value="">Select Record Type</option>
+              {recordTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-
-        <div className="form-group">
-          <label htmlFor="recordType">Record Type *</label>
-          <select
-            id="recordType"
-            name="recordType"
-            value={formData.recordType}
-            onChange={handleInputChange}
-            required
-            className="form-select"
-          >
-            <option value="">Select Record Type</option>
-            {recordTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div className="form-group">
           <label htmlFor="description">Description</label>
           <textarea
@@ -253,10 +252,8 @@ const HealthRecordUpload = () => {
             placeholder="Enter a description of the health record"
           />
         </div>
-
         <div className="form-group">
           <label>Upload File *</label>
-
           {!selectedFile ? (
             <div className="file-upload-area">
               <input type="file" id="file" onChange={handleFileChange} className="file-input" accept="image/*,.pdf" />
@@ -277,19 +274,16 @@ const HealthRecordUpload = () => {
                   <FileText className="w-12 h-12 text-blue-500" />
                 </div>
               )}
-
               <div className="file-info">
                 <p className="file-name">{selectedFile.name}</p>
                 <p className="file-size">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
               </div>
-
               <button type="button" className="remove-file-btn" onClick={removeSelectedFile}>
                 <X className="w-5 h-5" />
               </button>
             </div>
           )}
         </div>
-
         <div className="form-actions">
           <button type="submit" className="btn-primary" disabled={uploadLoading}>
             {uploadLoading ? (

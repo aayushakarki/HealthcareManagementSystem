@@ -18,9 +18,9 @@ const AddVitals = () => {
       diastolic: "",
     },
     heartRate: "",
-    temperature: "",
+    cholesterol: "",
+    hdlCholesterol: "",
     respiratoryRate: "",
-    oxygenSaturation: "",
     weight: "",
     height: "",
     notes: "",
@@ -121,7 +121,7 @@ const AddVitals = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.patientId || !formData.bloodPressure.systolic || !formData.bloodPressure.diastolic || !formData.heartRate || !formData.temperature) {
+    if (!formData.patientId || !formData.bloodPressure.systolic || !formData.bloodPressure.diastolic || !formData.heartRate || !formData.cholesterol || !formData.hdlCholesterol || !formData.respiratoryRate) {
       toast.error("Please fill all required fields")
       return
     }
@@ -145,9 +145,9 @@ const AddVitals = () => {
             diastolic: "",
           },
           heartRate: "",
-          temperature: "",
+          cholesterol: "",
+          hdlCholesterol: "",
           respiratoryRate: "",
-          oxygenSaturation: "",
           weight: "",
           height: "",
           notes: "",
@@ -249,24 +249,41 @@ const AddVitals = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="temperature">Temperature *</label>
+            <label htmlFor="cholesterol">Cholesterol *</label>
             <div className="input-with-icon">
-              <Thermometer className="w-4 h-4 text-gray-400" />
+              <Activity className="w-4 h-4 text-gray-400" />
               <input
                 type="number"
-                id="temperature"
-                name="temperature"
-                value={formData.temperature}
+                id="cholesterol"
+                name="cholesterol"
+                value={formData.cholesterol}
                 onChange={handleInputChange}
                 required
                 className="form-input"
-                placeholder="e.g., 98.6"
+                placeholder="e.g., 200"
               />
             </div>
           </div>
         </div>
 
         <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="hdlCholesterol">HDL Cholesterol *</label>
+            <div className="input-with-icon">
+              <Activity className="w-4 h-4 text-gray-400" />
+              <input
+                type="number"
+                id="hdlCholesterol"
+                name="hdlCholesterol"
+                value={formData.hdlCholesterol}
+                onChange={handleInputChange}
+                required
+                className="form-input"
+                placeholder="e.g., 50"
+              />
+            </div>
+          </div>
+
           <div className="form-group">
             <label htmlFor="respiratoryRate">Respiratory Rate</label>
             <div className="input-with-icon">
@@ -279,22 +296,6 @@ const AddVitals = () => {
                 onChange={handleInputChange}
                 className="form-input"
                 placeholder="e.g., 16"
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="oxygenSaturation">Oxygen Saturation</label>
-            <div className="input-with-icon">
-              <Activity className="w-4 h-4 text-gray-400" />
-              <input
-                type="number"
-                id="oxygenSaturation"
-                name="oxygenSaturation"
-                value={formData.oxygenSaturation}
-                onChange={handleInputChange}
-                className="form-input"
-                placeholder="e.g., 98"
               />
             </div>
           </div>

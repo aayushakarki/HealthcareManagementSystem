@@ -185,7 +185,6 @@ const AddPrescriptions = () => {
       <div className="section-header">
         <h2>Add New Prescription</h2>
       </div>
-
       <form onSubmit={handleSubmit} className="prescription-form">
         <div className="form-group">
           <label htmlFor="patientId">Patient *</label>
@@ -207,22 +206,20 @@ const AddPrescriptions = () => {
             </select>
           </div>
         </div>
-
-        <div className="form-group">
-          <label htmlFor="medicationName">Medication Name *</label>
-          <input
-            type="text"
-            id="medicationName"
-            name="medicationName"
-            value={formData.medicationName}
-            onChange={handleInputChange}
-            required
-            className="form-input"
-            placeholder="e.g., Amoxicillin"
-          />
-        </div>
-
         <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="medicationName">Medication Name *</label>
+            <input
+              type="text"
+              id="medicationName"
+              name="medicationName"
+              value={formData.medicationName}
+              onChange={handleInputChange}
+              required
+              className="form-input"
+              placeholder="e.g., Amoxicillin"
+            />
+          </div>
           <div className="form-group">
             <label htmlFor="dosage">Dosage *</label>
             <input
@@ -236,7 +233,8 @@ const AddPrescriptions = () => {
               placeholder="e.g., 500mg"
             />
           </div>
-
+        </div>
+        <div className="form-row">
           <div className="form-group">
             <label htmlFor="frequency">Frequency *</label>
             <input
@@ -250,54 +248,44 @@ const AddPrescriptions = () => {
               placeholder="e.g., 3 times daily"
             />
           </div>
+          <div className="form-group">
+            <label htmlFor="instructions">Instructions</label>
+            <input
+              type="text"
+              id="instructions"
+              name="instructions"
+              value={formData.instructions}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="e.g., Take with food"
+            />
+          </div>
         </div>
-
-        <div className="form-group">
-          <label htmlFor="instructions">Instructions</label>
-          <input
-            type="text"
-            id="instructions"
-            name="instructions"
-            value={formData.instructions}
-            onChange={handleInputChange}
-            className="form-input"
-            placeholder="e.g., Take with food"
-          />
-        </div>
-
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="startDate">Start Date *</label>
-            <div className="date-input-container">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <input
-                type="date"
-                id="startDate"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleInputChange}
-                required
-                className="form-input"
-              />
-            </div>
+            <input
+              type="date"
+              id="startDate"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleInputChange}
+              required
+              className="form-input"
+            />
           </div>
-
           <div className="form-group">
             <label htmlFor="endDate">End Date</label>
-            <div className="date-input-container">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <input
-                type="date"
-                id="endDate"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleInputChange}
-                className="form-input"
-              />
-            </div>
+            <input
+              type="date"
+              id="endDate"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleInputChange}
+              className="form-input"
+            />
           </div>
         </div>
-
         <div className="form-group">
           <label htmlFor="notes">Additional Notes</label>
           <textarea
@@ -310,7 +298,6 @@ const AddPrescriptions = () => {
             placeholder="Any additional information about this prescription"
           />
         </div>
-
         <div className="form-actions">
           <button type="submit" className="btn-primary" disabled={submitLoading}>
             {submitLoading ? (

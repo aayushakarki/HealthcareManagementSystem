@@ -193,18 +193,6 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
         {filteredAppointments.length > 0 ? (
           filteredAppointments.map((appointment) => (
             <div key={appointment._id} className="appointment-card">
-              {/* Date and Time Column */}
-              <div className="appointment-date-time">
-                <Calendar className="w-5 h-5" />
-                <div className="date-display">
-                  {new Date(appointment.appointment_date).toLocaleDateString()}
-                </div>
-                <Clock className="w-5 h-5" />
-                <div className="time-display">
-                  {formatTimeFromDate(appointment.appointment_date)}
-                </div>
-              </div>
-
               {/* Main Content Column */}
               <div className="appointment-content">
                 {/* Department and Status in the same row */}
@@ -218,7 +206,17 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
                     {appointment.status || "Pending"}
                   </div>
                 </div>
-
+              {/* Date and Time Column */}
+              <div className="appointment-date-time">
+                <Calendar className="w-5 h-5" />
+                <div className="date-display">
+                  {new Date(appointment.appointment_date).toLocaleDateString()}
+                </div>
+                <Clock className="w-5 h-5" />
+                <div className="time-display">
+                  {formatTimeFromDate(appointment.appointment_date)}
+                </div>
+              </div>
                 <div className="patient-info">
                   <p className="app-patientname">
                     <strong>Patient:</strong> {appointment.firstName}{" "}

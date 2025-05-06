@@ -96,7 +96,7 @@ const HealthRecords = () => {
                 <p className="record-description">{record.description}</p>
                 <p className="record-date">Date: {new Date(record.createdAt).toLocaleDateString()}</p>
               </div>
-              <div className="record-actions">
+              <div className="record-actions overflow-hidden">
                 <button className="action-btn view-btn">
                   <Eye className="w-4 h-4" />
                   <span>View Details</span>

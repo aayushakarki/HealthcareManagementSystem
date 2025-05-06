@@ -6,10 +6,8 @@ import "./css/PatientDashboard.css"
 import "./css/patientDashboardComponent.css"
 import "./css/DoctorDashboard.css"
 import "./css/AdminDashboard.css"
-import "./css/PatientProfile.css"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Home from "./pages/Home"
-import Appointment from "./pages/appointment"
 import AboutUs from "./pages/AboutUs"
 import Register from "./pages/Register"
 // import Footer from "./components/Footer";
@@ -83,7 +81,6 @@ const App = () => {
             element={
               <>
                 <Navbar />
-                <Appointment />
               </>
             }
           />

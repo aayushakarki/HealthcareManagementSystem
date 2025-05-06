@@ -67,31 +67,11 @@ const LatestVitals = () => {
 
         <div className="vital-card">
           <div className="vital-icon">
-            <Thermometer className="w-6 h-6" />
-          </div>
-          <div className="vital-info">
-            <h3>Temperature</h3>
-            <p>{latestVitals.temperature}°F</p>
-          </div>
-        </div>
-
-        <div className="vital-card">
-          <div className="vital-icon">
             <Activity className="w-6 h-6" />
           </div>
           <div className="vital-info">
             <h3>Respiratory Rate</h3>
             <p>{latestVitals.respiratoryRate || "-"} /min</p>
-          </div>
-        </div>
-
-        <div className="vital-card">
-          <div className="vital-icon">
-            <Activity className="w-6 h-6" />
-          </div>
-          <div className="vital-info">
-            <h3>Oxygen Saturation</h3>
-            <p>{latestVitals.oxygenSaturation ? `${latestVitals.oxygenSaturation}%` : "-"}</p>
           </div>
         </div>
 
@@ -112,6 +92,26 @@ const LatestVitals = () => {
           <div className="vital-info">
             <h3>Height</h3>
             <p>{latestVitals.height ? `${latestVitals.height} cm` : "-"}</p>
+          </div>
+        </div>
+
+        <div className="vital-card">
+          <div className="vital-icon">
+            <Activity className="w-6 h-6" />
+          </div>
+          <div className="vital-info">
+            <h3>Cholesterol</h3>
+            <p>{latestVitals.cholesterol ? `${latestVitals.cholesterol} mg/dL` : "-"}</p>
+          </div>
+        </div>
+
+        <div className="vital-card">
+          <div className="vital-icon">
+            <Activity className="w-6 h-6" />
+          </div>
+          <div className="vital-info">
+            <h3>HDL Cholesterol</h3>
+            <p>{latestVitals.hdlCholesterol ? `${latestVitals.hdlCholesterol} mg/dL` : "-"}</p>
           </div>
         </div>
 

@@ -242,19 +242,17 @@
     background-color: white;
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
+    padding: 0.5rem;
     display: grid;
     grid-template-columns: auto 1fr auto;
-    gap: 1.5rem;
+    gap: 0.5rem;
     position: relative;
   }
   
   /* Date and Time Column */
   .appointment-date-time {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
   }
   
@@ -1045,5 +1043,3 @@
   .stat-card .text-purple-500 {
     color: #a855f7;
   }
-
-  

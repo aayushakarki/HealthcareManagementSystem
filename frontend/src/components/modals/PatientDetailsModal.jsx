@@ -258,11 +258,7 @@ const PatientDetailsModal = ({ patient, onClose }) => {
                 {activeTab === "appointments" && (
                   <div className="appointments-tab">
                     <div className="tab-header flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold">Appointment History</h3>
-                      <button className="btn-primary btn-sm px-3 py-1 bg-blue-500 text-white rounded-md flex items-center gap-1">
-                        <Plus className="w-4 h-4" />
-                        New Appointment
-                      </button>
+                      <h3 className="text-lg font-semibold">Appointment List</h3>
                     </div>
 
                     {appointments.length > 0 ? (

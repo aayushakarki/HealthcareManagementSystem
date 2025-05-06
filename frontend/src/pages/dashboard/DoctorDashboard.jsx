@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import { Context } from "../../main"
-import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill, Activity } from 'lucide-react'
+import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill, Activity, ChevronLeft } from 'lucide-react'
 
 // Import components for each section
 import PatientList from "../../components/doctorDashboard/PatientsList"
@@ -619,6 +619,14 @@ const DoctorDashboard = () => {
             </div>
           </div>
         </div>
+
+        {activeSection !== "dashboard" && (
+          <button className="chevron-back-btn" onClick={() => setActiveSection("dashboard")}
+            style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" /> Back to Dashboard
+          </button>
+        )}
 
         <div className="content-wrapper">
           <div className="content-main">{renderContent()}</div>

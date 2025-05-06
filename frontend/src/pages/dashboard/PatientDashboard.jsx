@@ -17,6 +17,7 @@ import {
   Clock,
   Activity,
   User,
+  ChevronLeft,
 } from "lucide-react"
 import { Line } from "react-chartjs-2"
 import {
@@ -36,13 +37,12 @@ import AppointmentList from "../../components/patientDashboard/Appointment"
 import HealthRecords from "../../components/patientDashboard/HealthRecords"
 import Medications from "../../components/patientDashboard/Medications"
 import HealthRecordModal from "../../components/modals/HealthRecordModal"
-import PatientProfile from "../../components/patientDashboard/PatientProfile"
 import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup"
-// Add this import at the top with other imports
 import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
 import LatestVitals from "../../components/patientDashboard/LatestVitals"
 import PatientVitals from "../../components/patientDashboard/PatientVitals"
 import "../../styles/vitals.css"
+import FraminghamCalculation from '../../components/patientDashboard/FraminghamCalculation'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -57,6 +57,8 @@ const PatientDashboard = () => {
     heartRate: "72",
     weight: "70",
     glucoseLevel: "90",
+    cholesterol: "200",
+    hdlCholesterol: "50",
   })
   const [loading, setLoading] = useState(true)
   const [currentMonth, setCurrentMonth] = useState("May 2025")
@@ -78,6 +80,9 @@ const PatientDashboard = () => {
 
   // New state for vitalsHistory
   const [vitalsHistory, setVitalsHistory] = useState([])
+
+  // New state for Framingham calculation
+  const [showFramingham, setShowFramingham] = useState(false)
 
   // Move handleLogout function here
   const handleLogout = async () => {
@@ -152,7 +157,9 @@ const PatientDashboard = () => {
               bloodPressure: latestVital.bloodPressure || "120/80",
               heartRate: latestVital.heartRate || "72",
               weight: latestVital.weight || "70",
-              glucoseLevel: latestVital.oxygenSaturation || "90",
+              glucoseLevel: latestVital.glucoseLevel || "90",
+              cholesterol: latestVital.cholesterol || "200",
+              hdlCholesterol: latestVital.hdlCholesterol || "50",
             })
             setVitalsHistory(vitalsResponse.data.vitals)
           }
@@ -267,8 +274,9 @@ const PatientDashboard = () => {
           bloodPressure: vitals.bloodPressure,
           heartRate: vitals.heartRate,
           weight: vitals.weight,
-          oxygenSaturation: vitals.glucoseLevel,
-          temperature: "98.6", // Default temperature
+          glucoseLevel: vitals.glucoseLevel,
+          cholesterol: vitals.cholesterol,
+          hdlCholesterol: vitals.hdlCholesterol,
         },
         {
           withCredentials: true,
@@ -428,46 +436,25 @@ const PatientDashboard = () => {
       <div className="dashboard-content">
         <div className="dashboard-section">
           <div className="section-header">
-            <h2>Today's Events</h2>
-            <span className="text-sm text-gray-500">17 events on all activities</span>
-            <Link to="/events" className="view-all">
-              See All
-            </Link>
+            <h2>Cardiovascular Disease Risk (Framingham)</h2>
+            <button className="btn-primary" onClick={() => setShowFramingham(true)}>
+              Calculate
+            </button>
           </div>
-          <div className="events-container">
-            <div className="event-card">
-              <h3>Simple Ways to Live a Healthy Lifestyle</h3>
-              <div className="event-details">
-                <div className="event-date">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  <span>13 May 2025, 10:00 AM</span>
-                </div>
-                <div className="event-info">
-                  <div className="event-topics">
-                    <span>4 Topics</span>
-                  </div>
-                  <div className="event-duration">
-                    <Clock className="w-4 h-4 mr-1" />
-                    <span>1 Hour 30 Min</span>
-                  </div>
-                </div>
-                <div className="event-capacity">
-                  <span>1 Speaker</span>
-                  <span>56 Capacity</span>
-                </div>
-              </div>
-              <div className="event-actions">
-                <button className="btn-outline">Detail</button>
-                <button className="btn-primary">Join Event</button>
-              </div>
-            </div>
-          </div>
+          <>
+            {showFramingham && (
+              <FraminghamCalculation
+                user={user}
+                latestVitals={vitals}
+                onClose={() => setShowFramingham(false)}
+              />
+            )}
+          </>
         </div>
 
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Blood Pressure History</h2>
-            <ChevronDown className="w-5 h-5" />
           </div>
           <div className="blood-pressure-chart" style={{ background: "#f9fafb", borderRadius: "1rem", padding: "2rem 1rem" }}>
             {vitalsHistory.length > 0 ? (
@@ -671,6 +658,14 @@ const PatientDashboard = () => {
             </div>
           </div>
         </div>
+
+        {activeSection !== "dashboard" && (
+          <button className="chevron-back-btn" onClick={() => setActiveSection("dashboard")}
+            style={{ alignItems: 'center' }}
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" /> Back to Dashboard
+          </button>
+        )}
 
         <div className="content-wrapper">
           <div className="content-main">{renderContent()}</div>
