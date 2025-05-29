@@ -147,7 +147,7 @@ const PatientList = ({ onPatientSelect }) => {
     <div className="patient-list-container">
       <div className="section-header mb-4">
         <h2>Patient List</h2>
-        <div className="search-container">
+        <div className="search-input">
           <Search className="w-4 h-4 text-gray-400" />
           <input
             type="text"

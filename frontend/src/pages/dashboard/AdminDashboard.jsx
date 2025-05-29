@@ -324,36 +324,6 @@ const AdminDashboard = () => {
                         Status: {appointment.status || "Pending"}
                       </p>
                     </div>
-                    <div className="appointment-actions">
-                      <button
-                        className="btn-primary"
-                        onClick={() =>
-                          handlePatientSelect(
-                            patients.find((p) => p._id === appointment.patientId) || {
-                              _id: appointment.patientId,
-                              firstName: appointment.firstName,
-                              lastName: appointment.lastName,
-                            },
-                          )
-                        }
-                      >
-                        View Patient
-                      </button>
-                      <div className="status-buttons">
-                        <button
-                          className="btn-outline btn-sm"
-                          onClick={() => updateAppointmentStatus(appointment._id, "confirmed")}
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          className="btn-outline btn-sm"
-                          onClick={() => updateAppointmentStatus(appointment._id, "cancelled")}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
                   </li>
                 ))}
               </ul>
@@ -363,7 +333,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Activity Chart */}
+        {/* Activity Chart
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Appointment Activity</h2>
@@ -372,7 +342,7 @@ const AdminDashboard = () => {
           <div className="chart-placeholder">
             <BarChart className="w-full h-32 text-blue-500" />
           </div>
-        </div>
+        </div> */}
       </div>
     )
   }
