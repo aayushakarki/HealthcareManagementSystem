@@ -237,3 +237,209 @@
     padding: 1rem;
   }
 }
+
+/* Doctor Verification Requests */
+.doctor-verification-container {
+  padding: 2rem;
+  background: #f7f8fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.section-header {
+  margin-bottom: 2rem;
+}
+
+.section-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3f3765;
+}
+
+.section-header p {
+  color: #6b7280;
+  font-size: 1.05rem;
+  margin-top: 0.25rem;
+}
+
+.doctor-verification-container .grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.doctor-verification-container .bg-white {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1.5rem 2rem;
+  border: 1px solid #ececec;
+  transition: box-shadow 0.2s;
+}
+
+.doctor-verification-container .bg-white:hover {
+  box-shadow: 0 4px 16px rgba(63,55,101,0.08);
+}
+
+.doctor-verification-container h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #22223b;
+}
+
+.doctor-verification-container p {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 0.2rem;
+}
+
+.doctor-verification-container .font-medium {
+  font-weight: 500;
+  color: #3f3765;
+}
+
+.doctor-verification-container .text-gray-600 {
+  color: #6b7280;
+}
+
+.doctor-verification-container .text-gray-700 {
+  color: #374151;
+}
+
+.doctor-verification-container .text-blue-500 {
+  color: #3b82f6;
+}
+
+.doctor-verification-container .text-blue-600 {
+  color: #2563eb;
+}
+
+.doctor-verification-container .text-red-600 {
+  color: #dc2626;
+}
+
+.doctor-verification-container .text-green-600 {
+  color: #16a34a;
+}
+
+.doctor-verification-container .rounded-md {
+  border-radius: 8px;
+}
+
+.doctor-verification-container .hover\:bg-blue-100:hover {
+  background: #dbeafe;
+}
+
+.doctor-verification-container .hover\:bg-blue-50:hover {
+  background: #eff6ff;
+}
+
+.doctor-verification-container .hover\:underline:hover {
+  text-decoration: underline;
+}
+
+.doctor-verification-container .flex-1 {
+  flex: 1 1 0%;
+}
+
+.doctor-verification-container .flex {
+  display: flex;
+}
+
+.doctor-verification-container .flex-col {
+  flex-direction: column;
+}
+
+.doctor-verification-container .flex-row {
+  flex-direction: row;
+}
+
+.doctor-verification-container .items-center {
+  align-items: center;
+}
+
+.doctor-verification-container .justify-between {
+  justify-content: space-between;
+}
+
+.doctor-verification-container .mb-4 {
+  margin-bottom: 1rem;
+}
+
+.doctor-verification-container .mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.doctor-verification-container .mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.doctor-verification-container .space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.doctor-verification-container .space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+.doctor-verification-container .bg-blue-50 {
+  background: #eff6ff;
+}
+
+.doctor-verification-container .bg-green-600 {
+  background: #16a34a;
+}
+
+.doctor-verification-container .bg-green-700 {
+  background: #15803d;
+}
+
+.doctor-verification-container .bg-red-600 {
+  background: #dc2626;
+}
+
+.doctor-verification-container .bg-red-700 {
+  background: #b91c1c;
+}
+
+.doctor-verification-container .text-white {
+  color: #fff;
+}
+
+.doctor-verification-container .disabled\:opacity-50:disabled {
+  opacity: 0.5;
+}
+
+.doctor-verification-container .disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
+
+.doctor-verification-container .transition-colors {
+  transition: background 0.2s, color 0.2s;
+}
+
+.doctor-verification-container .animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .doctor-verification-container {
+    padding: 0.5rem;
+  }
+  .doctor-verification-container .bg-white {
+    padding: 1rem;
+  }
+}
+
+.doctor-verification-container button,
+.doctor-verification-container .bg-blue-50,
+.doctor-verification-container .bg-green-600,
+.doctor-verification-container .bg-red-600 {
+  min-height: 48px;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1.05rem;
+}

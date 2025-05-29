@@ -119,7 +119,7 @@ const DoctorsList = ({ onDoctorSelect }) => {
     <div className="doctor-list-container">
       <div className="section-header mb-4">
         <h2>Doctor List</h2>
-        <div className="search-container">
+        <div className="search-input">
           <Search className="w-4 h-4 text-gray-400" />
           <input
             type="text"
