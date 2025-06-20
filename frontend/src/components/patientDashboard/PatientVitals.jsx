@@ -14,12 +14,14 @@ import {
   Tooltip,
   Legend,
 } from "chart.js"
+import VitalsChat from "./VitalsChat"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const PatientVitals = () => {
   const [vitals, setVitals] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showVitalsChat, setShowVitalsChat] = useState(false)
 
   useEffect(() => {
     const fetchVitals = async () => {
@@ -142,14 +144,20 @@ const PatientVitals = () => {
     },
   }
 
+  const handleOpenVitalsChat = () => setShowVitalsChat(true)
+  const handleCloseVitalsChat = () => setShowVitalsChat(false)
+
   if (loading) {
     return <div className="loading">Loading vitals...</div>
   }
 
   return (
     <div className="vitals-container">
-      <div className="section-header">
+      <div className="section-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h2>Vitals History</h2>
+        <button className="summarize-btn" onClick={handleOpenVitalsChat}>
+          Summarize
+        </button>
       </div>
 
       <div className="vitals-chart">
@@ -190,6 +198,7 @@ const PatientVitals = () => {
           </tbody>
         </table>
       </div>
+      <VitalsChat show={showVitalsChat} onClose={handleCloseVitalsChat} />
     </div>
   )
 }

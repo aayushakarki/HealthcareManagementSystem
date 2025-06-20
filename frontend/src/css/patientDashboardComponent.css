@@ -1243,20 +1243,7 @@
     object-fit: contain;
   }
   
-  .view-file-btn {
-    display: inline-block;
-    background-color: #19773b;
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    text-align: center;
-  }
-  
-  .view-file-btn:hover {
-    background-color: #166534;
-  }
+
   
   @media (max-width: 768px) {
     .record-modal {
@@ -1552,3 +1539,20 @@
     font-style: italic;
   }
   
+  .request-prescription{
+    background: #19773b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: background 0.18s;
+  }
+
+  .request-prescription:hover {
+    background: #249851;
+  }

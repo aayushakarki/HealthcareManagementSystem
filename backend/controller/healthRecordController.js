@@ -4,11 +4,12 @@ import { sendEmail } from "../utils/sendEmail.js";
 import { User } from "../models/userSchema.js";
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/errorMiddleware.js";
+// import { documentAnalysisService } from '../utils/documentAnalysisService.js';
 import https from 'https';
 
 // Helper function to validate file type
 const isValidFileType = (mimetype) => {
-  return mimetype === 'image/jpeg' || mimetype === 'application/pdf';
+  return mimetype === 'image/jpeg' || mimetype === 'image/png';
 };
 
 // Upload a health record (for doctor or admin)
@@ -24,7 +25,7 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
 
   // Validate file type (only jpg or pdf)
   if (!isValidFileType(file.mimetype)) {
-    return next(new ErrorHandler("Only JPG and PDF files are allowed", 400));
+    return next(new ErrorHandler("Only JPG and PNF images are allowed", 400));
   }
 
   // Upload file to cloudinary
@@ -40,8 +41,25 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
     description,
     fileUrl: result.secure_url,
     fileName: file.name,
-    createdBy: req.user.id // From authentication middleware
+    createdBy: req.user.id
   });
+
+  // Immediately analyze with Gemini
+  try {
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (geminiApiKey) {
+      const analysis = await documentAnalysisService.analyzeDocument(
+        healthRecord.fileUrl,
+        healthRecord.fileName.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
+        geminiApiKey
+      );
+      healthRecord.analysis = { ...analysis, analyzedAt: new Date() };
+      await healthRecord.save();
+    }
+  } catch (err) {
+    // Optionally log error, but don't block upload
+    console.error('Gemini analysis failed:', err);
+  }
 
   // Send email notification
   const user = await User.findById(patientId);
@@ -89,7 +107,7 @@ export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
 
     // Validate file type
     if (!isValidFileType(file.mimetype)) {
-      return next(new ErrorHandler("Only JPG and PDF files are allowed", 400));
+      return next(new ErrorHandler("Only JPG and PNG images are allowed", 400));
     }
 
     // Delete old file from cloudinary
@@ -270,3 +288,82 @@ export const downloadHealthRecord = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Failed to download file", 500));
   });
 });
+
+export const summarizeHealthRecord = async (req, res, next) => {
+  try {
+    const { imageUrl } = req.body;
+
+    // Convert the image to base64
+    const response = await fetch(imageUrl);
+    const buffer = await response.arrayBuffer();
+    const base64Image = Buffer.from(buffer).toString("base64");
+
+    console.log("Gemini API Key:", process.env.GEMINI_API_KEY);
+
+    // Call Gemini API
+const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: "Summarize this medical report image in simple patient-friendly language." },
+              { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+            ]
+          }
+        ]
+      })
+    });
+
+    const data = await geminiResponse.json();
+
+    console.log("Gemini API response:", JSON.stringify(data, null, 2));
+
+    const summary = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Summary not available.";
+
+    res.status(200).json({ summary });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const askHealthRecordAI = async (req, res, next) => {
+  try {
+    const { imageUrl, question } = req.body;
+
+    // Convert the image to base64
+    const response = await fetch(imageUrl);
+    const buffer = await response.arrayBuffer();
+    const base64Image = Buffer.from(buffer).toString("base64");
+
+    // Use the user's question, or default to a summary prompt
+    const prompt = question || "Summarize this medical report image in simple patient-friendly language.";
+
+    // Call Gemini API
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+              ]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await geminiResponse.json();
+    console.log("Gemini API response:", JSON.stringify(data, null, 2));
+    const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No answer available.";
+
+    res.status(200).json({ answer });
+  } catch (error) {
+    next(error);
+  }
+};

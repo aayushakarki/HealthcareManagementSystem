@@ -39,7 +39,15 @@ const healthRecordSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Creator ID is required']
-    }
+    },
+analysis: {
+  summary: String,
+  keyTerms: [{ term: String, importance: Number }],
+  labResults: [{ value: Number, context: String }],
+  wordCount: Number,
+  sentenceCount: Number,
+  analyzedAt: Date
+}
   },
   { timestamps: true }
 );
