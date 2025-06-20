@@ -95,3 +95,95 @@ export const deleteVitalsRecord = catchAsyncErrors(async (req, res, next) => {
     message: "Vitals record deleted successfully!",
   })
 })
+
+// Summarize latest vitals for a patient
+export const summarizeVitals = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const patientId = req.user._id;
+    // Fetch the latest vitals record for this patient
+    const latestVitals = await Vitals.findOne({ patientId }).sort({ date: -1 });
+    if (!latestVitals) {
+      return res.status(200).json({ summary: "No vitals data found to summarize." });
+    }
+    // Compose a prompt for Gemini
+    const prompt = `
+      Summarize the following patient vitals in simple, patient-friendly language:
+      ${JSON.stringify(latestVitals, null, 2)}
+    `;
+    // Call Gemini API (text-only, no image)
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt }
+              ]
+            }
+          ]
+        })
+      }
+    );
+    if (!geminiResponse.ok) {
+      return res.status(200).json({ summary: "Sorry, I couldn't get a summary from the AI at this time." });
+    }
+    const data = await geminiResponse.json();
+
+    console.log("Latest vitals sent to Gemini:", latestVitals); // for summarizeVitals
+console.log("Gemini API response:", JSON.stringify(data, null, 2));
+
+    const summary = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Summary not available.";
+    res.status(200).json({ summary });
+  } catch (error) {
+    console.error("summarizeVitals error:", error);
+    res.status(200).json({ summary: "Sorry, something went wrong while getting your summary." });
+  }
+});
+
+export const askVitalAI = async (req, res, next) => {
+  try {
+    const { question } = req.body;
+    const patientId = req.user._id;
+    // Fetch the latest vitals record for this patient
+    const latestVitals = await Vitals.findOne({ patientId }).sort({ date: -1 });
+    if (!latestVitals) {
+      return res.status(200).json({ answer: "No vitals data found to answer your question." });
+    }
+    // Compose a prompt for Gemini
+    const prompt = `
+      The following is the patient's latest vitals:
+      ${JSON.stringify(latestVitals, null, 2)}
+      \nQuestion: ${question}
+      \nAnswer in simple, patient-friendly language.
+    `;
+    // Call Gemini API (text-only)
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt }
+              ]
+            }
+          ]
+        })
+      }
+    );
+    if (!geminiResponse.ok) {
+      return res.status(200).json({ answer: "Sorry, I couldn't get an answer from the AI at this time." });
+    }
+    const data = await geminiResponse.json();
+    const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No answer available.";
+    res.status(200).json({ answer });
+  } catch (error) {
+    console.error("askVitalAI error:", error);
+    res.status(200).json({ answer: "Sorry, something went wrong while getting your answer." });
+  }
+};

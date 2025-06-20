@@ -6,9 +6,12 @@ import {
   getPatientHealthRecords,
   getMyHealthRecords,
   getHealthRecordById,
-  downloadHealthRecord
-} from '../controller/healthRecordController.js';
-import { isPatientAuthenticated, isAdminOrDoctorAuthenticated } from '../middlewares/auth.js';
+  downloadHealthRecord,
+  summarizeHealthRecord,
+  askHealthRecordAI
+} from '../controller/healthrecordController.js';
+
+import { isPatientAuthenticated, isAdminOrDoctorAuthenticated, isAuthenticated } from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -26,5 +29,11 @@ router.get('/download/:recordId', isPatientAuthenticated, downloadHealthRecord);
 
 // Route for both (with authorization check in controller)
 router.get('/:recordId', isPatientAuthenticated, getHealthRecordById);
+
+router.post('/summarize', isPatientAuthenticated, summarizeHealthRecord);
+
+router.post('/ask-ai', isPatientAuthenticated, askHealthRecordAI);
+
+
 
 export default router;
