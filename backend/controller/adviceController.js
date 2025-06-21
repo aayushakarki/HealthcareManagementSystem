@@ -1,0 +1,82 @@
+import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
+
+// Function to handle getting initial advice
+export const getAdvice = catchAsyncErrors(async (req, res, next) => {
+  const { heartData } = req.body;
+
+  if (!heartData) {
+    return res.status(400).json({ success: false, message: "Heart data is required." });
+  }
+
+  // Initial prompt for the AI model
+  const prompt = `Based on the following clinical data, which indicates a high likelihood of heart disease, provide advice on lifestyle changes to ensure better outcomes. The data is: ${JSON.stringify(
+    heartData
+  )}. Explain the risks associated with these values in simple, patient-friendly language and suggest actionable steps for diet, exercise, and stress management.`;
+
+  try {
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      }
+    );
+
+    if (!geminiResponse.ok) {
+      console.error("Gemini API Error:", await geminiResponse.text());
+      return res.status(500).json({ success: false, message: "Could not get advice from the AI at this time." });
+    }
+
+    const data = await geminiResponse.json();
+    const advice = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No advice available.";
+
+    res.status(200).json({ success: true, advice });
+  } catch (error) {
+    console.error("getAdvice controller error:", error);
+    next(error);
+  }
+});
+
+// Function to handle follow-up questions
+export const askQuestion = catchAsyncErrors(async (req, res, next) => {
+  const { question, chatHistory } = req.body;
+
+  if (!question || !chatHistory) {
+    return res.status(400).json({ success: false, message: "Question and chat history are required." });
+  }
+
+  // Construct the conversation history for the AI model
+  const contents = chatHistory.map(msg => ({
+    role: msg.sender === 'user' ? 'user' : 'model',
+    parts: [{ text: msg.text }],
+  }));
+  contents.push({ role: 'user', parts: [{ text: question }] });
+
+
+  try {
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents }),
+      }
+    );
+
+    if (!geminiResponse.ok) {
+        console.error("Gemini API Error:", await geminiResponse.text());
+        return res.status(500).json({ success: false, message: "Could not get an answer from the AI at this time." });
+    }
+
+    const data = await geminiResponse.json();
+    const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No answer available.";
+
+    res.status(200).json({ success: true, answer });
+  } catch (error) {
+    console.error("askQuestion controller error:", error);
+    next(error);
+  }
+}); 

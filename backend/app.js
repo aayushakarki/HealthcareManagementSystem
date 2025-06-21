@@ -13,6 +13,7 @@ import notificationRouter from "./router/notificationRouter.js"
 import prescriptionRouter from "./router/prescriptionRouter.js"
 import searchRouter from "./router/searchRouter.js"
 import heartDataRouter from "./router/heartDataRouter.js";
+import adviceRouter from "./router/adviceRouter.js";
 import "./utils/reminderJobs.js"
 
 const app = express()
@@ -62,6 +63,7 @@ app.use("/api/v1/notifications", notificationRouter)
 app.use("/api/v1/prescriptions", prescriptionRouter)
 app.use("/api/v1/search", searchRouter)
 app.use("/api/v1/heartdata", heartDataRouter);
+app.use("/api/v1/advice", adviceRouter);
 
 dbConnection()
 
