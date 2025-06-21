@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { X } from 'lucide-react';
 import '../../css/HeartDiseaseForm.css';
+import AppointmentBookingForm from './AppointmentBookingForm';
+import AdviceChat from './AdviceChat';
 
 const HeartDiseaseForm = ({ patientData, onClose }) => {
   const [prediction, setPrediction] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isBookingFormVisible, setBookingFormVisible] = useState(false);
+  const [isAdviceChatVisible, setAdviceChatVisible] = useState(false);
 
   // This function will now be triggered by a button click
   const handlePredict = async () => {
@@ -30,6 +34,18 @@ const HeartDiseaseForm = ({ patientData, onClose }) => {
       setLoading(false);
     }
   };
+
+  const handleOpenBookingForm = () => setBookingFormVisible(true);
+  const handleCloseBookingForm = () => setBookingFormVisible(false);
+
+  const handleBookingSuccess = () => {
+    handleCloseBookingForm();
+    onClose(); // Also close the prediction modal
+  };
+
+  // Advice Chat Modal Handlers
+  const handleOpenAdviceChat = () => setAdviceChatVisible(true);
+  const handleCloseAdviceChat = () => setAdviceChatVisible(false);
 
   // Display component for the clinical data
   const DataDisplay = ({ label, value }) => (
@@ -86,12 +102,32 @@ const HeartDiseaseForm = ({ patientData, onClose }) => {
                       ? 'The model predicts a HIGH LIKELIHOOD of heart disease.'
                       : 'The model predicts a LOW LIKELIHOOD of heart disease.'}
                   </p>
+                  {prediction === 1 && (
+                    <div className="hd-actions">
+                      <button onClick={handleOpenBookingForm} className="hd-action-btn book-appointment-btn">
+                        Book Appointment
+                      </button>
+                      <button onClick={handleOpenAdviceChat} className="hd-action-btn get-advice-btn">
+                        Get Advice
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           </>
         )}
       </div>
+      <AppointmentBookingForm
+        isVisible={isBookingFormVisible}
+        onClose={handleCloseBookingForm}
+        onSubmitSuccess={handleBookingSuccess}
+      />
+      <AdviceChat
+        show={isAdviceChatVisible}
+        onClose={handleCloseAdviceChat}
+        heartData={patientData}
+      />
     </div>
   );
 };
