@@ -43,6 +43,7 @@ import LatestVitals from "../../components/patientDashboard/LatestVitals"
 import PatientVitals from "../../components/patientDashboard/PatientVitals"
 import "../../styles/vitals.css"
 import FraminghamCalculation from '../../components/patientDashboard/FraminghamCalculation'
+import HeartDiseaseForm from "../../components/patientDashboard/HeartDiseaseForm"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -83,6 +84,9 @@ const PatientDashboard = () => {
 
   // New state for Framingham calculation
   const [showFramingham, setShowFramingham] = useState(false)
+
+  const [showHeartDisease, setShowHeartDisease] = useState(false)
+  const [heartData, setHeartData] = useState(null)
 
   // Move handleLogout function here
   const handleLogout = async () => {
@@ -188,6 +192,25 @@ const PatientDashboard = () => {
         setAvatar(res.data.user.userAvatar.url);
       }
     });
+  }, []);
+
+  // Fetch heart data when the component mounts
+  useEffect(() => {
+    const fetchHeartData = async () => {
+      try {
+        const { data } = await axios.get("http://localhost:4000/api/v1/heartdata/me", {
+          withCredentials: true,
+        });
+        if (data.success) {
+          setHeartData(data.latestData);
+        }
+      } catch (error) {
+        // This is not an error, it just means no data exists yet.
+        // We handle the null state in the component.
+        console.log("No heart disease prediction data found for this patient.");
+      }
+    };
+    fetchHeartData();
   }, []);
 
   const handleAvatarUpload = (file) => {
@@ -434,6 +457,22 @@ const PatientDashboard = () => {
   const renderDashboardContent = () => {
     return (
       <div className="dashboard-content">
+        <div className="dashboard-section">
+          <div className="section-header">
+            <h2>Heart Disease Prediction (SVM)</h2>
+            <button className="btn-primary" onClick={() => setShowHeartDisease(true)}>
+              Predict
+            </button>
+          </div>
+          <>
+            {showHeartDisease && (
+              <HeartDiseaseForm
+                patientData={heartData}
+                onClose={() => setShowHeartDisease(false)}
+              />
+            )}
+          </>
+        </div>
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Cardiovascular Disease Risk (Framingham)</h2>

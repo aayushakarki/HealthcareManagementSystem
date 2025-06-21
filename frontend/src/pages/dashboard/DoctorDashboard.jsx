@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import { Context } from "../../main"
-import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill, Activity, ChevronLeft } from 'lucide-react'
+import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill, Activity, ChevronLeft, HeartPulse } from 'lucide-react'
 
 // Import components for each section
 import PatientList from "../../components/doctorDashboard/PatientsList"
@@ -18,6 +18,7 @@ import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup
 // Add this import at the top with other imports
 import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
 import AddVitals from "../../components/doctorDashboard/AddVitals"
+import AddHeartData from "../../components/doctorDashboard/AddHeartData"
 
 const DoctorDashboard = () => {
   const { user, setIsAuthenticated, setUser } = useContext(Context)
@@ -511,6 +512,8 @@ const DoctorDashboard = () => {
         return <AddPrescriptions />
       case "vitals":
         return <AddVitals />
+      case "heartdata":
+        return <AddHeartData />
       default:
         return renderDashboardContent()
     }
@@ -576,6 +579,12 @@ const DoctorDashboard = () => {
               <button onClick={() => setActiveSection("vitals")}>
                 <Activity className="w-5 h-5" />
                 <span>Add Vitals</span>
+              </button>
+            </li>
+            <li className={activeSection === "heartdata" ? "active" : ""}>
+              <button onClick={() => setActiveSection("heartdata")}>
+                <HeartPulse className="w-5 h-5" />
+                <span>Heart Data Entry</span>
               </button>
             </li>
           </ul>
