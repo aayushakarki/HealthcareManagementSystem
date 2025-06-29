@@ -121,7 +121,7 @@ const HealthRecordModal = ({ record, onClose }) => {
   if (!record) return null
 
   return (
-    <div className="modal-overlay">
+    <div className="health-modal-overlay">
       <div className="record-modal">
         <div className="modal-header">
           <h3>Health Record Details</h3>

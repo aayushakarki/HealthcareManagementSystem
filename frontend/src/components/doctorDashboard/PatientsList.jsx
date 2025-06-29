@@ -5,6 +5,7 @@ import axios from "axios"
 import { toast } from "react-toastify"
 import { Search, UserRound, Phone, Mail, Calendar, Eye } from "lucide-react"
 import PatientDetailsModal from "../modals/PatientDetailsModal"
+import "../../css/DoctorDashboard.css"
 
 const PatientList = ({ onPatientSelect }) => {
   const [patients, setPatients] = useState([])
@@ -116,22 +117,22 @@ const PatientList = ({ onPatientSelect }) => {
 
   return (
     <div className="patient-list-container">
-      <div className="section-header mb-4">
-        <h2>Patient List</h2>
+      <h2 className="section-title">Find a Patient</h2>
+      
+      <div className="search-filters">
         <div className="search-input">
-          <Search className="w-4 h-4 text-gray-400" />
+          <Search className="w-5 h-5 ml-2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search patients"
+            placeholder="Search patient by name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
           />
         </div>
       </div>
 
       {filteredPatients.length > 0 ? (
-        <div className="patients-grid">
+        <div className="patients-list">
           {filteredPatients.map((patient) => (
             <div key={patient.id} className="patient-card">
               <div className="patient-avatar">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import axios from "axios";
-import '../../css/AdviceChat.css'; // We will create this CSS file next
+import '../../css/AdviceChat.css'; // We will update this CSS file next
 
 const AdviceChat = ({ show, onClose, heartData }) => {
   const [messages, setMessages] = useState([]);
@@ -82,41 +82,39 @@ const AdviceChat = ({ show, onClose, heartData }) => {
   if (!show) return null;
 
   return (
-    <div className="advice-chat-overlay">
-      <div className="advice-chat-container">
-        <div className="advice-chat-header">
-          <h3>AI Health Advisor</h3>
-          <button className="advice-chat-close-btn" onClick={onClose}>
-            <X size={24} />
-          </button>
-        </div>
-        <div className="advice-chat-body">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`advice-chat-message ${msg.sender === "user" ? "user-msg" : "ai-msg"}`}>
-              <p>{msg.text}</p>
-            </div>
-          ))}
-          {loading && (
-            <div className="advice-chat-message ai-msg">
-              <p>Thinking...</p>
-            </div>
-          )}
-        </div>
-        <form className="advice-chat-input-form" onSubmit={handleSendQuestion}>
-          <input
-            type="text"
-            placeholder="Ask a follow-up question..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            disabled={loading}
-          />
-          <button type="submit" disabled={loading || !userInput.trim()}>
-            Send
-          </button>
-        </form>
+    <div className="advice-chat-sidebar">
+      <div className="advice-chat-header">
+        <h3>AI Health Advisor</h3>
+        <button className="advice-chat-close-btn" onClick={onClose}>
+          <X size={20} />
+        </button>
       </div>
+      <div className="advice-chat-body">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`advice-chat-message ${msg.sender === "user" ? "user-msg" : "ai-msg"}`}>
+            <p>{msg.text}</p>
+          </div>
+        ))}
+        {loading && (
+          <div className="advice-chat-message ai-msg">
+            <p>Thinking...</p>
+          </div>
+        )}
+      </div>
+      <form className="advice-chat-input-form" onSubmit={handleSendQuestion}>
+        <input
+          type="text"
+          placeholder="Ask a follow-up question..."
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          disabled={loading}
+        />
+        <button type="submit" disabled={loading || !userInput.trim()}>
+          Send
+        </button>
+      </form>
     </div>
   );
 };
 
-export default AdviceChat; 
+export default AdviceChat;

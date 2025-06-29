@@ -8,6 +8,7 @@ import axios from "axios";
 
 const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
   const [filteredAppointments, setFilteredAppointments] = useState([]);
+  const [localAppointments, setLocalAppointments] = useState([]); // Add local state for appointments
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
@@ -15,17 +16,56 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  // Fetch fresh appointments from the server
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:4000/api/v1/appointment/doctor/me", {
+        withCredentials: true,
+      });
+
+      if (response.data.success) {
+        setLocalAppointments(response.data.appointments);
+      }
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use local appointments if available, otherwise use props
+  const currentAppointments = localAppointments.length > 0 ? localAppointments : appointments;
+
+  // Fetch appointments on component mount
+  useEffect(() => {
+    if (appointments.length === 0) {
+      fetchAppointments();
+    } else {
+      setLocalAppointments(appointments);
+    }
+  }, []);
+
+  // Update local appointments when props change
+  useEffect(() => {
+    if (appointments.length > 0) {
+      setLocalAppointments(appointments);
+    }
+  }, [appointments]);
+
+  // Filter appointments whenever local appointments or filters change
   useEffect(() => {
     filterAppointments();
-  }, [appointments, statusFilter, dateFilter]);
+  }, [localAppointments, statusFilter, dateFilter]);
 
   const filterAppointments = () => {
-    let filtered = [...appointments];
+    let filtered = [...currentAppointments];
 
     // Apply status filter
     if (statusFilter !== "all") {
-      filtered = filtered.filter((app) => app.status === statusFilter);
+      filtered = filtered.filter((app) => (app.status || "pending").toLowerCase() === statusFilter.toLowerCase());
     }
 
     // Apply date filter
@@ -90,14 +130,16 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
   };
 
   const handleNotesSaved = (appointmentId, notes) => {
-    // Update the appointments list with the new notes
-    const updatedAppointments = appointments.map((app) =>
-      app._id === appointmentId ? { ...app, doctorNotes: notes } : app
+    // Update the local appointments list with the new notes
+    setLocalAppointments((prevAppointments) =>
+      prevAppointments.map((app) =>
+        app._id === appointmentId ? { ...app, doctorNotes: notes } : app
+      )
     );
 
     // Update the filtered appointments as well
-    setFilteredAppointments(
-      filteredAppointments.map((app) =>
+    setFilteredAppointments((prevFiltered) =>
+      prevFiltered.map((app) =>
         app._id === appointmentId ? { ...app, doctorNotes: notes } : app
       )
     );
@@ -120,7 +162,7 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
     } catch (error) {
       console.error("Error fetching patient details:", error);
       // If API fails, try to get patient info from the appointment
-      const patient = appointments.find((app) => app.patientId === patientId);
+      const patient = currentAppointments.find((app) => app.patientId === patientId);
       if (patient) {
         setSelectedPatient({
           _id: patientId,
@@ -137,22 +179,41 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
     }
   };
 
+  // Add a refresh button to manually fetch latest appointments
+  const handleRefresh = () => {
+    fetchAppointments();
+  };
+
+  if (loading && currentAppointments.length === 0) {
+    return <div className="loading">Loading appointments...</div>;
+  }
+
   return (
     <div className="doctor-appointments-container">
       <div className="section-header">
         <h2>Appointments</h2>
-        <button
-          className="filter-button"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <Filter className="w-4 h-4 mr-1" />
-          Filters
-          <ChevronDown
-            className={`w-4 h-4 ml-1 transition-transform ${
-              showFilters ? "rotate-180" : ""
-            }`}
-          />
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button
+            className="btn-outline"
+            onClick={handleRefresh}
+            disabled={loading}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+          <button
+            className="filter-button"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="w-4 h-4 mr-1" />
+            Filters
+            <ChevronDown
+              className={`w-4 h-4 ml-1 transition-transform ${
+                showFilters ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {showFilters && (
@@ -166,9 +227,9 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
+              <option value="accepted">Accepted</option>
               <option value="rescheduled">Rescheduled</option>
             </select>
           </div>
@@ -200,7 +261,7 @@ const DoctorAppointments = ({ appointments = [], onUpdateStatus }) => {
                   <h3 className="department">{appointment.department}</h3>
                   <div
                     className={`appointment-status status-${
-                      appointment.status || "pending"
+                      (appointment.status || "pending").toLowerCase()
                     }`}
                   >
                     {appointment.status || "Pending"}

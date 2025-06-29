@@ -152,157 +152,160 @@ const Medications = () => {
     try {
       const response = await axios.get("http://localhost:4000/api/v1/prescriptions/pdf", {
         withCredentials: true,
-        responseType: 'blob' // Important for handling PDF file
-      });
+        responseType: "blob", // Important for handling PDF file
+      })
 
       // Create a URL for the blob
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+
       // Create a link element and trigger download
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'MediCure-Prescriptions.pdf');
-      document.body.appendChild(link);
-      link.click();
-      
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", "MediCure-Prescriptions.pdf")
+      document.body.appendChild(link)
+      link.click()
+
       // Clean up
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      
-      toast.success("Prescription PDF downloaded successfully!");
+      link.remove()
+      window.URL.revokeObjectURL(url)
+
+      toast.success("Prescription PDF downloaded successfully!")
     } catch (error) {
-      console.error("Error downloading prescription PDF:", error);
-      toast.error("Failed to download prescription PDF");
+      console.error("Error downloading prescription PDF:", error)
+      toast.error("Failed to download prescription PDF")
     }
-  };
+  }
 
   if (loading) {
     return <div className="loading">Loading medications...</div>
   }
 
   return (
-    <div className="medications-container p-4 max-w-4xl mx-auto">
-      <div className="medications-header mb-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Your Medications</h2>
-        <button 
-          onClick={handleRequestPrescriptionPDF}
-          className="request-prescription"
-        >
-          <Download />
+    <div className="new-medications-container">
+      <div className="new-medications-header">
+        <h2 className="medications-title">Your Medications</h2>
+        <button onClick={handleRequestPrescriptionPDF} className="new-request-prescription-btn">
+          <Download className="w-4 h-4" />
           Request Prescription PDF
         </button>
       </div>
 
-      <div className="medication-sections space-y-8">
-        <div className="active-medications bg-white p-4 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-4">Current Medications</h3>
+      <div className="new-medication-sections">
+        {/* Current Medications Section */}
+        <div className="new-medication-section">
+          <h3 className="section-heading">Current Medications</h3>
 
           {activeMedications.length > 0 ? (
-            <div className="medications-list space-y-4">
+            <div className="new-medications-list">
               {activeMedications.map((medication) => (
-                <div key={medication.id} className="medication-card border rounded-lg p-4 flex gap-4">
-                  <div className="medication-icon bg-blue-100 p-3 rounded-full h-fit">
-                    <Pill className="w-8 h-8 text-blue-500" />
-                  </div>
-                  <div className="medication-details flex-1">
-                    <h4 className="text-lg font-medium">{medication.name}</h4>
-                    <div className="medication-info grid gap-1 mt-2">
-                      <p>
-                        <strong>Dosage:</strong> {medication.dosage}
-                      </p>
-                      <p>
-                        <strong>Frequency:</strong> {medication.frequency}
-                      </p>
-                      <p>
-                        <strong>Prescribed by:</strong> {medication.prescribedBy}
-                      </p>
-                      <p>
-                        <strong>Instructions:</strong> {medication.instructions}
-                      </p>
-                      {medication.notes && (
-                        <p>
-                          <strong>Notes:</strong> {medication.notes}
-                        </p>
-                      )}
-                      {medication.refillDate && (
-                        <p className="refill-info text-blue-600 mt-2">
-                          <RefreshCw className="w-4 h-4 inline mr-1" />
-                          <strong>Next refill:</strong> {formatDate(medication.refillDate)}
-                        </p>
-                      )}
+                <div key={medication.id} className="new-medication-card">
+                  <div className="medication-header">
+                    <div className="medication-icon-wrapper">
+                      <Pill className="medication-icon" />
                     </div>
-                    <div className="medication-dates mt-3 flex gap-4 text-sm text-gray-600">
-                      <div className="date-item flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        <span>Started: {formatDate(medication.startDate)}</span>
+                    <div className="medication-main-info">
+                      <h4 className="medication-name">{medication.name}</h4>
+                      <div className="medication-details-grid">
+                        <div className="detail-item">
+                          <span className="detail-label">Dosage:</span>
+                          <span className="detail-value">{medication.dosage}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Frequency:</span>
+                          <span className="detail-value">{medication.frequency}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Prescribed by:</span>
+                          <span className="detail-value">{medication.prescribedBy}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Instructions:</span>
+                          <span className="detail-value">{medication.instructions}</span>
+                        </div>
                       </div>
-                      <div className="date-item flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        <span>Ends: {formatDate(medication.endDate)}</span>
+
+                      <div className="medication-timeline">
+                        <div className="timeline-item">
+                          <Clock className="medication-timeline-icon" />
+                          <span className="medication-dates">Started: {formatDate(medication.startDate)}</span>
+                        </div>
+                        <div className="timeline-item">
+                          <Clock className="medication-timeline-icon" />
+                          <span className="medication-dates">Ends: {formatDate(medication.endDate)}</span>
+                        </div>
                       </div>
+                        {medication.refillDate && (
+                        <div className="refill-info">
+                          <RefreshCw className="refill-icon" />
+                          <span>Next refill: {formatDate(medication.refillDate)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="no-medications text-gray-500 italic">No active medications</p>
+            <p className="no-medications-message">No active medications</p>
           )}
         </div>
 
-        <div className="completed-medications bg-white p-4 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-4">Completed Medications</h3>
+        {/* Completed Medications Section */}
+        <div className="new-medication-section">
+          <h3 className="section-heading">Completed Medications</h3>
 
           {completedMedications.length > 0 ? (
-            <div className="medications-list space-y-4">
+            <div className="new-medications-list">
               {completedMedications.map((medication) => (
-                <div
-                  key={medication.id}
-                  className="medication-card completed border border-gray-200 rounded-lg p-4 flex gap-4 bg-gray-50"
-                >
-                  <div className="medication-icon bg-gray-200 p-3 rounded-full h-fit">
-                    <Pill className="w-8 h-8 text-gray-500" />
-                  </div>
-                  <div className="medication-details flex-1">
-                    <h4 className="text-lg font-medium">{medication.name}</h4>
-                    <div className="medication-info grid gap-1 mt-2">
-                      <p>
-                        <strong>Dosage:</strong> {medication.dosage}
-                      </p>
-                      <p>
-                        <strong>Frequency:</strong> {medication.frequency}
-                      </p>
-                      <p>
-                        <strong>Prescribed by:</strong> {medication.prescribedBy}
-                      </p>
+                <div key={medication.id} className="new-medication-card completed">
+                  <div className="medication-header">
+                    <div className="medication-icon-wrapper">
+                      <Pill className="medication-icon" />
                     </div>
-                    <div className="medication-dates mt-3 flex gap-4 text-sm text-gray-600">
-                      <div className="date-item flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        <span>Started: {formatDate(medication.startDate)}</span>
+                    <div className="medication-main-info">
+                      <h4 className="medication-name">{medication.name}</h4>
+                      <div className="medication-details-grid">
+                        <div className="detail-item">
+                          <span className="detail-label">Dosage:</span>
+                          <span className="detail-value">{medication.dosage}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Frequency:</span>
+                          <span className="detail-value">{medication.frequency}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Prescribed by:</span>
+                          <span className="detail-value">{medication.prescribedBy}</span>
+                        </div>
                       </div>
-                      <div className="date-item flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        <span>Ended: {formatDate(medication.endDate)}</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  {isPrescriptionExpired(medication.endDate) && (
-                    <button
-                      className="delete-btn flex items-center gap-1 text-red-500 hover:text-red-700"
-                      onClick={() => handleDeletePrescription(medication.id)}
-                      title="Delete prescription"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                      <span>Delete</span>
-                    </button>
-                  )}
+                      <div className="medication-timeline">
+                        <div className="timeline-item">
+                          <Clock className="medication-timeline-icon w-6 h-6" />
+                          <span className="medication-dates">Started: {formatDate(medication.startDate)}</span>
+                        </div>
+                        <div className="timeline-item">
+                          <Clock className="medication-timeline-icon" />
+                          <span className="medication-dates">Ended: {formatDate(medication.endDate)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {isPrescriptionExpired(medication.endDate) && (
+                      <button
+                        className="delete-prescription-btn"
+                        onClick={() => handleDeletePrescription(medication.id)}
+                        title="Delete prescription"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="no-medications text-gray-500 italic">No completed medications</p>
+            <p className="no-medications-message">No completed medications</p>
           )}
         </div>
       </div>

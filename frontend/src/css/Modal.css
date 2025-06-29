@@ -1,0 +1,110 @@
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(44, 44, 44, 0.25);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-width: 350px;
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #888;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.framingham-modal-content {
+  padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
+.framingham-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.framingham-subtitle {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.framingham-form {
+  width: 100%;
+}
+
+.framingham-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  background: #f9fafb;
+  border-radius: 1rem;
+  padding: 2rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .framingham-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.framingham-field-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.framingham-field-card label {
+  color: #6b7280;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.framingham-field-value,
+.framingham-field-card input,
+.framingham-field-card select {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #22223b;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.framingham-submit-btn {
+  width: 100%;
+  background: #776bb3;
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.7rem 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+
+.framingham-submit-btn:hover {
+  background: #3f3765;
+}

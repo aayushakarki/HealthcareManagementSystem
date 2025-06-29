@@ -108,79 +108,65 @@ const DoctorVerificationRequests = () => {
           <p className="text-gray-500 mt-2">All doctor registration requests have been processed</p>
         </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="admin-verification-grid">
           {pendingDoctors.map((doctor) => (
-            <div key={doctor._id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between">
-                <div className="mb-4 md:mb-0">
-                  <h3 className="text-xl font-semibold">
+            <div key={doctor._id} className="admin-verification-card">
+              <div className="admin-verification-content">
+                <div className="admin-verification-info">
+                  <h3 className="admin-verification-name">
                     Dr. {doctor.firstName} {doctor.lastName}
                   </h3>
-                  <p className="text-gray-600 mt-1">
-                    <span className="font-medium">Department:</span> {doctor.doctorDepartment}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-medium">NMC Number:</span> {doctor.nmcNumber}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-medium">Email:</span> {doctor.email}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-medium">Phone:</span> {doctor.phone}
-                  </p>
-                </div>
-
-                <div className="flex flex-col space-y-3">
+                  <div className="admin-verification-meta">
+                    <span className="meta-label">Department:</span> {doctor.doctorDepartment}<br />
+                    <span className="meta-label">NMC Number:</span> {doctor.nmcNumber}<br />
+                    <span className="meta-label">Email:</span> {doctor.email}<br />
+                    <span className="meta-label">Phone:</span> {doctor.phone}
+                  </div>
                   {doctor.signature && (
-                    <div className="mb-2">
-                      <p className="text-sm font-medium text-gray-700 mb-1">Digital Signature:</p>
+                    <div className="admin-verification-signature">
+                      <span className="meta-label">Digital Signature:</span>
                       <a
                         href={doctor.signature.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline flex items-center"
+                        className="admin-verification-link"
                       >
-                        <span>View Signature</span>
-                        <ExternalLink className="w-4 h-4 ml-1" />
+                        View Signature <ExternalLink className="w-4 h-4 ml-1" />
                       </a>
                     </div>
                   )}
-
                   <button
                     onClick={() => openNMCVerification(doctor.nmcNumber)}
-                    className="flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
+                    className="admin-verification-nmc-btn"
                   >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Check NMC Number
+                    <ExternalLink className="w-4 h-4 mr-2" />Check NMC Number
                   </button>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleVerifyDoctor(doctor._id)}
-                      disabled={verifyingDoctor === doctor._id}
-                      className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-1"
-                    >
-                      {verifyingDoctor === doctor._id ? (
-                        <Loader className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                      )}
-                      Verify
-                    </button>
-
-                    <button
-                      onClick={() => handleRejectDoctor(doctor._id)}
-                      disabled={verifyingDoctor === doctor._id}
-                      className="flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-1"
-                    >
-                      {verifyingDoctor === doctor._id ? (
-                        <Loader className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <XCircle className="w-4 h-4 mr-2" />
-                      )}
-                      Reject
-                    </button>
-                  </div>
+                </div>
+                <div className="admin-verification-actions">
+                  <button
+                    onClick={() => handleVerifyDoctor(doctor._id)}
+                    disabled={verifyingDoctor === doctor._id}
+                    className="admin-verification-verify-btn"
+                  >
+                    {verifyingDoctor === doctor._id ? (
+                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Verify
+                  </button>
+                  <button
+                    onClick={() => handleRejectDoctor(doctor._id)}
+                    disabled={verifyingDoctor === doctor._id}
+                    className="admin-verification-reject-btn"
+                  >
+                    {verifyingDoctor === doctor._id ? (
+                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <XCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Reject
+                  </button>
                 </div>
               </div>
             </div>

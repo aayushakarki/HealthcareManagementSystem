@@ -116,14 +116,14 @@ const DoctorsList = ({ onDoctorSelect }) => {
   }
 
   return (
-    <div className="doctor-list-container">
+    <div className="admin-doctor-list-container">
       <div className="section-header mb-4">
         <h2>Doctor List</h2>
         <div className="search-input">
           <Search className="w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search doctors"
+            placeholder="Search doctors by name or specialty"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -132,10 +132,10 @@ const DoctorsList = ({ onDoctorSelect }) => {
       </div>
 
       {filteredDoctors.length > 0 ? (
-        <div className="doctors-grid">
+        <div className="admin-doctors-grid">
           {filteredDoctors.map((doctor) => (
-            <div key={doctor._id} className="doctor-card">
-              <div className="doctor-avatar">
+            <div key={doctor._id} className="admin-doctor-card">
+              <div className="admin-doctor-avatar">
                 {doctor.docAvatar?.url ? (
                   <img
                     src={doctor.docAvatar.url || "/placeholder.svg"}
@@ -146,12 +146,12 @@ const DoctorsList = ({ onDoctorSelect }) => {
                   <UserCog className="w-12 h-12 text-gray-400" />
                 )}
               </div>
-              <div className="doctor-info">
-                <h3 className="doctor-name">
+              <div className="admin-doctor-info">
+                <h3 className="admin-doctor-name">
                   Dr. {doctor.firstName} {doctor.lastName}
                 </h3>
-                <div className="doctor-specialty">{doctor.doctorDepartment || "General"}</div>
-                <div className="doctor-details">
+                <div className="admin-doctor-specialty">{doctor.doctorDepartment || "General"}</div>
+                <div className="admin-doctor-details">
                   <div className="detail-item">
                     <Phone className="w-4 h-4 text-gray-500" />
                     <span>{doctor.phone || "No phone"}</span>
@@ -168,20 +168,16 @@ const DoctorsList = ({ onDoctorSelect }) => {
                   )}
                 </div>
               </div>
-              <div className="doctor-actions">
+              <div className="admin-doctor-actions">
                 <button
-                  className="view-details-btn flex items-center gap-1"
+                  className="doc-details-button btn-primary flex items-center gap-1"
                   onClick={() => handleViewDetails(doctor._id)}
-                >
-                  <Eye className="w-4 h-4" />
-                  View Details
+                >View Details
                 </button>
                 <button
-                  className="delete-button flex items-center gap-1 text-red-500 hover:text-red-700"
-                  onClick={() => handleDeleteDoctor(doctor)}
-                >
-                  <Trash className="w-4 h-4" />
-                  Delete
+                  className="doc-delete-button flex items-center gap-1 text-red-500 hover:text-red-700"
+                  onClick={() => handleDeletePatient(patient)}
+                >Delete
                 </button>
               </div>
             </div>
