@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useContext } from "react"
-import { useNavigate } from "react-router-dom"
-import axios from "axios"
-import { toast } from "react-toastify"
-import { Context } from "../../main"
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { Context } from "../../main";
 import {
   LayoutDashboard,
   Users,
@@ -19,26 +19,27 @@ import {
   FileText,
   BarChart,
   Activity,
+  Clock,
   User,
   ChevronLeft,
-} from "lucide-react"
+} from "lucide-react";
 
 // Import components for each section
-import AppointmentsOverview from "../../components/adminDashboard/AppointmentsOverview"
-import DoctorsList from "../../components/adminDashboard/DoctorsList"
-import PatientsList from "../../components/adminDashboard/AllPatientsList"
-import Messages from "../../components/adminDashboard/Messages"
-import DoctorDetails from "../../components/adminDashboard/DoctorDetails"
+import AppointmentsOverview from "../../components/adminDashboard/AppointmentsOverview";
+import DoctorsList from "../../components/adminDashboard/DoctorsList";
+import PatientsList from "../../components/adminDashboard/AllPatientsList";
+import Messages from "../../components/adminDashboard/Messages";
+import DoctorDetails from "../../components/adminDashboard/DoctorDetails";
 // import PatientDetails from "../../components/adminDashboard/PatientDetails"
-import DoctorVerificationRequests from "../../components/adminDashboard/DoctorVerificationRequests"
+import DoctorVerificationRequests from "../../components/adminDashboard/DoctorVerificationRequests";
 
 const AdminDashboard = () => {
-  const { user, setIsAuthenticated, setUser } = useContext(Context)
-  const [activeSection, setActiveSection] = useState("dashboard")
-  const [appointments, setAppointments] = useState([])
-  const [doctors, setDoctors] = useState([])
-  const [patients, setPatients] = useState([])
-  const [loading, setLoading] = useState(true)
+  const { user, setIsAuthenticated, setUser } = useContext(Context);
+  const [activeSection, setActiveSection] = useState("dashboard");
+  const [appointments, setAppointments] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalDoctors: 0,
     totalPatients: 0,
@@ -46,31 +47,31 @@ const AdminDashboard = () => {
     pendingAppointments: 0,
     todayAppointments: 0,
     pendingVerifications: 0,
-  })
-  const [selectedDoctor, setSelectedDoctor] = useState(null)
-  const [selectedPatient, setSelectedPatient] = useState(null)
-  const [notifications, setNotifications] = useState([])
-  const [showNotifications, setShowNotifications] = useState(false)
-  const navigateTo = useNavigate()
+  });
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const navigateTo = useNavigate();
 
   const handleLogout = async () => {
     try {
       await axios.get(`http://localhost:4000/api/v1/user/admin/logout`, {
         withCredentials: true,
-      })
-      toast.success("Logged out successfully!")
-      setIsAuthenticated(false)
-      setUser({})
-      navigateTo("/")
+      });
+      toast.success("Logged out successfully!");
+      setIsAuthenticated(false);
+      setUser({});
+      navigateTo("/");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Logout failed")
+      toast.error(err.response?.data?.message || "Logout failed");
     }
-  }
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
 
         // Fetch all appointments
         const appointmentsResponse = await axios
@@ -78,27 +79,29 @@ const AdminDashboard = () => {
             withCredentials: true,
           })
           .catch((err) => {
-            console.error("Error fetching appointments:", err)
-            return { data: { success: true, appointments: [] } }
-          })
+            console.error("Error fetching appointments:", err);
+            return { data: { success: true, appointments: [] } };
+          });
 
         if (appointmentsResponse.data.success) {
-          const allAppointments = appointmentsResponse.data.appointments || []
-          setAppointments(allAppointments)
+          const allAppointments = appointmentsResponse.data.appointments || [];
+          setAppointments(allAppointments);
 
           // Calculate today's appointments
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          const tomorrow = new Date(today)
-          tomorrow.setDate(tomorrow.getDate() + 1)
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
 
           const todaysAppts = allAppointments.filter((appointment) => {
-            const appointmentDate = new Date(appointment.appointment_date)
-            return appointmentDate >= today && appointmentDate < tomorrow
-          })
+            const appointmentDate = new Date(appointment.appointment_date);
+            return appointmentDate >= today && appointmentDate < tomorrow;
+          });
 
           // Calculate pending appointments
-          const pendingAppts = allAppointments.filter((app) => app.status === "pending")
+          const pendingAppts = allAppointments.filter(
+            (app) => app.status === "pending"
+          );
 
           // Update stats
           setStats((prev) => ({
@@ -106,7 +109,7 @@ const AdminDashboard = () => {
             totalAppointments: allAppointments.length,
             pendingAppointments: pendingAppts.length,
             todayAppointments: todaysAppts.length,
-          }))
+          }));
         }
 
         // Fetch all doctors
@@ -115,14 +118,14 @@ const AdminDashboard = () => {
             withCredentials: true,
           })
           .catch((err) => {
-            console.error("Error fetching doctors:", err)
-            return { data: { success: true, doctors: [] } }
-          })
+            console.error("Error fetching doctors:", err);
+            return { data: { success: true, doctors: [] } };
+          });
 
         if (doctorsResponse.data.success) {
-          const allDoctors = doctorsResponse.data.doctors || []
-          setDoctors(allDoctors)
-          setStats((prev) => ({ ...prev, totalDoctors: allDoctors.length }))
+          const allDoctors = doctorsResponse.data.doctors || [];
+          setDoctors(allDoctors);
+          setStats((prev) => ({ ...prev, totalDoctors: allDoctors.length }));
         }
 
         // Fetch all patients
@@ -131,14 +134,14 @@ const AdminDashboard = () => {
             withCredentials: true,
           })
           .catch((err) => {
-            console.error("Error fetching patients:", err)
-            return { data: { success: false } }
-          })
+            console.error("Error fetching patients:", err);
+            return { data: { success: false } };
+          });
 
         if (patientsResponse.data.success) {
-          const allPatients = patientsResponse.data.patients || []
-          setPatients(allPatients)
-          setStats((prev) => ({ ...prev, totalPatients: allPatients.length }))
+          const allPatients = patientsResponse.data.patients || [];
+          setPatients(allPatients);
+          setStats((prev) => ({ ...prev, totalPatients: allPatients.length }));
         }
 
         // Fetch unverified doctors
@@ -147,32 +150,32 @@ const AdminDashboard = () => {
             withCredentials: true,
           })
           .catch((err) => {
-            console.error("Error fetching unverified doctors:", err)
-            return { data: { success: true, count: 0 } }
-          })
+            console.error("Error fetching unverified doctors:", err);
+            return { data: { success: true, count: 0 } };
+          });
 
         if (unverifiedDoctorsResponse.data.success) {
           setStats((prev) => ({
             ...prev,
             pendingVerifications: unverifiedDoctorsResponse.data.count || 0,
-          }))
+          }));
         }
 
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error)
-        toast.error("Failed to load dashboard data")
-        setLoading(false)
+        console.error("Error fetching dashboard data:", error);
+        toast.error("Failed to load dashboard data");
+        setLoading(false);
       }
-    }
+    };
 
-    fetchDashboardData()
-  }, [])
+    fetchDashboardData();
+  }, []);
 
   const handleDoctorSelect = (doctor) => {
-    setSelectedDoctor(doctor)
-    setActiveSection("doctordetails")
-  }
+    setSelectedDoctor(doctor);
+    setActiveSection("doctordetails");
+  };
 
   const handlePatientSelect = async (patient) => {
     try {
@@ -182,81 +185,121 @@ const AdminDashboard = () => {
           withCredentials: true,
         })
         .catch((err) => {
-          console.error("Error fetching patient details:", err)
-          return { data: { success: true, user: patient } }
-        })
+          console.error("Error fetching patient details:", err);
+          return { data: { success: true, user: patient } };
+        });
 
       if (patientResponse.data.success) {
-        setSelectedPatient(patientResponse.data.user || patient)
-        setActiveSection("patientdetails")
+        setSelectedPatient(patientResponse.data.user || patient);
+        setActiveSection("patientdetails");
       }
     } catch (error) {
-      console.error("Error fetching patient details:", error)
+      console.error("Error fetching patient details:", error);
       // If there's an error, still show the patient details with the data we have
-      setSelectedPatient(patient)
-      setActiveSection("patientdetails")
+      setSelectedPatient(patient);
+      setActiveSection("patientdetails");
     }
-  }
+  };
 
-  const updateAppointmentStatus = async (appointmentId, status) => {
+  // In AdminDashboard.jsx, replace the updateAppointmentStatus function with this:
+
+  const updateAppointmentStatus = async (
+    appointmentId,
+    status,
+    newDate = null
+  ) => {
     try {
+      setLoading(true);
+
+      // Prepare the request body
+      const requestBody = { status };
+
+      // If rescheduling, add the new date
+      if (status === "Rescheduled" && newDate) {
+        // Convert to ISO string if it's not already
+        requestBody.newDate = new Date(newDate).toISOString();
+      }
+
+      console.log("Sending request body:", requestBody); // Debug log
+
       const response = await axios.put(
         `http://localhost:4000/api/v1/appointment/update/${appointmentId}`,
-        { status },
-        { withCredentials: true },
-      )
+        requestBody,
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.data.success) {
-        toast.success(`Appointment marked as ${status}`)
+        toast.success("Appointment updated successfully!");
 
-        // Update appointments in state
+        // Update appointments in state with the new data
         setAppointments((prevAppointments) =>
-          prevAppointments.map((app) => (app._id === appointmentId ? { ...app, status } : app)),
-        )
+          prevAppointments.map((app) =>
+            app._id === appointmentId
+              ? {
+                  ...app,
+                  status,
+                  // Update the date if it was rescheduled
+                  ...(status === "Rescheduled" &&
+                    newDate && {
+                      appointment_date: new Date(newDate).toISOString(),
+                    }),
+                }
+              : app
+          )
+        );
+
+        // Also update stats if needed
+        if (status === "Rescheduled" && newDate) {
+          // Recalculate today's appointments since the date might have changed
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+
+          setAppointments((currentAppointments) => {
+            const todaysAppts = currentAppointments.filter((appointment) => {
+              const appointmentDate = new Date(appointment.appointment_date);
+              return appointmentDate >= today && appointmentDate < tomorrow;
+            });
+
+            setStats((prev) => ({
+              ...prev,
+              todayAppointments: todaysAppts.length,
+            }));
+
+            return currentAppointments;
+          });
+        }
+
+        return response.data;
+      } else {
+        toast.error("Failed to update appointment");
       }
     } catch (error) {
-      console.error("Error updating appointment status:", error)
-      toast.error("Failed to update appointment status")
+      console.error("Error updating appointment:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to update appointment"
+      );
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const renderDashboardContent = () => {
     return (
       <div className="dashboard-content">
         {/* Stats Cards */}
-        <div className="stats-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-          <div className="stat-card bg-white p-4 rounded-lg shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-gray-500 text-sm">Total Doctors</h3>
-                <p className="text-2xl font-semibold">{stats.totalDoctors}</p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <UserCog className="w-6 h-6 text-blue-500" />
-              </div>
-            </div>
-          </div>
-
+        <div className="admin-stats-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="stat-card bg-white p-4 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-gray-500 text-sm">Total Patients</h3>
                 <p className="text-2xl font-semibold">{stats.totalPatients}</p>
               </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <User className="w-6 h-6 text-green-500" />
-              </div>
-            </div>
-          </div>
-
-          <div className="stat-card bg-white p-4 rounded-lg shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-gray-500 text-sm">Total Appointments</h3>
-                <p className="text-2xl font-semibold">{stats.totalAppointments}</p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-full">
-                <Calendar className="w-6 h-6 text-purple-500" />
+              <div className="bg-blue-100 p-3 rounded-full">
+                <User className="w-6 h-6 text-blue-500" />
               </div>
             </div>
           </div>
@@ -265,10 +308,12 @@ const AdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-gray-500 text-sm">Today's Appointments</h3>
-                <p className="text-2xl font-semibold">{stats.todayAppointments}</p>
+                <p className="text-2xl font-semibold">
+                  {stats.todayAppointments}
+                </p>
               </div>
-              <div className="bg-yellow-100 p-3 rounded-full">
-                <Activity className="w-6 h-6 text-yellow-500" />
+              <div className="bg-green-100 p-3 rounded-full">
+                <Calendar className="w-6 h-6 text-green-500" />
               </div>
             </div>
           </div>
@@ -277,10 +322,38 @@ const AdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-gray-500 text-sm">Pending Appointments</h3>
-                <p className="text-2xl font-semibold">{stats.pendingAppointments}</p>
+                <p className="text-2xl font-semibold">
+                  {stats.pendingAppointments}
+                </p>
               </div>
-              <div className="bg-red-100 p-3 rounded-full">
-                <FileText className="w-6 h-6 text-red-500" />
+              <div className="bg-yellow-100 p-3 rounded-full">
+                <Clock className="w-6 h-6 text-yellow-500" />
+              </div>
+            </div>
+          </div>
+
+          <div className="stat-card bg-white p-4 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-gray-500 text-sm">Total Appointments</h3>
+                <p className="text-2xl font-semibold">
+                  {stats.totalAppointments}
+                </p>
+              </div>
+              <div className="bg-purple-100 p-3 rounded-full">
+                <FileText className="w-6 h-6 text-purple-500" />
+              </div>
+            </div>
+          </div>
+
+          <div className="stat-card bg-white p-4 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-gray-500 text-sm">Total Doctors</h3>
+                <p className="text-2xl font-semibold">{stats.totalDoctors}</p>
+              </div>
+              <div className="bg-cyan-100 p-3 rounded-full">
+                <UserCog className="w-6 h-6 text-cyan-500" />
               </div>
             </div>
           </div>
@@ -289,10 +362,12 @@ const AdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-gray-500 text-sm">Pending Verifications</h3>
-                <p className="text-2xl font-semibold">{stats.pendingVerifications}</p>
+                <p className="text-2xl font-semibold">
+                  {stats.pendingVerifications}
+                </p>
               </div>
-              <div className="bg-orange-100 p-3 rounded-full">
-                <UserCog className="w-6 h-6 text-orange-500" />
+              <div className="bg-red-100 p-3 rounded-full">
+                <UserCog className="w-6 h-6 text-red-500" />
               </div>
             </div>
           </div>
@@ -302,7 +377,10 @@ const AdminDashboard = () => {
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Recent Appointments</h2>
-            <button className="view-all" onClick={() => setActiveSection("appointments")}>
+            <button
+              className="view-all"
+              onClick={() => setActiveSection("appointments")}
+            >
               View All
             </button>
           </div>
@@ -317,10 +395,20 @@ const AdminDashboard = () => {
                         Patient: {appointment.firstName} {appointment.lastName}
                       </p>
                       <p>
-                        Doctor: {appointment.doctor?.firstName} {appointment.doctor?.lastName}
+                        Doctor: {appointment.doctor?.firstName}{" "}
+                        {appointment.doctor?.lastName}
                       </p>
-                      <p>Date: {new Date(appointment.appointment_date).toLocaleDateString()}</p>
-                      <p className={`status status-${appointment.status || "pending"}`}>
+                      <p>
+                        Date:{" "}
+                        {new Date(
+                          appointment.appointment_date
+                        ).toLocaleDateString()}
+                      </p>
+                      <p
+                        className={`status status-${
+                          appointment.status || "pending"
+                        }`}
+                      >
                         Status: {appointment.status || "Pending"}
                       </p>
                     </div>
@@ -344,13 +432,13 @@ const AdminDashboard = () => {
           </div>
         </div> */}
       </div>
-    )
-  }
+    );
+  };
 
   const renderContent = () => {
     switch (activeSection) {
       case "dashboard":
-        return renderDashboardContent()
+        return renderDashboardContent();
       case "appointments":
         return (
           <AppointmentsOverview
@@ -358,24 +446,31 @@ const AdminDashboard = () => {
             updateStatus={updateAppointmentStatus}
             onPatientSelect={handlePatientSelect}
           />
-        )
+        );
       case "doctors":
-        return <DoctorsList doctors={doctors} onDoctorSelect={handleDoctorSelect} />
+        return (
+          <DoctorsList doctors={doctors} onDoctorSelect={handleDoctorSelect} />
+        );
       case "patients":
-        return <PatientsList patients={patients} onPatientSelect={handlePatientSelect} />
+        return (
+          <PatientsList
+            patients={patients}
+            onPatientSelect={handlePatientSelect}
+          />
+        );
       case "doctorverification":
-        return <DoctorVerificationRequests />
+        return <DoctorVerificationRequests />;
       case "doctordetails":
-        return <DoctorDetails doctor={selectedDoctor} />
+        return <DoctorDetails doctor={selectedDoctor} />;
       case "patientdetails":
-        return <PatientDetails patient={selectedPatient} />
+        return <PatientDetails patient={selectedPatient} />;
       default:
-        return renderDashboardContent()
+        return renderDashboardContent();
     }
-  }
+  };
 
   if (loading) {
-    return <div className="loading">Loading dashboard...</div>
+    return <div className="loading">Loading dashboard...</div>;
   }
 
   return (
@@ -418,7 +513,9 @@ const AdminDashboard = () => {
                 <span>Patients</span>
               </button>
             </li>
-            <li className={activeSection === "doctorverification" ? "active" : ""}>
+            <li
+              className={activeSection === "doctorverification" ? "active" : ""}
+            >
               <button onClick={() => setActiveSection("doctorverification")}>
                 <UserPlus className="w-5 h-5" />
                 <span>Doctor Verification</span>
@@ -452,8 +549,14 @@ const AdminDashboard = () => {
         </div>
 
         {activeSection !== "dashboard" && (
-          <button className="chevron-back-btn" onClick={() => setActiveSection("dashboard")}
-            style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}
+          <button
+            className="chevron-back-btn"
+            onClick={() => setActiveSection("dashboard")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "1rem",
+            }}
           >
             <ChevronLeft className="w-5 h-5 mr-1" /> Back to Dashboard
           </button>
@@ -464,7 +567,7 @@ const AdminDashboard = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminDashboard
+export default AdminDashboard;

@@ -15,7 +15,6 @@ const PatientHealthRecords = () => {
   const [patients, setPatients] = useState([])
   const [recordTypes, setRecordTypes] = useState([])
   const [selectedType, setSelectedType] = useState("")
-  const [showFilters, setShowFilters] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
 
   useEffect(() => {
@@ -179,7 +178,9 @@ const PatientHealthRecords = () => {
 
     // Apply patient filter
     if (selectedPatient) {
-      filtered = filtered.filter((record) => record.patientId?._id === selectedPatient)
+      filtered = filtered.filter((record) =>
+        record.patientId?._id === selectedPatient || record.patientId === selectedPatient
+      )
     }
 
     // Apply record type filter
@@ -228,29 +229,19 @@ const PatientHealthRecords = () => {
     <div className="health-records-container">
       <div className="section-header">
         <h2>Patient Health Records</h2>
-        <div className="header-actions">
-          <div className="search-container">
+        <div className="header-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="hr-search-container">
             <Search className="w-4 h-4 text-gray-400" />
             <input
               type="text"
               placeholder="Search records"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              className="hr-search-input"
             />
           </div>
-          <button className="filter-button" onClick={() => setShowFilters(!showFilters)}>
-            <Filter className="w-4 h-4 mr-1" />
-            Filters
-            <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-          </button>
-        </div>
-      </div>
-
-      {showFilters && (
-        <div className="filters-container">
           <div className="filter-group">
-            <label>Patient:</label>
+            <label style={{ fontSize: '0.95rem', fontWeight: 500, marginRight: 4 }}>Patient:</label>
             <select
               value={selectedPatient}
               onChange={(e) => setSelectedPatient(e.target.value)}
@@ -264,9 +255,8 @@ const PatientHealthRecords = () => {
               ))}
             </select>
           </div>
-
           <div className="filter-group">
-            <label>Record Type:</label>
+            <label style={{ fontSize: '0.95rem', fontWeight: 500, marginRight: 4 }}>Record Type:</label>
             <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="filter-select">
               <option value="">All Types</option>
               {recordTypes.map((type) => (
@@ -277,7 +267,7 @@ const PatientHealthRecords = () => {
             </select>
           </div>
         </div>
-      )}
+      </div>
 
       <div className="records-list">
         {filteredRecords.length > 0 ? (

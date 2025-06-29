@@ -1,231 +1,284 @@
-.hd-form-container {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-top: 1.5rem;
-  border: 1px solid #e5e7eb;
-  max-width: 900px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.hd-form-container h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.hd-form-container p {
-  color: #6b7280;
-  margin-bottom: 2rem;
-}
-
-.hd-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.hd-form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.hd-form-group label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.5rem;
-}
-
-.hd-form-group input,
-.hd-form-group select {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-  background-color: #f9fafb;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.hd-form-group input:focus,
-.hd-form-group select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-}
-
-.hd-submit-btn {
-  grid-column: 1 / -1; /* Make button span all columns */
-  background-color: #10b981;
-  color: white;
-  font-weight: 600;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 1rem;
-  margin-top: 1rem;
-}
-
-.hd-submit-btn:hover:not(:disabled) {
-  background-color: #059669;
-}
-
-.hd-submit-btn:disabled {
-  background-color: #a7f3d0;
-  cursor: not-allowed;
-}
-
-.hd-result-container {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border-radius: 8px;
-  background-color: #f9fafb;
-}
-
-.hd-result {
-  text-align: center;
-}
-
-.hd-result h4 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-
-.hd-result.hd-positive p {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #ef4444; /* Red for positive result */
-}
-
-.hd-result.hd-negative p {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #10b981; /* Green for negative result */
-}
-
-.hd-error {
-  text-align: center;
-  color: #ef4444;
-  font-weight: 500;
-}
+/* HeartDiseaseForm.css - Updated for Sidebar Layout */
 
 .hd-form-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 999;
+  transition: all 0.3s ease;
+}
+
+.hd-form-container {
+  background: #ffffff;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Adjust the main container when sidebar is open */
+.hd-form-container.sidebar-open {
+  margin-right: 400px; /* Width of the sidebar */
+  max-width: calc(100vw - 500px); /* Adjust max-width to account for sidebar */
 }
 
 .hd-form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 1rem 1rem 0 0;
+}
+
+.hd-form-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
 }
 
 .hd-close-btn {
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0;
   color: #6b7280;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
 }
 
 .hd-close-btn:hover {
-  color: #1f2937;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.hd-form-container > p {
+  padding: 0 2rem;
+  margin: 1.5rem 0 1rem 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .hd-no-data {
+  padding: 2rem;
   text-align: center;
-  padding: 3rem 1rem;
+  color: #6b7280;
   font-size: 1.1rem;
-  color: #4b5563;
-  font-weight: 500;
+  line-height: 1.6;
 }
 
 .hd-data-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
-  background-color: #f9fafb;
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  margin: 1.5rem 0;
+  padding: 0 2rem;
+  margin-bottom: 2rem;
 }
 
 .hd-data-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
   display: flex;
-  flex-direction: column;
-  padding: 0.75rem;
-  background-color: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  justify-content: space-between;
+  align-items: center;
 }
 
 .hd-data-label {
-  font-size: 0.875rem;
   font-weight: 500;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
+  color: #475569;
+  font-size: 0.9rem;
 }
 
 .hd-data-value {
-  font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #1e293b;
+  font-size: 0.95rem;
 }
 
-.hd-negative {
-  background-color: #e8f5e9; /* Light green background */
-  border-left: 5px solid #4caf50; /* Green accent */
-  color: #2e7d32; /* Dark green text */
+.hd-submit-btn {
+  width: calc(100% - 4rem);
+  margin: 0 2rem 2rem 2rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.hd-submit-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.hd-submit-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.hd-result-container {
+  padding: 0 2rem 2rem 2rem;
+}
+
+.hd-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.hd-result {
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.hd-result.hd-positive {
+  background: #fef2f2;
+  border: 2px solid #fca5a5;
+}
+
+.hd-result.hd-negative {
+  background: #f0fdf4;
+  border: 2px solid #86efac;
+}
+
+.hd-result h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: #111827;
+}
+
+.hd-result p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  color: #374151;
 }
 
 .hd-actions {
-  margin-top: 20px;
   display: flex;
-  gap: 15px;
-  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .hd-action-btn {
-  padding: 10px 22px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
+  flex: 1;
+  min-width: 160px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  color: white;
+  transition: all 0.2s;
+  border: none;
 }
 
 .book-appointment-btn {
-  background-color: #007bff;
+  background: #10b981;
+  color: white;
 }
 
 .book-appointment-btn:hover {
-  background-color: #0056b3;
-  transform: translateY(-2px);
+  background: #059669;
 }
 
 .get-advice-btn {
-  background-color: #6c757d;
+  background: #3b82f6;
+  color: white;
 }
 
 .get-advice-btn:hover {
-  background-color: #5a6268;
-  transform: translateY(-2px);
-} 
+  background: #2563eb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .hd-form-container.sidebar-open {
+    margin-right: 0;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .hd-form-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .hd-form-container.sidebar-open {
+    margin-right: 0;
+    max-width: 95%;
+  }
+
+  .hd-form-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .hd-form-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .hd-data-grid {
+    grid-template-columns: 1fr;
+    padding: 0 1.5rem;
+  }
+
+  .hd-form-container > p {
+    padding: 0 1.5rem;
+  }
+
+  .hd-submit-btn {
+    margin: 0 1.5rem 2rem 1.5rem;
+    width: calc(100% - 3rem);
+  }
+
+  .hd-result-container {
+    padding: 0 1.5rem 2rem 1.5rem;
+  }
+
+  .hd-actions {
+    flex-direction: column;
+  }
+
+  .hd-action-btn {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .hd-data-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .hd-data-label {
+    font-size: 0.85rem;
+  }
+
+  .hd-data-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+}

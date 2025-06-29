@@ -41,9 +41,11 @@ import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup
 import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
 import LatestVitals from "../../components/patientDashboard/LatestVitals"
 import PatientVitals from "../../components/patientDashboard/PatientVitals"
-import "../../styles/vitals.css"
+import "../../css/vitals.css"
+
 import FraminghamCalculation from '../../components/patientDashboard/FraminghamCalculation'
 import HeartDiseaseForm from "../../components/patientDashboard/HeartDiseaseForm"
+import Modal from "../../components/modals/Modal"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -457,39 +459,41 @@ const PatientDashboard = () => {
   const renderDashboardContent = () => {
     return (
       <div className="dashboard-content">
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2>Heart Disease Prediction (SVM)</h2>
-            <button className="btn-primary" onClick={() => setShowHeartDisease(true)}>
-              Predict
-            </button>
+        <div className="prediction-cards-row">
+          <div className="dashboard-section" style={{ flex: 1 }}>
+            <div className="section-header">
+              <h2>Heart Disease Prediction Based on Current Symptoms</h2>
+              <button className="btn-primary" onClick={() => setShowHeartDisease(true)}>
+                Predict
+              </button>
+            </div>
           </div>
-          <>
-            {showHeartDisease && (
-              <HeartDiseaseForm
-                patientData={heartData}
-                onClose={() => setShowHeartDisease(false)}
-              />
-            )}
-          </>
-        </div>
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2>Cardiovascular Disease Risk (Framingham)</h2>
-            <button className="btn-primary" onClick={() => setShowFramingham(true)}>
-              Calculate
-            </button>
+          <div className="dashboard-section" style={{ flex: 1 }}>
+            <div className="section-header">
+              <h2>Cardiovascular Disease Risk in 10 years</h2>
+              <button className="btn-primary" onClick={() => setShowFramingham(true)}>
+                Calculate
+              </button>
+            </div>
           </div>
-          <>
-            {showFramingham && (
-              <FraminghamCalculation
-                user={user}
-                latestVitals={vitals}
-                onClose={() => setShowFramingham(false)}
-              />
-            )}
-          </>
         </div>
+
+        {/* Modals */}
+        {showHeartDisease && (
+          <HeartDiseaseForm
+            patientData={heartData}
+            onClose={() => setShowHeartDisease(false)}
+          />
+        )}
+        {showFramingham && (
+          <Modal onClose={() => setShowFramingham(false)}>
+            <FraminghamCalculation
+              user={user}
+              latestVitals={vitals}
+              onClose={() => setShowFramingham(false)}
+            />
+          </Modal>
+        )}
 
         <div className="dashboard-section">
           <div className="section-header">
@@ -566,10 +570,6 @@ const PatientDashboard = () => {
               <p className="no-data">No upcoming appointments</p>
             )}
           </div>
-        </div>
-
-        <div className="vitals-section">
-          <LatestVitals />
         </div>
       </div>
     )

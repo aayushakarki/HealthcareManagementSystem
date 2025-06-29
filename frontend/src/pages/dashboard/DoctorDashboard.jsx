@@ -64,6 +64,47 @@ const DoctorDashboard = () => {
     }
   }
 
+  // Add a function to refresh appointments data
+  const refreshAppointments = async () => {
+    try {
+      console.log("Refreshing appointments data..."); // Debug log
+      
+      const appointmentsResponse = await axios.get("http://localhost:4000/api/v1/appointment/doctor/me", {
+        withCredentials: true,
+      });
+
+      if (appointmentsResponse.data.success) {
+        const allAppointments = appointmentsResponse.data.appointments;
+        console.log("Fresh appointments received:", allAppointments); // Debug log
+        setAppointments(allAppointments);
+
+        // Filter today's appointments with fresh data
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const todaysAppts = allAppointments.filter((appointment) => {
+          const appointmentDate = new Date(appointment.appointment_date);
+          return appointmentDate >= today && appointmentDate < tomorrow;
+        });
+
+        setTodayAppointments(todaysAppts);
+        
+        // Also refresh stats
+        const statsResponse = await axios.get("http://localhost:4000/api/v1/appointment/doctor/stats/me", {
+          withCredentials: true,
+        });
+
+        if (statsResponse.data.success) {
+          setStats(statsResponse.data.stats);
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing appointments:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -129,6 +170,14 @@ const DoctorDashboard = () => {
     }
 
     fetchDashboardData()
+
+    // Set up automatic refresh every 60 seconds
+    const interval = setInterval(() => {
+      refreshAppointments();
+    }, 60000); // 60 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, [])
 
   useEffect(() => {
@@ -220,6 +269,9 @@ const DoctorDashboard = () => {
         setAppointments((prevAppointments) =>
           prevAppointments.map((app) => (app._id === appointmentId ? { ...app, status } : app)),
         )
+
+        // Refresh appointments to get the latest data
+        await refreshAppointments();
       }
     } catch (error) {
       console.error("Error updating appointment status:", error)
@@ -375,7 +427,7 @@ const DoctorDashboard = () => {
         </div>
 
         {/* Today's Appointments */}
-        <div className="dashboard-section">
+        <div className="doctor-dashboard-section">
           <div className="section-header">
             <h2>Today's Appointments</h2>
             <button className="view-all" onClick={() => setActiveSection("appointments")}>
@@ -433,63 +485,68 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
-        {/* Patient Activity */}
-        <div className="dashboard-section">
+        {/* Recent Activity */}
+        <div className="doctor-dashboard-section">
           <div className="section-header">
-            <h2>Patient Activity</h2>
-            <ChevronDown className="w-5 h-5" />
+            <h2>Recent Activity</h2>
           </div>
-          <div className="patient-activity-chart">
-            <div className="chart-placeholder">
-              <BarChart className="w-full h-32 text-blue-500" />
-            </div>
-            <div className="activity-stats">
-              <div className="stat-card">
-                <div className="stat-value">{stats.totalPatients}</div>
-                <div className="stat-label">Active Patients</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{appointments.length}</div>
-                <div className="stat-label">Total Appointments</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{recentHealthRecords.length}</div>
-                <div className="stat-label">Recent Records</div>
+          <div className="recent-activity-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Total Active Patients */}
+            <div className="recent-activity-item" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <UserRound className="w-6 h-6 text-blue-500" />
+              <div>
+                <div style={{ fontWeight: 600, color: '#22223b' }}>Total Active Patients</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>{stats.totalPatients}</div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Recent Health Records */}
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2>Recent Health Records</h2>
-            <button className="view-all" onClick={() => setActiveSection("healthrecords")}>
-              View All
-            </button>
-          </div>
-          <div className="records-container">
-            {recentHealthRecords.length > 0 ? (
-              <ul className="record-list">
-                {recentHealthRecords.map((record) => (
-                  <li key={record.id || record._id} className="record-item">
-                    <div className="record-details">
-                      <h3>{record.type || record.recordType}</h3>
-                      <p>Patient: {record.patientName || "Patient"}</p>
-                      <p>Date: {new Date(record.date || record.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <button className="btn-view">View</button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="no-data-container">
-                <p className="no-data">No recent health records</p>
-                <button className="btn-primary mt-2" onClick={() => setActiveSection("healthrecordupload")}>
-                  Upload New Record
-                </button>
+            {/* Last Patient Seen */}
+            <div className="recent-activity-item" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <Clock className="w-6 h-6 text-green-500" />
+              <div>
+                <div style={{ fontWeight: 600, color: '#22223b' }}>Last Patient Seen</div>
+                {appointments && appointments.length > 0 ? (
+                  (() => {
+                    // Find the most recent appointment
+                    const sorted = [...appointments].sort((a, b) => new Date(b.appointment_date) - new Date(a.appointment_date));
+                    const last = sorted[0];
+                    return (
+                      <div style={{ fontSize: '1.1rem', fontWeight: 500 }}>
+                        {last.firstName} {last.lastName} <span style={{ color: '#6b7280', fontWeight: 400 }}>(
+                          {new Date(last.appointment_date).toLocaleDateString()} {new Date(last.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        )</span>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div style={{ color: '#9ca3af', fontStyle: 'italic' }}>No recent appointments</div>
+                )}
               </div>
-            )}
+            </div>
+
+            {/* Recent Uploads */}
+            <div className="recent-activity-item" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <FileText className="w-6 h-6 text-purple-500" />
+              <div>
+                <div style={{ fontWeight: 600, color: '#22223b' }}>Recent Uploads</div>
+                {recentHealthRecords && recentHealthRecords.length > 0 ? (
+                  (() => {
+                    // Find the most recent health record uploaded by the doctor
+                    const sorted = [...recentHealthRecords].sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+                    const last = sorted[0];
+                    return (
+                      <div style={{ fontSize: '1.1rem', fontWeight: 500 }}>
+                        {last.type || last.recordType} <span style={{ color: '#6b7280', fontWeight: 400 }}>(
+                          {new Date(last.date || last.createdAt).toLocaleDateString()}
+                        )</span>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div style={{ color: '#9ca3af', fontStyle: 'italic' }}>No recent uploads</div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -503,7 +560,13 @@ const DoctorDashboard = () => {
       case "patients":
         return <PatientList onPatientSelect={handlePatientSelect} />
       case "appointments":
-        return <DoctorAppointments appointments={appointments} onUpdateStatus={updateAppointmentStatus} />
+        return (
+          <DoctorAppointments 
+            appointments={appointments} 
+            onUpdateStatus={updateAppointmentStatus}
+            onRefreshAppointments={refreshAppointments} // Add this prop
+          />
+        )
       case "healthrecords":
         return <PatientHealthRecords />
       case "healthrecordupload":
@@ -628,7 +691,7 @@ const DoctorDashboard = () => {
             </div>
           </div>
         </div>
-
+        <div className="backButoon"> 
         {activeSection !== "dashboard" && (
           <button className="chevron-back-btn" onClick={() => setActiveSection("dashboard")}
             style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}
@@ -636,7 +699,7 @@ const DoctorDashboard = () => {
             <ChevronLeft className="w-5 h-5 mr-1" /> Back to Dashboard
           </button>
         )}
-
+        </div>
         <div className="content-wrapper">
           <div className="content-main">{renderContent()}</div>
 

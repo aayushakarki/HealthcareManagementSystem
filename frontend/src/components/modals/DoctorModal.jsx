@@ -167,14 +167,6 @@ const DoctorModal = ({ doctor, onClose }) => {
                 >
                   Appointments
                 </button>
-                <button
-                  className={`tab-button px-4 py-2 font-medium ${
-                    activeTab === "qualifications" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-500"
-                  }`}
-                  onClick={() => setActiveTab("qualifications")}
-                >
-                  Qualifications
-                </button>
               </div>
 
               <div className="tab-content">
@@ -206,13 +198,10 @@ const DoctorModal = ({ doctor, onClose }) => {
                       </div>
                     </div>
 
-                    <div className="doctor-stats mb-6">
+                    <div className="doctor-stats mb-10">
                       <h3 className="text-lg font-semibold mb-3">Statistics</h3>
                       <div className="stats-grid grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="stat-card bg-white p-4 rounded-lg border flex items-center gap-3">
-                          <div className="stat-icon bg-blue-100 p-2 rounded-full">
-                            <Calendar className="w-6 h-6 text-blue-500" />
-                          </div>
                           <div className="stat-details">
                             <span className="stat-value text-xl font-bold">{appointments.length}</span>
                             <span className="stat-label text-sm text-gray-500">Total Appointments</span>
@@ -220,9 +209,6 @@ const DoctorModal = ({ doctor, onClose }) => {
                         </div>
 
                         <div className="stat-card bg-white p-4 rounded-lg border flex items-center gap-3">
-                          <div className="stat-icon bg-green-100 p-2 rounded-full">
-                            <Activity className="w-6 h-6 text-green-500" />
-                          </div>
                           <div className="stat-details">
                             <span className="stat-value text-xl font-bold">
                               {appointments.filter((app) => app.status === "completed").length}
@@ -232,9 +218,7 @@ const DoctorModal = ({ doctor, onClose }) => {
                         </div>
 
                         <div className="stat-card bg-white p-4 rounded-lg border flex items-center gap-3">
-                          <div className="stat-icon bg-yellow-100 p-2 rounded-full">
-                            <Clock className="w-6 h-6 text-yellow-500" />
-                          </div>
+
                           <div className="stat-details">
                             <span className="stat-value text-xl font-bold">
                               {
@@ -331,15 +315,14 @@ const DoctorModal = ({ doctor, onClose }) => {
                   </div>
                 )}
 
-                {activeTab === "qualifications" && (
+                {/* {activeTab === "qualifications" && (
                   <div className="qualifications-tab">
                     <div className="tab-header mb-4">
                       <h3 className="text-lg font-semibold">Qualifications & Experience</h3>
                     </div>
-
-                    <div className="qualifications-content">
+                    <div className="qualifications-content"> */}
                       {/* Display doctor's qualifications if available */}
-                      {doctor.qualifications ? (
+                      {/* {doctor.qualifications ? (
                         <div className="qualifications-list space-y-4">
                           {doctor.qualifications.map((qualification, index) => (
                             <div key={index} className="qualification-item p-3 border rounded-lg">
@@ -358,18 +341,18 @@ const DoctorModal = ({ doctor, onClose }) => {
                               : "Experienced healthcare professional"}
                           </p>
                         </div>
-                      )}
+                      )} */}
 
                       {/* Doctor's bio/description if available */}
-                      {doctor.bio && (
+                      {/* {doctor.bio && (
                         <div className="doctor-bio mt-4 p-4 bg-blue-50 rounded-lg">
                           <h4 className="font-medium mb-2">About</h4>
                           <p className="text-sm">{doctor.bio}</p>
                         </div>
-                      )}
+                      )} */}
 
                       {/* Doctor's specializations if available */}
-                      {doctor.specializations && doctor.specializations.length > 0 ? (
+                      {/* {doctor.specializations && doctor.specializations.length > 0 ? (
                         <div className="specializations mt-4">
                           <h4 className="font-medium mb-2">Specializations</h4>
                           <div className="flex flex-wrap gap-2">
@@ -394,7 +377,7 @@ const DoctorModal = ({ doctor, onClose }) => {
                       )}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </>
           )}

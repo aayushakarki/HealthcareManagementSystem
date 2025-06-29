@@ -9,7 +9,6 @@ import userRouter from "./router/userRouter.js"
 import appointmentRouter from "./router/appointmentRouter.js"
 import healthRecordRouter from "./router/healthRecordRouter.js"
 import vitalsRouter from "./router/vitalsRouter.js"
-import notificationRouter from "./router/notificationRouter.js"
 import prescriptionRouter from "./router/prescriptionRouter.js"
 import searchRouter from "./router/searchRouter.js"
 import heartDataRouter from "./router/heartDataRouter.js";
@@ -59,7 +58,6 @@ app.use("/api/v1/user", userRouter)
 app.use("/api/v1/appointment", appointmentRouter)
 app.use("/api/v1/health-records", healthRecordRouter)
 app.use("/api/v1/vitals", vitalsRouter)
-app.use("/api/v1/notifications", notificationRouter)
 app.use("/api/v1/prescriptions", prescriptionRouter)
 app.use("/api/v1/search", searchRouter)
 app.use("/api/v1/heartdata", heartDataRouter);

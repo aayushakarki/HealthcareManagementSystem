@@ -65,6 +65,9 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Doctor already has an appointment at this time!", 400))
   }
 
+  // Before creating the appointment, ensure appointment_date is ISO string
+  const isoAppointmentDate = new Date(appointment_date).toISOString();
+
   const appointment = await Appointment.create({
     firstName,
     lastName,
@@ -72,7 +75,7 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
     phone,
     dob,
     gender,
-    appointment_date,
+    appointment_date: isoAppointmentDate,
     department,
     doctor: {
       firstName: doctor_firstName,
@@ -145,9 +148,12 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
 })
 
 // function to update a single appointment by ID
+
 export const updateAppointmentStatus = catchAsyncErrors(async (req, res, next) => {
   const { appointmentId } = req.params
   const { status, newDate } = req.body // Accept newDate
+
+  console.log("Received request:", { appointmentId, status, newDate }) // Debug log
 
   if (!status) {
     return next(new ErrorHandler("Please provide status", 400))
@@ -160,13 +166,22 @@ export const updateAppointmentStatus = catchAsyncErrors(async (req, res, next) =
     return next(new ErrorHandler("Appointment not found", 404))
   }
 
-  // Store old status
+  // Store old status and date for comparison
   const oldStatus = appointment.status
+  const oldDate = appointment.appointment_date
 
   // Prepare update object
   const updateObj = { status }
+  
+  // If rescheduling and newDate is provided, update the appointment date
   if (status === "Rescheduled" && newDate) {
-    updateObj.appointment_date = newDate
+    // Ensure newDate is a valid date and convert to ISO string
+    const parsedDate = new Date(newDate)
+    if (isNaN(parsedDate.getTime())) {
+      return next(new ErrorHandler("Invalid date format", 400))
+    }
+    updateObj.appointment_date = parsedDate.toISOString()
+    console.log("Updating appointment date to:", updateObj.appointment_date) // Debug log
   }
 
   // Update the appointment
@@ -180,24 +195,34 @@ export const updateAppointmentStatus = catchAsyncErrors(async (req, res, next) =
     }
   )
 
-  // Create notification if the status has changed
-  if (oldStatus !== status) {
+  console.log("Updated appointment:", updatedAppointment) // Debug log
+
+  // Create notification if the status has changed or date has changed
+  if (oldStatus !== status || (newDate && oldDate !== updateObj.appointment_date)) {
+    let notificationMessage = `Your appointment status has been updated to ${status}`
+    if (status === "Rescheduled" && newDate) {
+      notificationMessage += ` (New date: ${new Date(newDate).toLocaleString()})`
+    }
+    
     await Notification.create({
       userId: appointment.patientId,
-      message: `Your appointment status has been updated to ${status}` + (status === "Rescheduled" && newDate ? ` (New date: ${new Date(newDate).toLocaleString()})` : ""),
+      message: notificationMessage,
       type: "Appointment",
       relatedId: appointment._id,
       onModel: "Appointment",
     })
 
+    // Send email notification
     const user = await User.findById(appointment.patientId)
     if (user && user.email) {
-      let emailText = `Your appointment status has been updated to ${status}.`;
-      let emailHtml = `<p>Your appointment status has been updated to <b>${status}</b>.</p>`;
+      let emailText = `Your appointment status has been updated to ${status}.`
+      let emailHtml = `<p>Your appointment status has been updated to <b>${status}</b>.</p>`
+      
       if (status === "Rescheduled" && newDate) {
-        emailText += ` New date: ${new Date(newDate).toLocaleString()}`;
-        emailHtml += `<p>New date: <b>${new Date(newDate).toLocaleString()}</b></p>`;
+        emailText += ` New date: ${new Date(newDate).toLocaleString()}`
+        emailHtml += `<p>New date: <b>${new Date(newDate).toLocaleString()}</b></p>`
       }
+      
       await sendEmail({
         to: user.email,
         subject: `MediCure: Appointment Status Updated`,

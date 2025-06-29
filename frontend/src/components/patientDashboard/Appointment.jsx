@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-import { Calendar, Clock, X, Edit, Plus } from "lucide-react"
+import { Calendar, Clock, Plus } from "lucide-react"
 import { toast } from "react-toastify"
 import AppointmentBookingForm from "../patientDashboard/AppointmentBookingForm"
 
@@ -30,6 +30,7 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
             _id: appointment._id,
             doctorName: `${appointment.doctor.firstName} ${appointment.doctor.lastName}`,
             date: appointment.appointment_date,
+            appointment_date: appointment.appointment_date,
             time: formatTimeFromDate(appointment.appointment_date),
             reason: appointment.department,
             specialty: appointment.department,
@@ -87,15 +88,19 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
   })
 
   const getStatusClass = (status) => {
-    switch (status) {
+    switch ((status || "").toLowerCase()) {
       case "confirmed":
         return "status-confirmed"
       case "completed":
         return "status-completed"
       case "cancelled":
         return "status-cancelled"
+      case "pending":
+        return "status-pending"
+      case "accepted":
+        return "status-accepted"
       default:
-        return ""
+        return "status-pending"
     }
   }
 
@@ -114,8 +119,6 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
     if (typeof setShowBookingForm === "function") {
       setShowBookingForm(false)
     }
-
-    // Refresh appointments list
     fetchAppointments()
   }
 
@@ -130,6 +133,7 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
           _id: appointment._id,
           doctorName: `${appointment.doctor.firstName} ${appointment.doctor.lastName}`,
           date: appointment.appointment_date,
+          appointment_date: appointment.appointment_date,
           time: formatTimeFromDate(appointment.appointment_date),
           reason: appointment.department,
           specialty: appointment.department,
@@ -177,44 +181,37 @@ const AppointmentList = ({ showBookingForm = false, setShowBookingForm = () => {
 
       <div className="appointments-list-container">
         {filteredAppointments.length > 0 ? (
-          <div className="appointments-table">
-            <div className="table-header-box">
-              <div className="table-header">
-                <div className="header-cell">Doctor</div>
-                <div className="header-cell">Date & Time</div>
-                <div className="header-cell">Reason</div>
-                <div className="header-cell">Status</div>
-                <div className="header-cell">Notes</div>
-              </div>
-            </div>
+          <div className="new-appointments-list">
             {filteredAppointments.map((appointment) => (
-              <div key={appointment._id} className="table-row">
-                <div className="cell doctor-cell">
-                  <div className="doctor-info">
-                    <div className="doctor-name">Dr. {appointment.doctorName}</div>
-                    <div className="doctor-specialty">{appointment.specialty}</div>
+              <div key={appointment._id} className="new-appointment-card">
+                <div className="appointment-main-content">
+                  <div className="appointment-header-section">
+                    <h3 className="appointment-specialty">{appointment.specialty}</h3>
+                    <div className={`appointment-status-badge ${getStatusClass(appointment.status)}`}>
+                      {appointment.status || "Pending"}
+                    </div>
                   </div>
-                </div>
-                <div className="cell date-cell">
-                  <div className="date">
-                    <Calendar className="w-4 h-4" />
-                    <span>{new Date(appointment.date).toLocaleDateString()}</span>
+
+                  <div className="appointment-doctor-info">
+                    <span className="doctor-label">Doctor: </span>
+                    <span className="doctor-name">Dr. {appointment.doctorName}</span>
                   </div>
-                  <div className="time">
-                    <Clock className="w-4 h-4" />
-                    <span>{appointment.time}</span>
+
+                  <div className="appointment-datetime">
+                    <div className="datetime-item">
+                      <Calendar className="datetime-icon" />
+                      <span>{new Date(appointment.appointment_date || appointment.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="datetime-item">
+                      <Clock className="datetime-icon" />
+                      <span>{appointment.time}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="cell reason-cell">{appointment.reason}</div>
-                <div className="cell status-cell">
-                  <span className={`status-badge ${getStatusClass(appointment.status)}`}>{appointment.status}</span>
-                </div>
-                <div className="cell notes-cell">
-                  {appointment.doctorNotes ? (
-                    <span>{appointment.doctorNotes}</span>
-                  ) : (
-                    <span className="no-notes">No notes</span>
-                  )}
+
+                  <div className="appointment-notes-section">
+                    <span className="notes-label">Appointment Notes:</span>
+                    <div className="notes-content">{appointment.doctorNotes || "No notes available"}</div>
+                  </div>
                 </div>
               </div>
             ))}

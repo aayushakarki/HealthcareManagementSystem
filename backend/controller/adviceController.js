@@ -9,9 +9,9 @@ export const getAdvice = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Initial prompt for the AI model
-  const prompt = `Based on the following clinical data, which indicates a high likelihood of heart disease, provide advice on lifestyle changes to ensure better outcomes. The data is: ${JSON.stringify(
-    heartData
-  )}. Explain the risks associated with these values in simple, patient-friendly language and suggest actionable steps for diet, exercise, and stress management.`;
+const prompt = `Based on the following clinical data, which indicates a high likelihood of heart disease: ${JSON.stringify(heartData)}, 
+explain in simple terms which factors likely contributed the most to this result and why. Then, suggest clear and practical lifestyle changes (diet, exercise, and stress management) to reduce risk and improve heart health. 
+Keep the explanation patient-friendly and easy to understand.`;
 
   try {
     const geminiResponse = await fetch(

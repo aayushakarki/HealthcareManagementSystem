@@ -167,49 +167,57 @@ const FraminghamCalculation = ({ user, latestVitals, onClose }) => {
   }
 
   return (
-    <div className="framingham-modal">
-      <div className="framingham-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h3>Framingham Risk Score Calculator</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <button onClick={onClose} className="chevron-btn" title="Close">
-            <ChevronUp className="w-5 h-5" />
-          </button>
-        </div>
+    <div className="framingham-modal-content">
+      <div className="framingham-header">
+        <h2>Framingham Risk Score Calculator</h2>
+        <p className="framingham-subtitle">
+          This calculator estimates your 10-year risk of developing cardiovascular disease based on your clinical data.
+        </p>
       </div>
       <form onSubmit={handleSubmit} className="framingham-form">
-        <div className="form-row">
-          <label>Age</label>
-          <input type="number" value={age} readOnly />
+        <div className="framingham-fields-grid">
+          <div className="framingham-field-card">
+            <label>Age</label>
+            <div className="framingham-field-value">{age}</div>
+          </div>
+          <div className="framingham-field-card">
+            <label>Gender</label>
+            <div className="framingham-field-value">{gender.charAt(0).toUpperCase() + gender.slice(1)}</div>
+          </div>
+          <div className="framingham-field-card">
+            <label>Systolic BP</label>
+            <div className="framingham-field-value">{systolic}</div>
+          </div>
+          <div className="framingham-field-card">
+            <label>Total Cholesterol</label>
+            <div className="framingham-field-value">{cholesterol}</div>
+          </div>
+          <div className="framingham-field-card">
+            <label>HDL Cholesterol</label>
+            <div className="framingham-field-value">{hdlCholesterol}</div>
+          </div>
+          <div className="framingham-field-card">
+            <label>Smoking Status</label>
+            <div className="framingham-field-value">
+              <input type="checkbox" name="smoker" checked={form.smoker} onChange={handleChange} /> Smoker
+            </div>
+          </div>
+          <div className="framingham-field-card">
+            <label>Diabetes</label>
+            <div className="framingham-field-value">
+              <input type="checkbox" name="diabetic" checked={form.diabetic} onChange={handleChange} /> Diabetic
+            </div>
+          </div>
+          <div className="framingham-field-card">
+            <label>On BP Medication</label>
+            <div className="framingham-field-value">
+              <input type="checkbox" name="onMeds" checked={form.onMeds} onChange={handleChange} /> Yes
+            </div>
+          </div>
         </div>
-        <div className="form-row">
-          <label>Gender</label>
-          <input type="text" value={gender.charAt(0).toUpperCase() + gender.slice(1)} readOnly />
-        </div>
-        <div className="form-row">
-          <label>Systolic BP</label>
-          <input type="number" value={systolic} readOnly />
-        </div>
-        <div className="form-row">
-          <label>Total Cholesterol</label>
-          <input type="number" value={cholesterol} readOnly />
-        </div>
-        <div className="form-row">
-          <label>HDL Cholesterol</label>
-          <input type="number" value={hdlCholesterol} readOnly />
-        </div>
-        <div className="form-row">
-          <label>Smoking Status</label>
-          <input type="checkbox" name="smoker" checked={form.smoker} onChange={handleChange} /> Smoker
-        </div>
-        <div className="form-row">
-          <label>Diabetes</label>
-          <input type="checkbox" name="diabetic" checked={form.diabetic} onChange={handleChange} /> Diabetic
-        </div>
-        <div className="form-row">
-          <label>On BP Medication</label>
-          <input type="checkbox" name="onMeds" checked={form.onMeds} onChange={handleChange} /> Yes
-        </div>
-        <button type="submit" className="btn-primary">Calculate Risk</button>
+        <button className="btn-primary framingham-submit-btn" type="submit">
+          Calculate Risk
+        </button>
       </form>
       {result && (
         <div className="framingham-result">
