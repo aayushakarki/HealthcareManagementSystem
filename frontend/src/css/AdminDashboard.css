@@ -360,9 +360,7 @@ html, body {
 
 .section-header {
   margin-bottom: 2rem;
-  display: block;
-  /* justify-content: space-between; */
-  /* align-items: center; */
+  display: flex;
 }
 
 .section-header h2 {
@@ -372,6 +370,23 @@ html, body {
 }
 
 .section-header p {
+  color: #6b7280;
+  font-size: 1.05rem;
+  margin-top: 0.25rem;
+}
+
+.verif-section-header {
+  margin-bottom: 2rem;
+  display: block;
+}
+
+.verif-section-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3f3765;
+}
+
+.verif-section-header p {
   color: #6b7280;
   font-size: 1.05rem;
   margin-top: 0.25rem;
@@ -693,6 +708,24 @@ html, body {
 }
 .admin-btn-outline:hover {
   background: #ece9f6;
+}
+
+.admin-btn-danger{
+  width: 100%;
+  background: #fff;
+  color: red;
+  border: 1.5px solid red;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.admin-btn-danger:hover {
+  background: red;
+  color: #ece9f6;
 }
 
 .admin-status-badge {

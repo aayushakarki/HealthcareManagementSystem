@@ -2,7 +2,7 @@
 :root {
   --primary-color: #776bb3;
   --primary-hover: #3f3765;
-  --sidebar-width: 240px;
+  --sidebar-width: 300px;
   --sidebar-bg: #ffffff;
   --header-height: 64px;
   --border-color: #e5e7eb;
@@ -802,7 +802,7 @@
 
 /* Sidebar nav margin for better spacing */
 .sidebar-nav {
-  padding: 1rem 0;
+  padding: 0.75rem 0;
   overflow-y: auto;
   margin-top: 2rem;
 }
@@ -842,3 +842,21 @@
   line-height: 1.4;
 }
 
+/* Ensure sidebar nav items and badges are not cut off */
+.sidebar-nav li button {
+  position: relative;
+  overflow: visible; /* Allow badges to overflow if needed */
+  padding-right: 2.5rem; /* Add space for badge */
+}
+
+.sidebar-nav li button .ml-2px {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 1.5em;
+  text-align: center;
+  padding: 0.5em 0.5em;
+  font-size: 1.5em;
+  z-index: 2;
+}

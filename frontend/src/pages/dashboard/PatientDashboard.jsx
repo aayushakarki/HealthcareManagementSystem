@@ -357,7 +357,7 @@ const PatientDashboard = () => {
     setSelectedFullDate(selectedDateObj)
 
     // Format the date for the booking form
-    const formattedDate = selectedDateObj.toISOString().slice(0, 16)
+    const formattedDate = formatLocalDateTime(selectedDateObj)
     setPrefilledDate(formattedDate)
 
     // Find appointments for this day
@@ -366,7 +366,8 @@ const PatientDashboard = () => {
       return (
         appointmentDate.getDate() === day &&
         appointmentDate.getMonth() === currentDate.getMonth() &&
-        appointmentDate.getFullYear() === currentDate.getFullYear()
+        appointmentDate.getFullYear() === currentDate.getFullYear() &&
+        appointment.status.toLowerCase() !== "cancelled"
       )
     })
 
@@ -718,7 +719,7 @@ const PatientDashboard = () => {
             {/* Replace the calendar-section div in the appointments-sidebar with: */}
             <div className="calendar-section">
               <AppointmentCalendar
-                appointments={appointments}
+                appointments={appointments.filter(app => app.status.toLowerCase() !== "cancelled")}
                 onDateClick={(date) => {
                   // Create a date object for the selected day
                   const selectedDateObj = date
@@ -726,7 +727,7 @@ const PatientDashboard = () => {
                   setSelectedFullDate(selectedDateObj)
 
                   // Format the date for the booking form
-                  const formattedDate = selectedDateObj.toISOString().slice(0, 16)
+                  const formattedDate = formatLocalDateTime(selectedDateObj)
                   setPrefilledDate(formattedDate)
 
                   // Find appointments for this day
@@ -735,7 +736,8 @@ const PatientDashboard = () => {
                     return (
                       appointmentDate.getDate() === date.getDate() &&
                       appointmentDate.getMonth() === date.getMonth() &&
-                      appointmentDate.getFullYear() === date.getFullYear()
+                      appointmentDate.getFullYear() === date.getFullYear() &&
+                      appointment.status.toLowerCase() !== "cancelled"
                     )
                   })
 
@@ -785,6 +787,21 @@ const PatientDashboard = () => {
         userRole="patient"
       />
     </div>
+  )
+}
+
+function formatLocalDateTime(date) {
+  const pad = (n) => n.toString().padStart(2, '0')
+  return (
+    date.getFullYear() +
+    '-' +
+    pad(date.getMonth() + 1) +
+    '-' +
+    pad(date.getDate()) +
+    'T' +
+    pad(date.getHours()) +
+    ':' +
+    pad(date.getMinutes())
   )
 }
 

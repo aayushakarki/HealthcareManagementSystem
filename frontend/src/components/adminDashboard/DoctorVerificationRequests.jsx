@@ -95,7 +95,7 @@ const DoctorVerificationRequests = () => {
 
   return (
     <div className="doctor-verification-container">
-      <div className="section-header mb-6">
+      <div className="verif-section-header mb-6">
         <h2 className="text-2xl font-bold">Doctor Verification Requests</h2>
         <p className="text-gray-600">
           Verify doctor registrations by checking their NMC license number and credentials
