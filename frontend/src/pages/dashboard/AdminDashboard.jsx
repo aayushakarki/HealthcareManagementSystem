@@ -520,7 +520,7 @@ const AdminDashboard = () => {
                 <UserPlus className="w-5 h-5" />
                 <span>Doctor Verification</span>
                 {stats.pendingVerifications > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                  <span className="ml-2px bg-red-500 text-white text-xs rounded-full px-2 py-1">
                     {stats.pendingVerifications}
                   </span>
                 )}

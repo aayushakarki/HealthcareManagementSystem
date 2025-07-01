@@ -56,11 +56,27 @@ export const bookAppointment = catchAsyncErrors(async (req, res, next) => {
   const doctorId = isConflict[0]._id
   const patientId = req.user._id
 
-  // Check for double-booking: does the doctor already have an appointment at this time?
+  // Check for double-booking: does the doctor already have an appointment that overlaps with this time?
+  const requestedStart = new Date(appointment_date);
+  const requestedEnd = new Date(requestedStart);
+  requestedEnd.setMinutes(requestedEnd.getMinutes() + 40);
+
   const conflict = await Appointment.findOne({
     doctorId,
-    appointment_date: appointment_date
-  })
+    status: { $ne: "Cancelled" },
+    $expr: {
+      $and: [
+        // Existing appointment start < requested end
+        { $lt: [ { $toDate: "$appointment_date" }, requestedEnd ] },
+        // Existing appointment end > requested start
+        { $gt: [
+            { $add: [ { $toDate: "$appointment_date" }, 1000 * 60 * 40 ] },
+            requestedStart
+          ]
+        }
+      ]
+    }
+  });
   if (conflict) {
     return next(new ErrorHandler("Doctor already has an appointment at this time!", 400))
   }
@@ -482,3 +498,16 @@ export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler(error.message || "Error fetching appointments", 500))
   }
 })
+
+export const deleteSingleAppointment = catchAsyncErrors(async (req, res, next) => {
+  const { appointmentId } = req.params;
+  const appointment = await Appointment.findById(appointmentId);
+  if (!appointment) {
+    return next(new ErrorHandler("Appointment not found", 404));
+  }
+  await appointment.deleteOne();
+  res.status(200).json({
+    success: true,
+    message: "Appointment deleted successfully",
+  });
+});

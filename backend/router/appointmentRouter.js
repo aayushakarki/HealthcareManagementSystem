@@ -10,7 +10,8 @@ import {
   getDoctorAppointments,
   getDoctorStats,
   addDoctorNotes,
-  getAllAppointments
+  getAllAppointments,
+  deleteSingleAppointment
 } from "../controller/appointmentController.js"
 import { isAdminAuthenticated, isDoctorAuthenticated, isPatientAuthenticated, isAdminOrDoctorAuthenticated} from "../middlewares/auth.js"
 
@@ -35,5 +36,6 @@ router.delete("/delete/:patientId", isAdminAuthenticated, deleteAppointment)
 router.post("/notes/:appointmentId", isDoctorAuthenticated, addDoctorNotes) // New route for adding notes
 // Modified route to allow patients to see their own appointments
 // router.get("/getall", isPatientAuthenticated, getAllAppointments) fix it
+router.delete("/single/:appointmentId", isAdminAuthenticated, deleteSingleAppointment)
 
 export default router

@@ -167,7 +167,7 @@ const AppointmentBookingForm = ({ isVisible, onClose, prefilledDate = "", onSubm
       if (response.data.success) {
         toast.success("Appointment booked successfully!")
         onClose()
-        onSubmitSuccess() // Call the success callback
+        onSubmitSuccess()
 
         // Reset form
         setFormData({
@@ -188,8 +188,17 @@ const AppointmentBookingForm = ({ isVisible, onClose, prefilledDate = "", onSubm
         toast.error(response.data.message || "Failed to book appointment")
       }
     } catch (error) {
-      console.error("Error booking appointment:", error)
-      toast.error(error.response?.data?.message || "Failed to book appointment")
+      const backendMsg = error.response?.data?.message
+      if (backendMsg === "Doctor already has an appointment at this time!") {
+        toast.error("Appointment Slot not available. Please choose another time.")
+        setFormErrors(prev => ({
+          ...prev,
+          appointment_date: "Appointment Slot not available. Please choose another time."
+        }))
+        // Do NOT close or reset the form
+      } else {
+        toast.error(backendMsg || "Failed to book appointment")
+      }
     } finally {
       setSubmitting(false)
     }
