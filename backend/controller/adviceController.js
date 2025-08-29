@@ -1,6 +1,5 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 
-// Function to handle getting initial advice
 export const getAdvice = catchAsyncErrors(async (req, res, next) => {
   const { heartData } = req.body;
 
@@ -8,7 +7,6 @@ export const getAdvice = catchAsyncErrors(async (req, res, next) => {
     return res.status(400).json({ success: false, message: "Heart data is required." });
   }
 
-  // Initial prompt for the AI model
 const prompt = `Based on the following clinical data, which indicates a high likelihood of heart disease: ${JSON.stringify(heartData)}, 
 explain in simple terms which factors likely contributed the most to this result and why. Then, suggest clear and practical lifestyle changes (diet, exercise, and stress management) to reduce risk and improve heart health. 
 Keep the explanation patient-friendly and easy to understand.`;
@@ -40,7 +38,6 @@ Keep the explanation patient-friendly and easy to understand.`;
   }
 });
 
-// Function to handle follow-up questions
 export const askQuestion = catchAsyncErrors(async (req, res, next) => {
   const { question, chatHistory } = req.body;
 
@@ -48,7 +45,6 @@ export const askQuestion = catchAsyncErrors(async (req, res, next) => {
     return res.status(400).json({ success: false, message: "Question and chat history are required." });
   }
 
-  // Construct the conversation history for the AI model
   const contents = chatHistory.map(msg => ({
     role: msg.sender === 'user' ? 'user' : 'model',
     parts: [{ text: msg.text }],

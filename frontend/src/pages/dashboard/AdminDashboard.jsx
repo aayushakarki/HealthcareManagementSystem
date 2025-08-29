@@ -24,13 +24,11 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
-// Import components for each section
 import AppointmentsOverview from "../../components/adminDashboard/AppointmentsOverview";
 import DoctorsList from "../../components/adminDashboard/DoctorsList";
 import PatientsList from "../../components/adminDashboard/AllPatientsList";
 import Messages from "../../components/adminDashboard/Messages";
 import DoctorDetails from "../../components/adminDashboard/DoctorDetails";
-// import PatientDetails from "../../components/adminDashboard/PatientDetails"
 import DoctorVerificationRequests from "../../components/adminDashboard/DoctorVerificationRequests";
 
 const AdminDashboard = () => {
@@ -73,7 +71,6 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
 
-        // Fetch all appointments
         const appointmentsResponse = await axios
           .get("http://localhost:4000/api/v1/appointment/getall", {
             withCredentials: true,
@@ -87,7 +84,6 @@ const AdminDashboard = () => {
           const allAppointments = appointmentsResponse.data.appointments || [];
           setAppointments(allAppointments);
 
-          // Calculate today's appointments
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const tomorrow = new Date(today);
@@ -98,12 +94,10 @@ const AdminDashboard = () => {
             return appointmentDate >= today && appointmentDate < tomorrow;
           });
 
-          // Calculate pending appointments
           const pendingAppts = allAppointments.filter(
             (app) => app.status === "pending"
           );
 
-          // Update stats
           setStats((prev) => ({
             ...prev,
             totalAppointments: allAppointments.length,
@@ -112,7 +106,6 @@ const AdminDashboard = () => {
           }));
         }
 
-        // Fetch all doctors
         const doctorsResponse = await axios
           .get("http://localhost:4000/api/v1/user/doctors", {
             withCredentials: true,
@@ -128,7 +121,6 @@ const AdminDashboard = () => {
           setStats((prev) => ({ ...prev, totalDoctors: allDoctors.length }));
         }
 
-        // Fetch all patients
         const patientsResponse = await axios
           .get("http://localhost:4000/api/v1/user/patients", {
             withCredentials: true,
@@ -144,7 +136,6 @@ const AdminDashboard = () => {
           setStats((prev) => ({ ...prev, totalPatients: allPatients.length }));
         }
 
-        // Fetch unverified doctors
         const unverifiedDoctorsResponse = await axios
           .get("http://localhost:4000/api/v1/user/admin/doctors/pending", {
             withCredentials: true,
@@ -179,7 +170,6 @@ const AdminDashboard = () => {
 
   const handlePatientSelect = async (patient) => {
     try {
-      // Fetch detailed patient information if needed
       const patientResponse = await axios
         .get(`http://localhost:4000/api/v1/user/patient/${patient._id}`, {
           withCredentials: true,
@@ -195,13 +185,11 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching patient details:", error);
-      // If there's an error, still show the patient details with the data we have
       setSelectedPatient(patient);
       setActiveSection("patientdetails");
     }
   };
 
-  // In AdminDashboard.jsx, replace the updateAppointmentStatus function with this:
 
   const updateAppointmentStatus = async (
     appointmentId,
@@ -211,16 +199,13 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
 
-      // Prepare the request body
       const requestBody = { status };
 
-      // If rescheduling, add the new date
       if (status === "Rescheduled" && newDate) {
-        // Convert to ISO string if it's not already
         requestBody.newDate = new Date(newDate).toISOString();
       }
 
-      console.log("Sending request body:", requestBody); // Debug log
+      console.log("Sending request body:", requestBody);
 
       const response = await axios.put(
         `http://localhost:4000/api/v1/appointment/update/${appointmentId}`,
@@ -233,14 +218,12 @@ const AdminDashboard = () => {
       if (response.data.success) {
         toast.success("Appointment updated successfully!");
 
-        // Update appointments in state with the new data
         setAppointments((prevAppointments) =>
           prevAppointments.map((app) =>
             app._id === appointmentId
               ? {
                   ...app,
                   status,
-                  // Update the date if it was rescheduled
                   ...(status === "Rescheduled" &&
                     newDate && {
                       appointment_date: new Date(newDate).toISOString(),
@@ -250,9 +233,7 @@ const AdminDashboard = () => {
           )
         );
 
-        // Also update stats if needed
         if (status === "Rescheduled" && newDate) {
-          // Recalculate today's appointments since the date might have changed
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const tomorrow = new Date(today);
@@ -373,7 +354,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Appointments */}
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Recent Appointments</h2>
@@ -420,17 +400,6 @@ const AdminDashboard = () => {
             )}
           </div>
         </div>
-
-        {/* Activity Chart
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2>Appointment Activity</h2>
-            <ChevronDown className="w-5 h-5" />
-          </div>
-          <div className="chart-placeholder">
-            <BarChart className="w-full h-32 text-blue-500" />
-          </div>
-        </div> */}
       </div>
     );
   };
@@ -475,7 +444,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-container">
-      {/* Sidebar */}
       <div className="sidebar">
         <div className="sidebar-header">
           <div className="logo">
@@ -529,7 +497,6 @@ const AdminDashboard = () => {
           </ul>
         </nav>
 
-        {/* Add logout button at the bottom of sidebar */}
         <div className="sidebar-footer">
           <button onClick={handleLogout} className="logout-button">
             <LogOut className="w-5 h-5" />
@@ -538,7 +505,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="main-content">
         <div className="top-bar">
           <div>

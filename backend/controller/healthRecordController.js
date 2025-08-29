@@ -4,37 +4,30 @@ import { sendEmail } from "../utils/sendEmail.js";
 import { User } from "../models/userSchema.js";
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/errorMiddleware.js";
-// import { documentAnalysisService } from '../utils/documentAnalysisService.js';
 import https from 'https';
 
-// Helper function to validate file type
 const isValidFileType = (mimetype) => {
   return mimetype === 'image/jpeg' || mimetype === 'image/png';
 };
 
-// Upload a health record (for doctor or admin)
 export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
   const { patientId, recordType, description } = req.body;
 
-  // Check if file is uploaded
   if (!req.files || !req.files.file) {
     return next(new ErrorHandler("Please upload a file", 400));
   }
 
   const file = req.files.file;
 
-  // Validate file type (only jpg or pdf)
   if (!isValidFileType(file.mimetype)) {
     return next(new ErrorHandler("Only JPG and PNF images are allowed", 400));
   }
 
-  // Upload file to cloudinary
   const result = await cloudinary.uploader.upload(file.tempFilePath, {
     folder: 'health_records',
     resource_type: 'auto'
   });
 
-  // Create health record
   const healthRecord = await HealthRecord.create({
     patientId,
     recordType,
@@ -44,7 +37,6 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
     createdBy: req.user.id
   });
 
-  // Immediately analyze with Gemini
   try {
     const geminiApiKey = process.env.GEMINI_API_KEY;
     if (geminiApiKey) {
@@ -57,11 +49,9 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
       await healthRecord.save();
     }
   } catch (err) {
-    // Optionally log error, but don't block upload
     console.error('Gemini analysis failed:', err);
   }
 
-  // Send email notification
   const user = await User.findById(patientId);
   if (user && user.email) {
     try {
@@ -73,7 +63,6 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
       });
     } catch (error) {
       console.error("Failed to send email notification:", error);
-      // Don't fail the request if email fails
     }
   }
 
@@ -83,45 +72,37 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// Update a health record (for doctor or admin)
 export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
   const { recordId } = req.params;
   const { recordType, description } = req.body;
 
-  // Find the health record
   let healthRecord = await HealthRecord.findById(recordId);
 
   if (!healthRecord) {
     return next(new ErrorHandler("Health record not found", 404));
   }
 
-  // Update fields
   const updateData = {
     recordType: recordType || healthRecord.recordType,
     description: description || healthRecord.description
   };
 
-  // If file is uploaded, update file
   if (req.files && req.files.file) {
     const file = req.files.file;
 
-    // Validate file type
     if (!isValidFileType(file.mimetype)) {
       return next(new ErrorHandler("Only JPG and PNG images are allowed", 400));
     }
 
-    // Delete old file from cloudinary
     if (healthRecord.fileUrl) {
       const publicId = healthRecord.fileUrl.split('/').pop().split('.')[0];
       try {
         await cloudinary.uploader.destroy(`health_records/${publicId}`);
       } catch (error) {
         console.error("Failed to delete old file from cloudinary:", error);
-        // Continue with the update even if deletion fails
       }
     }
 
-    // Upload new file
     const result = await cloudinary.uploader.upload(file.tempFilePath, {
       folder: 'health_records',
       resource_type: 'auto'
@@ -131,7 +112,6 @@ export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
     updateData.fileName = file.name;
   }
 
-  // Update health record
   healthRecord = await HealthRecord.findByIdAndUpdate(
     recordId,
     updateData,
@@ -144,12 +124,10 @@ export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// Delete a health record (for doctor or admin)
 export const deleteHealthRecord = async (req, res) => {
   try {
     const { recordId } = req.params;
 
-    // Find the health record
     const healthRecord = await HealthRecord.findById(recordId);
 
     if (!healthRecord) {
@@ -159,7 +137,6 @@ export const deleteHealthRecord = async (req, res) => {
       });
     }
 
-    // Delete file from cloudinary
     if (healthRecord.fileUrl) {
       const publicId = healthRecord.fileUrl.split('/').pop().split('.')[0];
       await cloudinary.uploader.destroy(`health_records/${publicId}`);

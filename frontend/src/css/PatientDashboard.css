@@ -860,3 +860,164 @@
   font-size: 1.5em;
   z-index: 2;
 }
+
+/* =========================
+   Medications (New Styles)
+   ========================= */
+.new-medications-container {
+  padding: 1rem 1rem 0 1rem;
+}
+
+.new-medications-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.medications-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.new-request-prescription-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #2e7d32; /* subtle green */
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.new-request-prescription-btn:hover {
+  background: #1b5e20;
+}
+
+.new-medication-sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+}
+
+.new-medication-section {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.section-heading {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+}
+
+.new-medications-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.new-medication-card {
+  background: #fff;
+  border: 1px solid #f3f4f6;
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.new-medication-card.completed {
+  background: #fbfbfb;
+}
+
+.medication-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.medication-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+}
+
+.medication-icon {
+  width: 20px;
+  height: 20px;
+  color: #2563eb;
+}
+
+.medication-main-info { flex: 1; }
+
+.medication-name {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.medication-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem 0.8rem;
+}
+
+.detail-item { display: flex; align-items: center; gap: 0.25rem; }
+.detail-label { color: #64748b; font-weight: 600; font-size: 0.9rem; }
+.detail-value { color: #0f172a; font-weight: 600; font-size: 0.95rem; }
+
+.medication-timeline { display: flex; gap: 1rem; margin-top: 0.4rem; }
+.timeline-item { display: flex; align-items: center; gap: 0.35rem; color: #334155; font-size: 0.9rem; }
+.medication-timeline-icon { width: 16px; height: 16px; color: #64748b; }
+
+.refill-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #ecfdf5;
+  color: #155e4f;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.45rem;
+  margin-top: 0.4rem;
+  font-weight: 600;
+}
+
+.refill-icon { width: 14px; height: 14px; }
+
+.no-medications-message {
+  margin: 0.4rem 0 0 0.25rem;
+  color: #97a0ad;
+  font-style: italic;
+  text-align: left;
+}
+
+.delete-prescription-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  height: fit-content;
+  cursor: pointer;
+}
+
+@media (max-width: 1060px) {
+  .new-medications-list { grid-template-columns: 1fr; }
+}

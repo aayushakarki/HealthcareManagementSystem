@@ -1,7 +1,8 @@
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(44, 44, 44, 0.25);
+  background: rgba(44, 44, 44, 0.12);
+  backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -16,6 +17,7 @@
   max-width: 600px;
   width: 100%;
   position: relative;
+  z-index: 1001;
 }
 .modal-close {
   position: absolute;

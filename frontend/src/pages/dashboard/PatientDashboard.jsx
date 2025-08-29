@@ -31,7 +31,6 @@ import {
   Legend,
 } from "chart.js"
 
-// Import component for each section
 import DoctorSearch from "../../components/patientDashboard/DoctorSearch"
 import AppointmentList from "../../components/patientDashboard/Appointment"
 import HealthRecords from "../../components/patientDashboard/HealthRecords"
@@ -50,7 +49,6 @@ import Modal from "../../components/modals/Modal"
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const PatientDashboard = () => {
-  // Move this function outside of useEffect and add useNavigate
   const { user, setIsAuthenticated, setUser } = useContext(Context)
   const [activeSection, setActiveSection] = useState("dashboard")
   const [appointments, setAppointments] = useState([])
@@ -65,13 +63,12 @@ const PatientDashboard = () => {
   })
   const [loading, setLoading] = useState(true)
   const [currentMonth, setCurrentMonth] = useState("May 2025")
-  const [selectedDate, setSelectedDate] = useState(null) // We'll use this for popup only
-  const [todayDate] = useState(new Date().getDate()) // Store today's date separately
+  const [selectedDate, setSelectedDate] = useState(null) 
+  const [todayDate] = useState(new Date().getDate()) 
   const navigateTo = useNavigate()
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [showHealthRecordModal, setShowHealthRecordModal] = useState(false)
 
-  // New state for appointment popup
   const [showAppointmentPopup, setShowAppointmentPopup] = useState(false)
   const [selectedDateAppointments, setSelectedDateAppointments] = useState([])
   const [selectedFullDate, setSelectedFullDate] = useState(null)
@@ -81,16 +78,13 @@ const PatientDashboard = () => {
   const [avatar, setAvatar] = useState("/default-avatar.png")
   const fileInputRef = useRef(null)
 
-  // New state for vitalsHistory
   const [vitalsHistory, setVitalsHistory] = useState([])
 
-  // New state for Framingham calculation
   const [showFramingham, setShowFramingham] = useState(false)
 
   const [showHeartDisease, setShowHeartDisease] = useState(false)
   const [heartData, setHeartData] = useState(null)
 
-  // Move handleLogout function here
   const handleLogout = async () => {
     try {
       await axios.get(`http://localhost:4000/api/v1/user/patient/logout`, {
@@ -98,8 +92,8 @@ const PatientDashboard = () => {
       })
       toast.success("Logged out successfully!")
       setIsAuthenticated(false)
-      setUser({}) // Clear user data after logout
-      navigateTo("/") // Navigate to home page after logout
+      setUser({}) 
+      navigateTo("/") 
     } catch (err) {
       toast.error(err.response.data.message || "Logout failed")
     }
@@ -110,13 +104,11 @@ const PatientDashboard = () => {
       try {
         setLoading(true)
 
-        // Fetch appointments
         const appointmentsResponse = await axios.get("http://localhost:4000/api/v1/appointment/patient", {
           withCredentials: true,
         })
 
         if (appointmentsResponse.data.success) {
-          // Transform backend data to match frontend structure
           const formattedAppointments = appointmentsResponse.data.appointments.map((appointment) => ({
             _id: appointment._id,
             doctorName: `${appointment.doctor.firstName} ${appointment.doctor.lastName}`,
@@ -132,13 +124,11 @@ const PatientDashboard = () => {
           setAppointments([])
         }
 
-        // Fetch health records
         const healthRecordsResponse = await axios.get("http://localhost:4000/api/v1/health-records/me", {
           withCredentials: true,
         })
 
         if (healthRecordsResponse.data.success) {
-          // Transform backend data to match frontend structure
           const formattedRecords = healthRecordsResponse.data.healthRecords.slice(0, 3).map((record) => ({
             ...record,
             id: record._id,
@@ -151,7 +141,6 @@ const PatientDashboard = () => {
           setHealthRecords([])
         }
 
-        // Fetch vitals
         try {
           const vitalsResponse = await axios.get("http://localhost:4000/api/v1/vitals/history", {
             withCredentials: true,
@@ -171,7 +160,6 @@ const PatientDashboard = () => {
           }
         } catch (error) {
           console.error("Error fetching vitals:", error)
-          // Keep default vitals if fetch fails
         }
 
         setLoading(false)
@@ -186,7 +174,6 @@ const PatientDashboard = () => {
   }, [])
 
   useEffect(() => {
-    // Fetch patient details (if not already in context)
     axios.get("http://localhost:4000/api/v1/user/patient/me", {
       withCredentials: true,
     }).then(res => {
@@ -196,7 +183,6 @@ const PatientDashboard = () => {
     });
   }, []);
 
-  // Fetch heart data when the component mounts
   useEffect(() => {
     const fetchHeartData = async () => {
       try {
@@ -207,8 +193,6 @@ const PatientDashboard = () => {
           setHeartData(data.latestData);
         }
       } catch (error) {
-        // This is not an error, it just means no data exists yet.
-        // We handle the null state in the component.
         console.log("No heart disease prediction data found for this patient.");
       }
     };
@@ -240,17 +224,14 @@ const PatientDashboard = () => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour24: true })
   }
 
-  // Helper function to format time from date string
   const formatTimeFromDate = (dateString) => {
     const date = new Date(dateString)
     const hours = date.getHours()
     const minutes = date.getMinutes()
 
-    // Format start time
     const startHour = hours.toString().padStart(2, "0")
     const startMinutes = minutes.toString().padStart(2, "0")
 
-    // Format end time (assume 40 minutes appointment)
     const endDate = new Date(date)
     endDate.setMinutes(endDate.getMinutes() + 40)
     const endHour = endDate.getHours().toString().padStart(2, "0")
@@ -269,7 +250,6 @@ const PatientDashboard = () => {
 
   const handleViewHealthRecord = async (record) => {
     try {
-      // If we don't have all the necessary data for the modal, fetch the complete record
       if (!record.description || !record.fileName || !record.fileUrl) {
         const response = await axios.get(`http://localhost:4000/api/v1/health-records/${record.id || record._id}`, {
           withCredentials: true,
@@ -319,7 +299,6 @@ const PatientDashboard = () => {
     }
   }
 
-  // Generate calendar days
   const generateCalendarDays = () => {
     const days = []
     for (let i = 1; i <= 31; i++) {
@@ -328,7 +307,6 @@ const PatientDashboard = () => {
     return days
   }
 
-  // Check if a day has an appointment
   const hasAppointmentOnDay = (day) => {
     const currentDate = new Date()
     const year = currentDate.getFullYear()
@@ -344,23 +322,16 @@ const PatientDashboard = () => {
     })
   }
 
-  // New function to handle calendar day click
   const handleCalendarDayClick = (day) => {
-    // Don't update selectedDate for visual highlighting
-    // We'll just use it for tracking which day was clicked for the popup
 
-    // Create a date object for the selected day
     const currentDate = new Date()
     const selectedDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 0, 0, 0)
 
-    // Set the selected full date for booking form
     setSelectedFullDate(selectedDateObj)
 
-    // Format the date for the booking form
     const formattedDate = formatLocalDateTime(selectedDateObj)
     setPrefilledDate(formattedDate)
 
-    // Find appointments for this day
     const appointmentsForDay = appointments.filter((appointment) => {
       const appointmentDate = new Date(appointment.date)
       return (
@@ -375,14 +346,12 @@ const PatientDashboard = () => {
     setShowAppointmentPopup(true)
   }
 
-  // Handle book appointment button click
   const handleBookAppointment = () => {
     setShowAppointmentPopup(false)
     setShowBookingForm(true)
   }
 
   const handleMonthChange = (direction) => {
-    // Create a date object from the current month string
     const [monthName, year] = currentMonth.split(" ")
     const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth()
     const currentYear = Number.parseInt(year)
@@ -400,16 +369,13 @@ const PatientDashboard = () => {
     const newMonth = new Date(newYear, newMonthIndex, 1).toLocaleString("default", { month: "long" })
     setCurrentMonth(`${newMonth} ${newYear}`)
 
-    // Reset selected date when changing months
     setSelectedDate(null)
   }
 
-  // Add a helper to format date:
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString()
   }
 
-  // Prepare chart data for blood pressure:
   const bloodPressureChartData = {
     labels: vitalsHistory.map((v) => formatDate(v.date)),
     datasets: [
@@ -721,16 +687,12 @@ const PatientDashboard = () => {
               <AppointmentCalendar
                 appointments={appointments.filter(app => app.status.toLowerCase() !== "cancelled")}
                 onDateClick={(date) => {
-                  // Create a date object for the selected day
                   const selectedDateObj = date
-                  // Set the selected full date for booking form
                   setSelectedFullDate(selectedDateObj)
 
-                  // Format the date for the booking form
                   const formattedDate = formatLocalDateTime(selectedDateObj)
                   setPrefilledDate(formattedDate)
 
-                  // Find appointments for this day
                   const appointmentsForDay = appointments.filter((appointment) => {
                     const appointmentDate = new Date(appointment.date)
                     return (

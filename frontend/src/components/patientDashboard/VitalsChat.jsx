@@ -85,35 +85,38 @@ const VitalsChat = ({ show, onClose }) => {
   if (!showChat) return null;
 
   return (
-    <div className="chat-sidebar">
-      <div className="chat-header">
-        <span>VITALS CHAT</span>
-        <button className="close-btn" onClick={() => { setShowChat(false); if (onClose) onClose(); }}>
-          <X className="w-5 h-5" />
-        </button>
+    <>
+      <div className="chat-backdrop" onClick={() => { setShowChat(false); if (onClose) onClose(); }} />
+      <div className="chat-sidebar">
+        <div className="chat-header">
+          <span>VITALS CHAT</span>
+          <button className="close-btn" onClick={() => { setShowChat(false); if (onClose) onClose(); }}>
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="chat-body">
+          {chatMessages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`chat-message ${msg.sender === "user" ? "user-msg" : "ai-msg"}`}
+            >
+              {msg.text}
+            </div>
+          ))}
+          {chatLoading && <div className="ai-msg">Loading...</div>}
+        </div>
+        <form className="chat-input" onSubmit={handleSendQuestion}>
+          <input
+            type="text"
+            placeholder="Enter your questions.."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            disabled={chatLoading}
+          />
+          <button type="submit" disabled={chatLoading || !userInput.trim()}>Send</button>
+        </form>
       </div>
-      <div className="chat-body">
-        {chatMessages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`chat-message ${msg.sender === "user" ? "user-msg" : "ai-msg"}`}
-          >
-            {msg.text}
-          </div>
-        ))}
-        {chatLoading && <div className="ai-msg">Loading...</div>}
-      </div>
-      <form className="chat-input" onSubmit={handleSendQuestion}>
-        <input
-          type="text"
-          placeholder="Enter your questions.."
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          disabled={chatLoading}
-        />
-        <button type="submit" disabled={chatLoading || !userInput.trim()}>Send</button>
-      </form>
-    </div>
+    </>
   );
 };
 

@@ -75,7 +75,16 @@ const appointmentSchema = new mongoose.Schema({
   doctorNotes: {
     type: String,
     default: ""
+  },
+  // Timestamp when an appointment is cancelled; used by TTL index to auto-delete after 7 days
+  cancelledAt: {
+    type: Date,
+    default: null,
+    index: false,
   }
 });
+
+// Automatically expire documents 7 days after cancellation
+appointmentSchema.index({ cancelledAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 7, partialFilterExpression: { cancelledAt: { $type: "date" } } });
 
 export const Appointment = mongoose.model("Appointment", appointmentSchema);

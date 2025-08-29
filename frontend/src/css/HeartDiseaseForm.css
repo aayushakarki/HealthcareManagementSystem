@@ -6,12 +6,20 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 999;
   transition: all 0.3s ease;
+}
+
+/* Background blur behind the prediction modal */
+.hd-form-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.12);
+  backdrop-filter: blur(4px);
+  z-index: 998;
 }
 
 .hd-form-container {
@@ -23,6 +31,8 @@
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1001; /* above backdrop */
 }
 
 /* Adjust the main container when sidebar is open */
@@ -210,6 +220,20 @@
 
 .get-advice-btn:hover {
   background: #2563eb;
+}
+
+/* Advice chat backdrop when sidebar is shown */
+.advice-chat-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.12);
+  backdrop-filter: blur(4px);
+  z-index: 998;
+}
+
+/* Ensure the sidebar floats above modal and backdrop */
+.hd-form-modal-overlay.with-chat .advice-chat-sidebar {
+  z-index: 1002;
 }
 
 /* Responsive adjustments */
