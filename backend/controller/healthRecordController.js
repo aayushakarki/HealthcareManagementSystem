@@ -4,30 +4,57 @@ import { sendEmail } from "../utils/sendEmail.js";
 import { User } from "../models/userSchema.js";
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/errorMiddleware.js";
+<<<<<<< HEAD
 import https from 'https';
 
+=======
+// import { documentAnalysisService } from '../utils/documentAnalysisService.js';
+import https from 'https';
+
+// Helper function to validate file type
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 const isValidFileType = (mimetype) => {
   return mimetype === 'image/jpeg' || mimetype === 'image/png';
 };
 
+<<<<<<< HEAD
 export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
   const { patientId, recordType, description } = req.body;
 
+=======
+// Upload a health record (for doctor or admin)
+export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
+  const { patientId, recordType, description } = req.body;
+
+  // Check if file is uploaded
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   if (!req.files || !req.files.file) {
     return next(new ErrorHandler("Please upload a file", 400));
   }
 
   const file = req.files.file;
 
+<<<<<<< HEAD
+=======
+  // Validate file type (only jpg or pdf)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   if (!isValidFileType(file.mimetype)) {
     return next(new ErrorHandler("Only JPG and PNF images are allowed", 400));
   }
 
+<<<<<<< HEAD
+=======
+  // Upload file to cloudinary
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const result = await cloudinary.uploader.upload(file.tempFilePath, {
     folder: 'health_records',
     resource_type: 'auto'
   });
 
+<<<<<<< HEAD
+=======
+  // Create health record
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const healthRecord = await HealthRecord.create({
     patientId,
     recordType,
@@ -37,6 +64,10 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
     createdBy: req.user.id
   });
 
+<<<<<<< HEAD
+=======
+  // Immediately analyze with Gemini
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   try {
     const geminiApiKey = process.env.GEMINI_API_KEY;
     if (geminiApiKey) {
@@ -49,9 +80,17 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
       await healthRecord.save();
     }
   } catch (err) {
+<<<<<<< HEAD
     console.error('Gemini analysis failed:', err);
   }
 
+=======
+    // Optionally log error, but don't block upload
+    console.error('Gemini analysis failed:', err);
+  }
+
+  // Send email notification
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const user = await User.findById(patientId);
   if (user && user.email) {
     try {
@@ -63,6 +102,10 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
       });
     } catch (error) {
       console.error("Failed to send email notification:", error);
+<<<<<<< HEAD
+=======
+      // Don't fail the request if email fails
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     }
   }
 
@@ -72,37 +115,69 @@ export const uploadHealthRecord = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Update a health record (for doctor or admin)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
   const { recordId } = req.params;
   const { recordType, description } = req.body;
 
+<<<<<<< HEAD
+=======
+  // Find the health record
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   let healthRecord = await HealthRecord.findById(recordId);
 
   if (!healthRecord) {
     return next(new ErrorHandler("Health record not found", 404));
   }
 
+<<<<<<< HEAD
+=======
+  // Update fields
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const updateData = {
     recordType: recordType || healthRecord.recordType,
     description: description || healthRecord.description
   };
 
+<<<<<<< HEAD
   if (req.files && req.files.file) {
     const file = req.files.file;
 
+=======
+  // If file is uploaded, update file
+  if (req.files && req.files.file) {
+    const file = req.files.file;
+
+    // Validate file type
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     if (!isValidFileType(file.mimetype)) {
       return next(new ErrorHandler("Only JPG and PNG images are allowed", 400));
     }
 
+<<<<<<< HEAD
+=======
+    // Delete old file from cloudinary
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     if (healthRecord.fileUrl) {
       const publicId = healthRecord.fileUrl.split('/').pop().split('.')[0];
       try {
         await cloudinary.uploader.destroy(`health_records/${publicId}`);
       } catch (error) {
         console.error("Failed to delete old file from cloudinary:", error);
+<<<<<<< HEAD
       }
     }
 
+=======
+        // Continue with the update even if deletion fails
+      }
+    }
+
+    // Upload new file
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const result = await cloudinary.uploader.upload(file.tempFilePath, {
       folder: 'health_records',
       resource_type: 'auto'
@@ -112,6 +187,10 @@ export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
     updateData.fileName = file.name;
   }
 
+<<<<<<< HEAD
+=======
+  // Update health record
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   healthRecord = await HealthRecord.findByIdAndUpdate(
     recordId,
     updateData,
@@ -124,10 +203,18 @@ export const updateHealthRecord = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Delete a health record (for doctor or admin)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 export const deleteHealthRecord = async (req, res) => {
   try {
     const { recordId } = req.params;
 
+<<<<<<< HEAD
+=======
+    // Find the health record
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const healthRecord = await HealthRecord.findById(recordId);
 
     if (!healthRecord) {
@@ -137,6 +224,10 @@ export const deleteHealthRecord = async (req, res) => {
       });
     }
 
+<<<<<<< HEAD
+=======
+    // Delete file from cloudinary
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     if (healthRecord.fileUrl) {
       const publicId = healthRecord.fileUrl.split('/').pop().split('.')[0];
       await cloudinary.uploader.destroy(`health_records/${publicId}`);

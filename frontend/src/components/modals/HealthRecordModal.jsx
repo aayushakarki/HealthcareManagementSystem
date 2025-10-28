@@ -121,9 +121,13 @@ const HealthRecordModal = ({ record, onClose }) => {
   if (!record) return null
 
   return (
+<<<<<<< HEAD
     <div className={`health-modal-overlay ${showChat ? 'with-chat' : ''}`}>
       {/* Always blur the background when modal is open */}
       <div className="hr-backdrop" onClick={onClose} />
+=======
+    <div className="health-modal-overlay">
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       <div className="record-modal">
         <div className="modal-header">
           <h3>Health Record Details</h3>

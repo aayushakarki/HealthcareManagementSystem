@@ -24,11 +24,19 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
+<<<<<<< HEAD
+=======
+// Import components for each section
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 import AppointmentsOverview from "../../components/adminDashboard/AppointmentsOverview";
 import DoctorsList from "../../components/adminDashboard/DoctorsList";
 import PatientsList from "../../components/adminDashboard/AllPatientsList";
 import Messages from "../../components/adminDashboard/Messages";
 import DoctorDetails from "../../components/adminDashboard/DoctorDetails";
+<<<<<<< HEAD
+=======
+// import PatientDetails from "../../components/adminDashboard/PatientDetails"
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 import DoctorVerificationRequests from "../../components/adminDashboard/DoctorVerificationRequests";
 
 const AdminDashboard = () => {
@@ -71,6 +79,10 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
 
+<<<<<<< HEAD
+=======
+        // Fetch all appointments
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const appointmentsResponse = await axios
           .get("http://localhost:4000/api/v1/appointment/getall", {
             withCredentials: true,
@@ -84,6 +96,10 @@ const AdminDashboard = () => {
           const allAppointments = appointmentsResponse.data.appointments || [];
           setAppointments(allAppointments);
 
+<<<<<<< HEAD
+=======
+          // Calculate today's appointments
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const tomorrow = new Date(today);
@@ -94,10 +110,18 @@ const AdminDashboard = () => {
             return appointmentDate >= today && appointmentDate < tomorrow;
           });
 
+<<<<<<< HEAD
+=======
+          // Calculate pending appointments
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           const pendingAppts = allAppointments.filter(
             (app) => app.status === "pending"
           );
 
+<<<<<<< HEAD
+=======
+          // Update stats
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           setStats((prev) => ({
             ...prev,
             totalAppointments: allAppointments.length,
@@ -106,6 +130,10 @@ const AdminDashboard = () => {
           }));
         }
 
+<<<<<<< HEAD
+=======
+        // Fetch all doctors
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const doctorsResponse = await axios
           .get("http://localhost:4000/api/v1/user/doctors", {
             withCredentials: true,
@@ -121,6 +149,10 @@ const AdminDashboard = () => {
           setStats((prev) => ({ ...prev, totalDoctors: allDoctors.length }));
         }
 
+<<<<<<< HEAD
+=======
+        // Fetch all patients
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const patientsResponse = await axios
           .get("http://localhost:4000/api/v1/user/patients", {
             withCredentials: true,
@@ -136,6 +168,10 @@ const AdminDashboard = () => {
           setStats((prev) => ({ ...prev, totalPatients: allPatients.length }));
         }
 
+<<<<<<< HEAD
+=======
+        // Fetch unverified doctors
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const unverifiedDoctorsResponse = await axios
           .get("http://localhost:4000/api/v1/user/admin/doctors/pending", {
             withCredentials: true,
@@ -170,6 +206,10 @@ const AdminDashboard = () => {
 
   const handlePatientSelect = async (patient) => {
     try {
+<<<<<<< HEAD
+=======
+      // Fetch detailed patient information if needed
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       const patientResponse = await axios
         .get(`http://localhost:4000/api/v1/user/patient/${patient._id}`, {
           withCredentials: true,
@@ -185,11 +225,19 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching patient details:", error);
+<<<<<<< HEAD
+=======
+      // If there's an error, still show the patient details with the data we have
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       setSelectedPatient(patient);
       setActiveSection("patientdetails");
     }
   };
 
+<<<<<<< HEAD
+=======
+  // In AdminDashboard.jsx, replace the updateAppointmentStatus function with this:
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 
   const updateAppointmentStatus = async (
     appointmentId,
@@ -199,6 +247,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
 
+<<<<<<< HEAD
       const requestBody = { status };
 
       if (status === "Rescheduled" && newDate) {
@@ -206,6 +255,18 @@ const AdminDashboard = () => {
       }
 
       console.log("Sending request body:", requestBody);
+=======
+      // Prepare the request body
+      const requestBody = { status };
+
+      // If rescheduling, add the new date
+      if (status === "Rescheduled" && newDate) {
+        // Convert to ISO string if it's not already
+        requestBody.newDate = new Date(newDate).toISOString();
+      }
+
+      console.log("Sending request body:", requestBody); // Debug log
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 
       const response = await axios.put(
         `http://localhost:4000/api/v1/appointment/update/${appointmentId}`,
@@ -218,12 +279,20 @@ const AdminDashboard = () => {
       if (response.data.success) {
         toast.success("Appointment updated successfully!");
 
+<<<<<<< HEAD
+=======
+        // Update appointments in state with the new data
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         setAppointments((prevAppointments) =>
           prevAppointments.map((app) =>
             app._id === appointmentId
               ? {
                   ...app,
                   status,
+<<<<<<< HEAD
+=======
+                  // Update the date if it was rescheduled
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
                   ...(status === "Rescheduled" &&
                     newDate && {
                       appointment_date: new Date(newDate).toISOString(),
@@ -233,7 +302,13 @@ const AdminDashboard = () => {
           )
         );
 
+<<<<<<< HEAD
         if (status === "Rescheduled" && newDate) {
+=======
+        // Also update stats if needed
+        if (status === "Rescheduled" && newDate) {
+          // Recalculate today's appointments since the date might have changed
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const tomorrow = new Date(today);
@@ -354,6 +429,10 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
+=======
+        {/* Recent Appointments */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Recent Appointments</h2>
@@ -400,6 +479,20 @@ const AdminDashboard = () => {
             )}
           </div>
         </div>
+<<<<<<< HEAD
+=======
+
+        {/* Activity Chart
+        <div className="dashboard-section">
+          <div className="section-header">
+            <h2>Appointment Activity</h2>
+            <ChevronDown className="w-5 h-5" />
+          </div>
+          <div className="chart-placeholder">
+            <BarChart className="w-full h-32 text-blue-500" />
+          </div>
+        </div> */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       </div>
     );
   };
@@ -444,6 +537,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-container">
+<<<<<<< HEAD
+=======
+      {/* Sidebar */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       <div className="sidebar">
         <div className="sidebar-header">
           <div className="logo">
@@ -497,6 +594,10 @@ const AdminDashboard = () => {
           </ul>
         </nav>
 
+<<<<<<< HEAD
+=======
+        {/* Add logout button at the bottom of sidebar */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         <div className="sidebar-footer">
           <button onClick={handleLogout} className="logout-button">
             <LogOut className="w-5 h-5" />
@@ -505,6 +606,10 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
+=======
+      {/* Main Content */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       <div className="main-content">
         <div className="top-bar">
           <div>

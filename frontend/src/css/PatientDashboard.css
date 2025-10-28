@@ -860,6 +860,7 @@
   font-size: 1.5em;
   z-index: 2;
 }
+<<<<<<< HEAD
 
 /* =========================
    Medications (New Styles)
@@ -1021,3 +1022,5 @@
 @media (max-width: 1060px) {
   .new-medications-list { grid-template-columns: 1fr; }
 }
+=======
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a

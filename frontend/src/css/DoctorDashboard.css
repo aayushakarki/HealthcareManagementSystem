@@ -1,5 +1,9 @@
 /* Doctor Dashboard Component Styles */
 
+<<<<<<< HEAD
+=======
+/* Common Variables (referencing root variables) */
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 :root {
   --primary-color: #776bb3;
   --primary-hover: #3f3765;
@@ -60,11 +64,19 @@
   flex: 1;
   padding: 0 0.5rem;
   font-size: 0.875rem;
+<<<<<<< HEAD
   color: #374151;             
 }
 
 .search-input::placeholder {
   color: #9ca3af;             
+=======
+  color: #374151;             /* gray-700 */
+}
+
+.search-input::placeholder {
+  color: #9ca3af;             /* gray-400 */
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 }
 
 .health-record-upload-container,
@@ -121,7 +133,10 @@
   gap: 0.25rem;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 .patient-name {
   font-size: 1.125rem;
   font-weight: 600;
@@ -1089,6 +1104,10 @@
   border-radius: 9999px;
 }
 
+<<<<<<< HEAD
+=======
+/* Icon colors - all white for better contrast */
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 .stat-card .text-blue-500{
     color: #6581E7;
 }

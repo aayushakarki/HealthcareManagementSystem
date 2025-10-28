@@ -201,6 +201,7 @@
   flex-direction: column;
   gap: 18px;
 }
+<<<<<<< HEAD
 
 /* Modal overlay layout adjustments when chat is open */
 .health-modal-overlay {
@@ -236,3 +237,5 @@
   position: relative;
   z-index: 1002; /* above backdrop (999) and overlay */
 }
+=======
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a

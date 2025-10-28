@@ -57,6 +57,7 @@
   background: #ffffff;
 }
 
+<<<<<<< HEAD
 /* Match bubble look-and-feel from Report Summarization */
 .advice-chat-message {
   max-width: 80%;
@@ -91,6 +92,43 @@
 /* Remove inner padding since bubble styles are on the container */
 .advice-chat-message p {
   margin: 0;
+=======
+.advice-chat-message {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.advice-chat-message.user-msg {
+  align-items: flex-end;
+}
+
+.advice-chat-message.ai-msg {
+  align-items: flex-start;
+}
+
+.advice-chat-message p {
+  max-width: 85%;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.advice-chat-message.user-msg p {
+  background: #3b82f6;
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.advice-chat-message.ai-msg p {
+  background: #f3f4f6;
+  color: #374151;
+  border-bottom-left-radius: 0.25rem;
+  border: 1px solid #e5e7eb;
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 }
 
 .advice-chat-input-form {
@@ -166,7 +204,12 @@
   
   .advice-chat-message p {
     max-width: 90%;
+<<<<<<< HEAD
     padding: 0; /* container holds padding */
     font-size: 0.95rem;
+=======
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   }
 }

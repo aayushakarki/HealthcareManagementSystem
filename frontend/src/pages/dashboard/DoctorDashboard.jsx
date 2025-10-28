@@ -7,6 +7,10 @@ import { toast } from "react-toastify"
 import { Context } from "../../main"
 import { Calendar, Search, LayoutDashboard, FileText, ChevronDown, Plus, Clock, UserRound, ClipboardList, BarChart, Pill, Activity, ChevronLeft, HeartPulse } from 'lucide-react'
 
+<<<<<<< HEAD
+=======
+// Import components for each section
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 import PatientList from "../../components/doctorDashboard/PatientsList"
 import DoctorAppointments from "../../components/doctorDashboard/DoctorAppointments"
 import PatientHealthRecords from "../../components/doctorDashboard/PatientHealthRecords"
@@ -14,6 +18,10 @@ import HealthRecordUpload from "../../components/doctorDashboard/HealthRecordUpl
 import PatientDetailsModal from "../../components/modals/PatientDetailsModal"
 import AddPrescriptions from "../../components/doctorDashboard/AddPrescriptions"
 import AppointmentPopup from "../../components/patientDashboard/AppointmentPopup"
+<<<<<<< HEAD
+=======
+// Add this import at the top with other imports
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 import AppointmentCalendar from "../../components/calendar/AppointmentCalendar"
 import AddVitals from "../../components/doctorDashboard/AddVitals"
 import AddHeartData from "../../components/doctorDashboard/AddHeartData"
@@ -28,8 +36,13 @@ const DoctorDashboard = () => {
   const [showPatientModal, setShowPatientModal] = useState(false)
   const [loading, setLoading] = useState(true)
   const [currentMonth, setCurrentMonth] = useState("May 2025")
+<<<<<<< HEAD
   const [selectedDate, setSelectedDate] = useState(null) 
   const [todayDate] = useState(new Date().getDate()) 
+=======
+  const [selectedDate, setSelectedDate] = useState(null) // We'll use this for popup only
+  const [todayDate] = useState(new Date().getDate()) // Store today's date separately
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const [todayAppointments, setTodayAppointments] = useState([])
   const [stats, setStats] = useState({
     totalPatients: 0,
@@ -39,6 +52,10 @@ const DoctorDashboard = () => {
   })
   const navigateTo = useNavigate()
 
+<<<<<<< HEAD
+=======
+  // New state for appointment popup
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const [showAppointmentPopup, setShowAppointmentPopup] = useState(false)
   const [selectedDateAppointments, setSelectedDateAppointments] = useState([])
   const [selectedFullDate, setSelectedFullDate] = useState(null)
@@ -61,9 +78,16 @@ const DoctorDashboard = () => {
     }
   }
 
+<<<<<<< HEAD
   const refreshAppointments = async () => {
     try {
       console.log("Refreshing appointments data..."); 
+=======
+  // Add a function to refresh appointments data
+  const refreshAppointments = async () => {
+    try {
+      console.log("Refreshing appointments data..."); // Debug log
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       
       const appointmentsResponse = await axios.get("http://localhost:4000/api/v1/appointment/doctor/me", {
         withCredentials: true,
@@ -71,9 +95,16 @@ const DoctorDashboard = () => {
 
       if (appointmentsResponse.data.success) {
         const allAppointments = appointmentsResponse.data.appointments;
+<<<<<<< HEAD
         console.log("Fresh appointments received:", allAppointments); 
         setAppointments(allAppointments);
 
+=======
+        console.log("Fresh appointments received:", allAppointments); // Debug log
+        setAppointments(allAppointments);
+
+        // Filter today's appointments with fresh data
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -86,6 +117,10 @@ const DoctorDashboard = () => {
 
         setTodayAppointments(todaysAppts);
         
+<<<<<<< HEAD
+=======
+        // Also refresh stats
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const statsResponse = await axios.get("http://localhost:4000/api/v1/appointment/doctor/stats/me", {
           withCredentials: true,
         });
@@ -104,6 +139,10 @@ const DoctorDashboard = () => {
       try {
         setLoading(true)
 
+<<<<<<< HEAD
+=======
+        // Fetch doctor's stats from the new endpoint
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const statsResponse = await axios.get("http://localhost:4000/api/v1/appointment/doctor/stats/me", {
           withCredentials: true,
         })
@@ -112,6 +151,10 @@ const DoctorDashboard = () => {
           setStats(statsResponse.data.stats)
         }
 
+<<<<<<< HEAD
+=======
+        // Fetch doctor's appointments
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const appointmentsResponse = await axios.get("http://localhost:4000/api/v1/appointment/doctor/me", {
           withCredentials: true,
         })
@@ -120,6 +163,10 @@ const DoctorDashboard = () => {
           const allAppointments = appointmentsResponse.data.appointments
           setAppointments(allAppointments)
 
+<<<<<<< HEAD
+=======
+          // Filter today's appointments
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           const today = new Date()
           today.setHours(0, 0, 0, 0)
           const tomorrow = new Date(today)
@@ -133,11 +180,19 @@ const DoctorDashboard = () => {
           setTodayAppointments(todaysAppts)
         }
 
+<<<<<<< HEAD
+=======
+        // Fetch recent health records (assuming we can get the most recent ones)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const recentRecordsResponse = await axios
           .get("http://localhost:4000/api/v1/health-records/recent", {
             withCredentials: true,
           })
           .catch(() => {
+<<<<<<< HEAD
+=======
+            // If this endpoint doesn't exist, we'll mock the data
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
             return {
               data: {
                 success: true,
@@ -160,15 +215,28 @@ const DoctorDashboard = () => {
 
     fetchDashboardData()
 
+<<<<<<< HEAD
     const interval = setInterval(() => {
       refreshAppointments();
     }, 60000); 
 
+=======
+    // Set up automatic refresh every 60 seconds
+    const interval = setInterval(() => {
+      refreshAppointments();
+    }, 60000); // 60 seconds
+
+    // Cleanup interval on component unmount
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     return () => clearInterval(interval);
   }, [])
 
   useEffect(() => {
+<<<<<<< HEAD
 
+=======
+    // Fetch user details (if not already in context)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     axios.get("http://localhost:4000/api/v1/user/doctor/me", {
       withCredentials: true,
     }).then(res => {
@@ -178,14 +246,26 @@ const DoctorDashboard = () => {
     });
   }, []);
 
+<<<<<<< HEAD
+=======
+  // Helper function to format time from date string
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const formatTimeFromDate = (dateString) => {
     const date = new Date(dateString)
     const hours = date.getHours()
     const minutes = date.getMinutes()
 
+<<<<<<< HEAD
     const startHour = hours.toString().padStart(2, "0")
     const startMinutes = minutes.toString().padStart(2, "0")
 
+=======
+    // Format start time
+    const startHour = hours.toString().padStart(2, "0")
+    const startMinutes = minutes.toString().padStart(2, "0")
+
+    // Format end time (assume 40 minutes appointment)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const endDate = new Date(date)
     endDate.setMinutes(endDate.getMinutes() + 40)
     const endHour = endDate.getHours().toString().padStart(2, "0")
@@ -204,11 +284,19 @@ const DoctorDashboard = () => {
 
   const handlePatientSelect = async (patientId) => {
     try {
+<<<<<<< HEAD
+=======
+      // Fetch patient details
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       const patientResponse = await axios
         .get(`http://localhost:4000/api/v1/user/patient/${patientId}`, {
           withCredentials: true,
         })
         .catch(() => {
+<<<<<<< HEAD
+=======
+          // If this endpoint doesn't exist, we'll use the patient from appointments
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           const patient = appointments.find((app) => app.patientId === patientId)
           return {
             data: {
@@ -247,10 +335,18 @@ const DoctorDashboard = () => {
       if (response.data.success) {
         toast.success(`Appointment marked as ${status}`)
 
+<<<<<<< HEAD
+=======
+        // Update appointments in state
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         setAppointments((prevAppointments) =>
           prevAppointments.map((app) => (app._id === appointmentId ? { ...app, status } : app)),
         )
 
+<<<<<<< HEAD
+=======
+        // Refresh appointments to get the latest data
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         await refreshAppointments();
       }
     } catch (error) {
@@ -259,6 +355,10 @@ const DoctorDashboard = () => {
     }
   }
 
+<<<<<<< HEAD
+=======
+  // Generate calendar days
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const generateCalendarDays = () => {
     const days = []
     for (let i = 1; i <= 31; i++) {
@@ -267,6 +367,10 @@ const DoctorDashboard = () => {
     return days
   }
 
+<<<<<<< HEAD
+=======
+  // Check if a day has an appointment
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const hasAppointmentOnDay = (day) => {
     const currentDate = new Date()
     const year = currentDate.getFullYear()
@@ -282,6 +386,7 @@ const DoctorDashboard = () => {
     })
   }
 
+<<<<<<< HEAD
   const handleCalendarDayClick = (day) => {
 
 
@@ -292,6 +397,23 @@ const DoctorDashboard = () => {
 
     setSelectedFullDate(selectedDateObj)
 
+=======
+  // New function to handle calendar day click
+  const handleCalendarDayClick = (day) => {
+    // Don't update selectedDate for visual highlighting
+    // We'll just use it for tracking which day was clicked for the popup
+
+    setSelectedDate(day)
+
+    // Create a date object for the selected day
+    const currentDate = new Date()
+    const selectedDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 0, 0, 0)
+
+    // Set the selected full date
+    setSelectedFullDate(selectedDateObj)
+
+    // Find appointments for this day
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const appointmentsForDay = appointments.filter((appointment) => {
       const appointmentDate = new Date(appointment.appointment_date)
       return (
@@ -306,6 +428,10 @@ const DoctorDashboard = () => {
   }
 
   const handleMonthChange = (direction) => {
+<<<<<<< HEAD
+=======
+    // Create a date object from the current month string
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const [monthName, year] = currentMonth.split(" ")
     const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth()
     const currentYear = Number.parseInt(year)
@@ -323,6 +449,10 @@ const DoctorDashboard = () => {
     const newMonth = new Date(newYear, newMonthIndex, 1).toLocaleString("default", { month: "long" })
     setCurrentMonth(`${newMonth} ${newYear}`)
 
+<<<<<<< HEAD
+=======
+    // Reset selected date when changing months
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     setSelectedDate(null)
   }
 
@@ -397,6 +527,10 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
+=======
+        {/* Today's Appointments */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         <div className="doctor-dashboard-section">
           <div className="section-header">
             <h2>Today's Appointments</h2>
@@ -419,6 +553,10 @@ const DoctorDashboard = () => {
                         Status: {appointment.status || "Pending"}
                       </p>
 
+<<<<<<< HEAD
+=======
+                      {/* Display doctor notes if available */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
                       {appointment.doctorNotes && (
                         <div className="doctor-notes mt-2 p-2 bg-blue-50 rounded-md">
                           <p className="text-sm font-medium text-blue-700">Notes:</p>
@@ -454,11 +592,19 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
+=======
+        {/* Recent Activity */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         <div className="doctor-dashboard-section">
           <div className="section-header">
             <h2>Recent Activity</h2>
           </div>
           <div className="recent-activity-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+<<<<<<< HEAD
+=======
+            {/* Total Active Patients */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
             <div className="recent-activity-item" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <UserRound className="w-6 h-6 text-blue-500" />
               <div>
@@ -467,12 +613,20 @@ const DoctorDashboard = () => {
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Last Patient Seen */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
             <div className="recent-activity-item" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <Clock className="w-6 h-6 text-green-500" />
               <div>
                 <div style={{ fontWeight: 600, color: '#22223b' }}>Last Patient Seen</div>
                 {appointments && appointments.length > 0 ? (
                   (() => {
+<<<<<<< HEAD
+=======
+                    // Find the most recent appointment
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
                     const sorted = [...appointments].sort((a, b) => new Date(b.appointment_date) - new Date(a.appointment_date));
                     const last = sorted[0];
                     return (
@@ -489,12 +643,20 @@ const DoctorDashboard = () => {
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Recent Uploads */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
             <div className="recent-activity-item" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <FileText className="w-6 h-6 text-purple-500" />
               <div>
                 <div style={{ fontWeight: 600, color: '#22223b' }}>Recent Uploads</div>
                 {recentHealthRecords && recentHealthRecords.length > 0 ? (
                   (() => {
+<<<<<<< HEAD
+=======
+                    // Find the most recent health record uploaded by the doctor
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
                     const sorted = [...recentHealthRecords].sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
                     const last = sorted[0];
                     return (
@@ -527,7 +689,11 @@ const DoctorDashboard = () => {
           <DoctorAppointments 
             appointments={appointments} 
             onUpdateStatus={updateAppointmentStatus}
+<<<<<<< HEAD
             onRefreshAppointments={refreshAppointments} 
+=======
+            onRefreshAppointments={refreshAppointments} // Add this prop
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           />
         )
       case "healthrecords":
@@ -616,6 +782,10 @@ const DoctorDashboard = () => {
           </ul>
         </nav>
 
+<<<<<<< HEAD
+=======
+        {/* Add logout button at the bottom of sidebar */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         <div className="sidebar-footer">
           <button onClick={handleLogout} className="logout-button">
             <span>Logout</span>
@@ -623,6 +793,10 @@ const DoctorDashboard = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
+=======
+      {/* Main Content */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       <div className="main-content">
         <div className="top-bar">
           <div className="action-buttons">
@@ -664,19 +838,37 @@ const DoctorDashboard = () => {
         <div className="content-wrapper">
           <div className="content-main">{renderContent()}</div>
 
+<<<<<<< HEAD
+=======
+          {/* Right Sidebar - Appointments */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           <div className="appointments-sidebar">
             <div className="appointments-header">
               <h2>Upcoming appointments</h2>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Replace the calendar-section div in the appointments-sidebar with: */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
             <div className="calendar-section">
               <AppointmentCalendar
                 appointments={appointments}
                 onDateClick={(date) => {
+<<<<<<< HEAD
                   const selectedDateObj = date
 
                   setSelectedFullDate(selectedDateObj)
 
+=======
+                  // Create a date object for the selected day
+                  const selectedDateObj = date
+
+                  // Set the selected full date
+                  setSelectedFullDate(selectedDateObj)
+
+                  // Find appointments for this day
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
                   const appointmentsForDay = appointments.filter((appointment) => {
                     const appointmentDate = new Date(appointment.appointment_date)
                     return (
@@ -720,8 +912,15 @@ const DoctorDashboard = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
       {showPatientModal && <PatientDetailsModal patient={selectedPatient} onClose={() => setShowPatientModal(false)} />}
 
+=======
+      {/* Patient Details Modal */}
+      {showPatientModal && <PatientDetailsModal patient={selectedPatient} onClose={() => setShowPatientModal(false)} />}
+
+      {/* Appointment Popup */}
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       <AppointmentPopup
         isVisible={showAppointmentPopup}
         onClose={() => setShowAppointmentPopup(false)}

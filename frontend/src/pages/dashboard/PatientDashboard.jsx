@@ -31,6 +31,10 @@ import {
   Legend,
 } from "chart.js"
 
+<<<<<<< HEAD
+=======
+// Import component for each section
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 import DoctorSearch from "../../components/patientDashboard/DoctorSearch"
 import AppointmentList from "../../components/patientDashboard/Appointment"
 import HealthRecords from "../../components/patientDashboard/HealthRecords"
@@ -49,6 +53,10 @@ import Modal from "../../components/modals/Modal"
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const PatientDashboard = () => {
+<<<<<<< HEAD
+=======
+  // Move this function outside of useEffect and add useNavigate
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const { user, setIsAuthenticated, setUser } = useContext(Context)
   const [activeSection, setActiveSection] = useState("dashboard")
   const [appointments, setAppointments] = useState([])
@@ -63,12 +71,21 @@ const PatientDashboard = () => {
   })
   const [loading, setLoading] = useState(true)
   const [currentMonth, setCurrentMonth] = useState("May 2025")
+<<<<<<< HEAD
   const [selectedDate, setSelectedDate] = useState(null) 
   const [todayDate] = useState(new Date().getDate()) 
+=======
+  const [selectedDate, setSelectedDate] = useState(null) // We'll use this for popup only
+  const [todayDate] = useState(new Date().getDate()) // Store today's date separately
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const navigateTo = useNavigate()
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [showHealthRecordModal, setShowHealthRecordModal] = useState(false)
 
+<<<<<<< HEAD
+=======
+  // New state for appointment popup
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const [showAppointmentPopup, setShowAppointmentPopup] = useState(false)
   const [selectedDateAppointments, setSelectedDateAppointments] = useState([])
   const [selectedFullDate, setSelectedFullDate] = useState(null)
@@ -78,13 +95,24 @@ const PatientDashboard = () => {
   const [avatar, setAvatar] = useState("/default-avatar.png")
   const fileInputRef = useRef(null)
 
+<<<<<<< HEAD
   const [vitalsHistory, setVitalsHistory] = useState([])
 
+=======
+  // New state for vitalsHistory
+  const [vitalsHistory, setVitalsHistory] = useState([])
+
+  // New state for Framingham calculation
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const [showFramingham, setShowFramingham] = useState(false)
 
   const [showHeartDisease, setShowHeartDisease] = useState(false)
   const [heartData, setHeartData] = useState(null)
 
+<<<<<<< HEAD
+=======
+  // Move handleLogout function here
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const handleLogout = async () => {
     try {
       await axios.get(`http://localhost:4000/api/v1/user/patient/logout`, {
@@ -92,8 +120,13 @@ const PatientDashboard = () => {
       })
       toast.success("Logged out successfully!")
       setIsAuthenticated(false)
+<<<<<<< HEAD
       setUser({}) 
       navigateTo("/") 
+=======
+      setUser({}) // Clear user data after logout
+      navigateTo("/") // Navigate to home page after logout
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     } catch (err) {
       toast.error(err.response.data.message || "Logout failed")
     }
@@ -104,11 +137,19 @@ const PatientDashboard = () => {
       try {
         setLoading(true)
 
+<<<<<<< HEAD
+=======
+        // Fetch appointments
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const appointmentsResponse = await axios.get("http://localhost:4000/api/v1/appointment/patient", {
           withCredentials: true,
         })
 
         if (appointmentsResponse.data.success) {
+<<<<<<< HEAD
+=======
+          // Transform backend data to match frontend structure
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           const formattedAppointments = appointmentsResponse.data.appointments.map((appointment) => ({
             _id: appointment._id,
             doctorName: `${appointment.doctor.firstName} ${appointment.doctor.lastName}`,
@@ -124,11 +165,19 @@ const PatientDashboard = () => {
           setAppointments([])
         }
 
+<<<<<<< HEAD
+=======
+        // Fetch health records
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         const healthRecordsResponse = await axios.get("http://localhost:4000/api/v1/health-records/me", {
           withCredentials: true,
         })
 
         if (healthRecordsResponse.data.success) {
+<<<<<<< HEAD
+=======
+          // Transform backend data to match frontend structure
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
           const formattedRecords = healthRecordsResponse.data.healthRecords.slice(0, 3).map((record) => ({
             ...record,
             id: record._id,
@@ -141,6 +190,10 @@ const PatientDashboard = () => {
           setHealthRecords([])
         }
 
+<<<<<<< HEAD
+=======
+        // Fetch vitals
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         try {
           const vitalsResponse = await axios.get("http://localhost:4000/api/v1/vitals/history", {
             withCredentials: true,
@@ -160,6 +213,10 @@ const PatientDashboard = () => {
           }
         } catch (error) {
           console.error("Error fetching vitals:", error)
+<<<<<<< HEAD
+=======
+          // Keep default vitals if fetch fails
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         }
 
         setLoading(false)
@@ -174,6 +231,10 @@ const PatientDashboard = () => {
   }, [])
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    // Fetch patient details (if not already in context)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     axios.get("http://localhost:4000/api/v1/user/patient/me", {
       withCredentials: true,
     }).then(res => {
@@ -183,6 +244,10 @@ const PatientDashboard = () => {
     });
   }, []);
 
+<<<<<<< HEAD
+=======
+  // Fetch heart data when the component mounts
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   useEffect(() => {
     const fetchHeartData = async () => {
       try {
@@ -193,6 +258,11 @@ const PatientDashboard = () => {
           setHeartData(data.latestData);
         }
       } catch (error) {
+<<<<<<< HEAD
+=======
+        // This is not an error, it just means no data exists yet.
+        // We handle the null state in the component.
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         console.log("No heart disease prediction data found for this patient.");
       }
     };
@@ -224,14 +294,26 @@ const PatientDashboard = () => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour24: true })
   }
 
+<<<<<<< HEAD
+=======
+  // Helper function to format time from date string
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const formatTimeFromDate = (dateString) => {
     const date = new Date(dateString)
     const hours = date.getHours()
     const minutes = date.getMinutes()
 
+<<<<<<< HEAD
     const startHour = hours.toString().padStart(2, "0")
     const startMinutes = minutes.toString().padStart(2, "0")
 
+=======
+    // Format start time
+    const startHour = hours.toString().padStart(2, "0")
+    const startMinutes = minutes.toString().padStart(2, "0")
+
+    // Format end time (assume 40 minutes appointment)
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const endDate = new Date(date)
     endDate.setMinutes(endDate.getMinutes() + 40)
     const endHour = endDate.getHours().toString().padStart(2, "0")
@@ -250,6 +332,10 @@ const PatientDashboard = () => {
 
   const handleViewHealthRecord = async (record) => {
     try {
+<<<<<<< HEAD
+=======
+      // If we don't have all the necessary data for the modal, fetch the complete record
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       if (!record.description || !record.fileName || !record.fileUrl) {
         const response = await axios.get(`http://localhost:4000/api/v1/health-records/${record.id || record._id}`, {
           withCredentials: true,
@@ -299,6 +385,10 @@ const PatientDashboard = () => {
     }
   }
 
+<<<<<<< HEAD
+=======
+  // Generate calendar days
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const generateCalendarDays = () => {
     const days = []
     for (let i = 1; i <= 31; i++) {
@@ -307,6 +397,10 @@ const PatientDashboard = () => {
     return days
   }
 
+<<<<<<< HEAD
+=======
+  // Check if a day has an appointment
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const hasAppointmentOnDay = (day) => {
     const currentDate = new Date()
     const year = currentDate.getFullYear()
@@ -322,6 +416,7 @@ const PatientDashboard = () => {
     })
   }
 
+<<<<<<< HEAD
   const handleCalendarDayClick = (day) => {
 
     const currentDate = new Date()
@@ -332,6 +427,25 @@ const PatientDashboard = () => {
     const formattedDate = formatLocalDateTime(selectedDateObj)
     setPrefilledDate(formattedDate)
 
+=======
+  // New function to handle calendar day click
+  const handleCalendarDayClick = (day) => {
+    // Don't update selectedDate for visual highlighting
+    // We'll just use it for tracking which day was clicked for the popup
+
+    // Create a date object for the selected day
+    const currentDate = new Date()
+    const selectedDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 0, 0, 0)
+
+    // Set the selected full date for booking form
+    setSelectedFullDate(selectedDateObj)
+
+    // Format the date for the booking form
+    const formattedDate = formatLocalDateTime(selectedDateObj)
+    setPrefilledDate(formattedDate)
+
+    // Find appointments for this day
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const appointmentsForDay = appointments.filter((appointment) => {
       const appointmentDate = new Date(appointment.date)
       return (
@@ -346,12 +460,20 @@ const PatientDashboard = () => {
     setShowAppointmentPopup(true)
   }
 
+<<<<<<< HEAD
+=======
+  // Handle book appointment button click
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const handleBookAppointment = () => {
     setShowAppointmentPopup(false)
     setShowBookingForm(true)
   }
 
   const handleMonthChange = (direction) => {
+<<<<<<< HEAD
+=======
+    // Create a date object from the current month string
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
     const [monthName, year] = currentMonth.split(" ")
     const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth()
     const currentYear = Number.parseInt(year)
@@ -369,13 +491,25 @@ const PatientDashboard = () => {
     const newMonth = new Date(newYear, newMonthIndex, 1).toLocaleString("default", { month: "long" })
     setCurrentMonth(`${newMonth} ${newYear}`)
 
+<<<<<<< HEAD
     setSelectedDate(null)
   }
 
+=======
+    // Reset selected date when changing months
+    setSelectedDate(null)
+  }
+
+  // Add a helper to format date:
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString()
   }
 
+<<<<<<< HEAD
+=======
+  // Prepare chart data for blood pressure:
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const bloodPressureChartData = {
     labels: vitalsHistory.map((v) => formatDate(v.date)),
     datasets: [
@@ -687,12 +821,25 @@ const PatientDashboard = () => {
               <AppointmentCalendar
                 appointments={appointments.filter(app => app.status.toLowerCase() !== "cancelled")}
                 onDateClick={(date) => {
+<<<<<<< HEAD
                   const selectedDateObj = date
                   setSelectedFullDate(selectedDateObj)
 
                   const formattedDate = formatLocalDateTime(selectedDateObj)
                   setPrefilledDate(formattedDate)
 
+=======
+                  // Create a date object for the selected day
+                  const selectedDateObj = date
+                  // Set the selected full date for booking form
+                  setSelectedFullDate(selectedDateObj)
+
+                  // Format the date for the booking form
+                  const formattedDate = formatLocalDateTime(selectedDateObj)
+                  setPrefilledDate(formattedDate)
+
+                  // Find appointments for this day
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
                   const appointmentsForDay = appointments.filter((appointment) => {
                     const appointmentDate = new Date(appointment.date)
                     return (

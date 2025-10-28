@@ -1,5 +1,6 @@
 /* VitalsChat.css - matches HealthRecordModal.css chat styles */
 
+<<<<<<< HEAD
 .chat-backdrop {
   position: fixed;
   inset: 0;
@@ -8,6 +9,8 @@
   z-index: 1000;
 }
 
+=======
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
 .chat-sidebar {
   position: fixed;
   top: 0;

@@ -7,7 +7,11 @@ const Hero = ({ title, imageUrl }) => {
         <div className="banner">
           <h1>{title}</h1>
           <p>
+<<<<<<< HEAD
             Simplify healthcare with Medicore - your all-in-one platform for
+=======
+            Simplify healthcare with Medicore — your all-in-one platform for
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
             managing patients, schedules, and billing, so you can focus on what
             matters most: care.
           </p>

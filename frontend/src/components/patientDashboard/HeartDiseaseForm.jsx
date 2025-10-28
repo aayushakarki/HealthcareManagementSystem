@@ -57,9 +57,14 @@ const HeartDiseaseForm = ({ patientData, onClose }) => {
 
   return (
     <>
+<<<<<<< HEAD
       {/* Main modal overlay + backdrop */}
       <div className={`hd-form-modal-overlay ${isAdviceChatVisible ? 'with-chat' : ''}`}>
         <div className="hd-form-backdrop" onClick={onClose} />
+=======
+      {/* Main modal overlay - adjust margin when sidebar is open */}
+      <div className="hd-form-modal-overlay">
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
         <div className={`hd-form-container ${isAdviceChatVisible ? 'sidebar-open' : ''}`}>
           <div className="hd-form-header">
             <h3>Heart Disease Prediction</h3>
@@ -131,7 +136,10 @@ const HeartDiseaseForm = ({ patientData, onClose }) => {
       />
 
       {/* Advice Chat Sidebar */}
+<<<<<<< HEAD
       {isAdviceChatVisible && <div className="advice-chat-backdrop" onClick={handleCloseAdviceChat} />}
+=======
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
       <AdviceChat
         show={isAdviceChatVisible}
         onClose={handleCloseAdviceChat}

@@ -48,6 +48,7 @@ const PatientVitals = () => {
     return new Date(dateString).toLocaleDateString()
   }
 
+<<<<<<< HEAD
   useEffect(() => {
     if (showVitalsChat) {
       document.body.classList.add('modal-open')
@@ -57,6 +58,8 @@ const PatientVitals = () => {
     return () => document.body.classList.remove('modal-open')
   }, [showVitalsChat])
 
+=======
+>>>>>>> 1984fa28dbeb61e6196f67b473ee616e3cd4a27a
   const chartData = {
     labels: vitals.map((v) => formatDate(v.date)),
     datasets: [
